@@ -31,6 +31,8 @@
 * **Enum Mappings:**
     * Map `application_status` and `outreach_status` to strict Java Enums.
     * Annotate database entity fields with `@Enumerated(EnumType.STRING)` to guarantee compatibility with native PostgreSQL enums.
+*   **Virtual Threads:** Enable Virtual Threads (`spring.threads.virtual.enabled=true` in configuration) to optimize concurrency and prevent thread pool starvation during blocking AI / HTTP calls.
+*   **Asynchronous Processing:** Implement audit trail logging (`application_status_history`) using asynchronous event listeners (e.g. Spring `@EventListener` combined with `@Async`) to decouple core database operations from tracking/auditing writes.
 
 ---
 

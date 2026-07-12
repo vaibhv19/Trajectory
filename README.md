@@ -136,13 +136,15 @@ graph TD
 *   **Database Migrations:** Flyway
 *   **Documentation:** SpringDoc OpenAPI (Swagger UI)
 *   **Daemon & Jobs:** Spring Scheduler (automated daily ghosting detection and push notifications)
+*   **Concurrency:** Java 21 **Virtual Threads** (optimizing blocking I/O threads during concurrent external LLM/API calls)
 
 ### Data & Infrastructure
-*   **Primary Database:** PostgreSQL 16
-*   **Cache & Rate Limiting:** Redis (caching and API rate limits, e.g., max 50 AI parses/day)
-*   **Object Storage:** MinIO (local S3 alternative) or Supabase Storage (for resume PDFs & company docs)
-*   **Deployment:** Docker & Docker Compose
-*   **Web Server:** Nginx
+*   **Primary Database:** PostgreSQL 16 (Local) / AWS RDS PostgreSQL (db.t3.micro Free Tier)
+*   **Cache & Rate Limiting:** Redis (Local) / AWS ElastiCache Redis (Free Tier)
+*   **Object Storage:** MinIO (Local) / AWS S3 (Free Tier up to 5GB)
+*   **Containerization:** Docker & Docker Compose (for local development and environment packaging)
+*   **Cloud Deployment:** Amazon Web Services (AWS) (deploying Docker containers via Free Tier ECS/Fargate services and GitHub Actions CI/CD)
+*   **Web Server:** Nginx (reverse proxy and static content host)
 
 For a complete breakdown of why these tech stacks were chosen, read [Docs/Tech Stack.md](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/Docs/Tech%20Stack.md).
 

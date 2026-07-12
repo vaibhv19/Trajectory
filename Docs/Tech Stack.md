@@ -21,6 +21,7 @@
 *   **API Documentation:** SpringDoc OpenAPI (Swagger)
 *   **Task Scheduling:** Spring Scheduler (for automated ghosting detection)
 *   **Validation:** Jakarta Bean Validation (Hibernate Validator)
+*   **Concurrency:** Java 21 **Virtual Threads** (to prevent thread starvation during blocking external AI/LLM API calls)
 
 ## AI Provider (Free Tier)
 *   **Primary LLM Provider:** **Groq Cloud** (Using Llama 3 / Mixtral)
@@ -34,10 +35,11 @@
 *   **File Storage:** **MinIO** (Self-hosted/Free S3-compatible storage) or **Supabase Storage** (Generous free tier for PDF resumes).
 *   **Migrations:** Flyway
 
-## Infrastructure & DevOps
-*   **Containerization:** Docker & Docker Compose
-*   **CI/CD:** GitHub Actions
-*   **Web Server:** Nginx
+## Infrastructure & Deployment
+*   **Containerization:** Docker & Docker Compose (for local development and environment packaging)
+*   **Cloud Hosting:** **Amazon Web Services (AWS)** (utilizing **AWS Free Tier** ECS/Fargate container execution, AWS RDS db.t3.micro, and ElastiCache Redis)
+*   **CI/CD:** GitHub Actions (configured to build Docker images and deploy updates to AWS ECS)
+*   **Web Server:** Nginx (reverse proxy and static asset router)
 *   **Logging:** SLF4J + Logback
 
 ## External APIs
