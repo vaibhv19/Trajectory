@@ -8,6 +8,24 @@ export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const setAuth = useAuthStore((state) => state.setAuth);
   
+  React.useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('token');
+    const paramEmail = params.get('email');
+    const name = params.get('name');
+    const userId = params.get('userId');
+
+    if (token && paramEmail && name && userId) {
+      setAuth({
+        token,
+        email: paramEmail,
+        fullName: name,
+        userId,
+      });
+      navigate('/dashboard', { replace: true });
+    }
+  }, [navigate, setAuth]);
+
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
