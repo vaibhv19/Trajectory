@@ -1,0 +1,76 @@
+version: '3.8'
+
+services:
+  # 1. Primary Database: PostgreSQL 16
+  db:
+    image: postgres:16-alpine
+    container_name: trajectory_db
+    restart: always
+    environment:
+      POSTGRES_USER: trajectory_user
+      POSTGRES_PASSWORD: trajectory_password
+      POSTGRES_DB: trajectory_os
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U trajectory_user -d trajectory_os"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # 2. Caching & Rate Limiting: Redis
+  redis:
+    image: redis:7-alpine
+    container_name: trajectory_cache
+    restart: always
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # 3. Object Storage: MinIO (Local S3 Alternative)
+  minio:
+    image: quay.io/minio/minio
+    container_name: trajectory_storage
+    restart: always
+    ports:
+      - "9000:9000"    # API Port
+      - "9001:9001"    # Console UI Port
+    environment:
+      MINIO_ROOT_USER: trajectory_admin
+      MINIO_ROOT_PASSWORD: trajectory_storage_secret
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # 4. Storage Bucket Initialization
+  # Runs once, creates buckets, then exits.
+  minio-init:
+    image: minio/mc
+    container_name: trajectory_storage_init
+    restart: "no" # Prevents loop execution after initial setup
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      /usr/bin/mc alias set local_minio http://minio:9000 trajectory_admin trajectory_storage_secret;
+      /usr/bin/mc mb --ignore-existing local_minio/resumes;
+      /usr/bin/mc mb --ignore-existing local_minio/company-docs;
+      /usr/bin/mc anonymous set public local_minio/resumes;
+      exit 0;
+      "
+
+volumes:
+  postgres_data:
+  minio_data:
