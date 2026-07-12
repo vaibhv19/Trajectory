@@ -1,0 +1,61 @@
+spring:
+  application:
+    name: backend
+  threads:
+    virtual:
+      enabled: true
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/trajectory_os}
+    username: ${SPRING_DATASOURCE_USERNAME:trajectory_user}
+    password: ${SPRING_DATASOURCE_PASSWORD:trajectory_password}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    show-sql: false
+    open-in-view: false
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+
+  data:
+    redis:
+      host: ${SPRING_DATA_REDIS_HOST:localhost}
+      port: ${SPRING_DATA_REDIS_PORT:6379}
+
+  ai:
+    openai:
+      api-key: ${SPRING_AI_OPENAI_API_KEY:mock-key}
+      base-url: ${SPRING_AI_OPENAI_BASE_URL:https://api.groq.com/openai/v1}
+      chat:
+        options:
+          model: ${SPRING_AI_OPENAI_MODEL:llama3-8b-8192}
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+aws:
+  s3:
+    endpoint: ${AWS_S3_ENDPOINT:http://localhost:9000}
+    access-key: ${AWS_ACCESS_KEY_ID:trajectory_admin}
+    secret-key: ${AWS_SECRET_ACCESS_KEY:trajectory_storage_secret}
+    region: ${AWS_REGION:us-east-1}
+    bucket:
+      resumes: resumes
+      company-docs: company-docs
+
+security:
+  jwt:
+    secret-key: ${JWT_SECRET_KEY:dHJhamVjdG9yeS1jYXJlZXItb3BlcmF0aW5nLXN5c3RlbS1zZWNyZXQta2V5LTIwMjY=}
+    expiration-ms: 86400000 # 24 hours
+    refresh-expiration-ms: 604800000 # 7 days
