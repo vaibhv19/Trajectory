@@ -5,6 +5,23 @@ spring:
     virtual:
       enabled: true
 
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID:mock-google-client-id}
+            client-secret: ${GOOGLE_CLIENT_SECRET:mock-google-client-secret}
+            scope:
+              - email
+              - profile
+          github:
+            client-id: ${GITHUB_CLIENT_ID:mock-github-client-id}
+            client-secret: ${GITHUB_CLIENT_SECRET:mock-github-client-secret}
+            scope:
+              - read:user
+              - user:email
+
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/trajectory_os}
     username: ${SPRING_DATASOURCE_USERNAME:trajectory_user}
