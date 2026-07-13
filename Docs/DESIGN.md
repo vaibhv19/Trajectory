@@ -16,6 +16,13 @@ The specs are optimized for **Tailwind CSS** utility classes and **Shadcn UI** (
 
 **Palette logic:** brand accent is a deep petrol teal — reserved for primary actions and the trajectory line itself, never used for status. The seven status colors are custom-mixed hues (steel, ochre, plum, moss, brick, stone, taupe) rather than stock Tailwind swatches, so two apps built from this system will never look identical by accident.
 
+**Dark mode discipline:** a fully-saturated accent fill reads as "brand color" on a white background and as "neon/cartoon" on a near-black one — the same hex behaves differently depending on what's around it. Dark mode is not just "invert the tokens," it needs its own restraint:
+*   **No solid saturated fills above icon-scale.** `primary` and the status hues are for text, thin lines (1–2px), and small icon strokes only. Never fill a chip, tile, tag background, or nav item with a fully-saturated color in dark mode — use a low-opacity tint of that color instead (`bg-primary/10`, `bg-[status]/15`), so the hue is present without glowing.
+*   **Icon containers are neutral, not colored.** An icon next to "TOTAL" or "REJECTED" does not need a colored box behind it. Use bare icons in `text-muted-foreground`, or if a container is required, `bg-muted border border-border` — never `bg-primary` or a status fill. Color belongs on the badge/status text itself, not on decorative icon chrome.
+*   **Active nav state is a tint + rule, not a block.** `bg-primary/10 border-l-2 border-primary text-foreground` — a subtle left rule and background wash, not a solid filled pill. A fully-filled nav item is the fastest way to make a dark UI look like a mobile game button.
+*   **Borders need more contrast in dark mode than the light-mode ratio would suggest.** If cards disappear into the background, the colored elements become the only visible structure and everything reads as floating badges. Use `border-[#363B42]` (lighter than the token default) specifically where card boundaries must stay legible on `#14171A`.
+*   **Verify the font is actually loading.** If headings render as a default serif instead of IBM Plex Sans, the font import silently failed — check the `@font-face`/`next/font` setup before adjusting anything else, since a fallback serif will always feel more "premium template" than intended.
+
 ---
 
 ## 🎨 1. Global Style Tokens
@@ -33,7 +40,7 @@ Trajectory uses a custom-mixed ledger palette: a graphite-and-paper neutral scal
 | **`muted`** | `#ECE9E2` (Paper 200) | `#22262B` (Graphite 800) | Secondary content blocks, dividers |
 | **`muted-foreground`**| `#6B6862` (Stone 500) | `#9A968D` (Stone 300) | Helper text, secondary text, metadata labels |
 | **`primary`** | `#0F6E78` (Petrol 600) | `#3FA0AA` (Petrol 400) | Call-to-actions, brand accents, the trajectory line — used sparingly, never for status |
-| **`border`** | `#E2DFD6` (Paper 300) | `#2C3036` (Graphite 700) | Interactive borders, layout lines |
+| **`border`** | `#E2DFD6` (Paper 300) | `#363B42` (Graphite 600) | Interactive borders, layout lines — kept lighter than a strict inversion would suggest, so cards stay legible against `#14171A` without relying on colored chips for structure |
 | **`ring`** | `#0F6E78` | `#3FA0AA` | Keyboard focus ring indicators |
 
 #### Application Status Colors (Type-Safe Enums)
@@ -96,6 +103,8 @@ The workspace follows a responsive split layout consisting of a left-aligned nav
 *   **Desktop Structure:**
     *   Sidebar width: `w-64` (fixed, collapsing to `w-16` on demand).
     *   Sidebar backdrop: **Flat, not glass.** `bg-card border-r border-border` — no `backdrop-blur`. Glassmorphic sidebars are a strong AI-generated tell; a solid panel with a hairline border reads as an actual control panel instead.
+    *   Nav item, idle: `text-muted-foreground hover:bg-muted rounded-md px-3 py-2`.
+    *   Nav item, active: `bg-primary/10 border-l-2 border-primary text-foreground font-medium` — a tint and a rule, **not** a solid filled block. A fully-saturated fill on the active item is the single biggest dark-mode "cartoon" tell in this system; the wash keeps the accent present without it glowing.
     *   Viewport container: Scrollable page content wrapper (`flex-1 h-screen overflow-y-auto px-6 py-8 md:px-8 bg-background`).
 
 ---
@@ -204,9 +213,7 @@ Used inside application detail pages to display chronological status transitions
 ---
 
 ### Status Badges (Enums Mapping)
-Status labels are created using the [Shadcn UI Badge](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/README.md) schema.
-
-Badges use `font-mono` (they're status *codes*, not prose) and pull from the `status.*` color tokens wired into `tailwind.config.js` (section 4) — never raw Tailwind palette classes. Radius is `rounded-md` (this system's small radius), not `rounded-full`: a pill shape is the single most common "AI badge" tell, a slightly-rounded rectangle reads as a data tag instead.
+Status labels are created using the [Shadcn UI Badge](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/README.md) schema. Badges use `font-mono` (they're status *codes*, not prose) and pull from the `status.*` color tokens wired into `tailwind.config.js` (section 4) — never raw Tailwind palette classes. Radius is `rounded-md` (this system's small radius), not `rounded-full`: a pill shape is the single most common "AI badge" tell, a slightly-rounded rectangle reads as a data tag instead.
 
 ```tsx
 import { cva, type VariantProps } from "class-variance-authority"
@@ -231,6 +238,14 @@ export const badgeVariants = cva(
   }
 )
 ```
+
+---
+
+### Iconography & Count Tags
+*   **Icons beside metric labels (TOTAL, ACTIVE, REJECTED, GHOSTED, etc.):** plain stroke icon in `text-muted-foreground`, no background container. If visual weight is needed, `bg-muted border border-border` — never a status- or brand-colored fill. The icon is chrome, not data; only the number and label carry meaning.
+*   **Small count tags (e.g. "1 TASKS" on a widget header):** `bg-muted text-muted-foreground border border-border rounded-md px-2 py-0.5 font-mono text-xs` — a muted, square-cornered tag. Do not fill these with `primary` or any status color; a solid-colored tag on every widget header is the same "everything is a pill" pattern that makes dashboards look interchangeable.
+
+---
 
 ---
 
