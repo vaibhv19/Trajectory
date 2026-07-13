@@ -127,6 +127,14 @@ public class UserService {
     }
 
     @Transactional
+    public User updateSettings(UUID userId, int ghostThresholdDays, boolean autoArchiveEnabled) {
+        User user = getUserProfile(userId);
+        user.setGhostThresholdDays(ghostThresholdDays);
+        user.setAutoArchiveEnabled(autoArchiveEnabled);
+        return userRepository.save(user);
+    }
+
+    @Transactional
     public void deleteUser(UUID userId) {
         User user = getUserProfile(userId);
         userRepository.delete(user);
