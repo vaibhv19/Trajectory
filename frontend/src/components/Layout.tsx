@@ -40,10 +40,10 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
     <div className="flex h-screen overflow-hidden bg-background text-foreground transition-colors duration-200">
       {/* Desktop Sidebar */}
-      <aside className="hidden md:flex md:w-64 md:flex-col glass-panel border-r">
+      <aside className="hidden md:flex md:w-64 md:flex-col bg-card border-r border-border">
         <div className="flex h-16 items-center px-6 border-b border-border">
           <Link to="/dashboard" className="flex items-center gap-2">
-            <span className="text-2xl font-display font-extrabold text-primary">Trajectory 🚀</span>
+            <span className="text-2xl font-display font-extrabold text-primary tracking-tight uppercase">Trajectory</span>
           </Link>
         </div>
 
@@ -55,9 +55,9 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
               <Link
                 key={item.name}
                 to={item.href}
-                className={`group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 ${
+                className={`group flex items-center px-4 py-3 text-sm font-medium rounded-md transition-all duration-200 ${
                   isActive
-                    ? 'bg-primary text-primary-foreground shadow-md shadow-primary/20'
+                    ? 'bg-primary text-primary-foreground'
                     : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                 }`}
               >
@@ -71,7 +71,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         {/* User Info & Footer */}
         <div className="p-4 border-t border-border">
           <div className="flex items-center gap-3 px-2 py-2 mb-2">
-            <div className="h-9 w-9 rounded-full bg-primary/20 text-primary flex items-center justify-center font-display font-semibold uppercase">
+            <div className="h-9 w-9 rounded-md bg-primary/20 text-primary flex items-center justify-center font-display font-semibold uppercase">
               {fullName?.substring(0, 2) || 'US'}
             </div>
             <div className="flex-1 min-w-0">
@@ -81,7 +81,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           </div>
           <button
             onClick={handleLogout}
-            className="w-full flex items-center px-4 py-2 text-sm font-medium text-rose-500 rounded-xl hover:bg-rose-500/10 transition-colors"
+            className="w-full flex items-center px-4 py-2 text-sm font-medium text-rose-500 rounded-md hover:bg-rose-500/10 transition-colors"
           >
             <LogOut className="mr-3 h-5 w-5 flex-shrink-0" />
             Logout
@@ -96,7 +96,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           
           <aside className="relative flex w-64 max-w-xs flex-col bg-background border-r border-border p-5 animate-in slide-in-from-left duration-200">
             <div className="flex items-center justify-between pb-6 border-b border-border">
-              <span className="text-xl font-display font-extrabold text-primary">Trajectory 🚀</span>
+              <span className="text-xl font-display font-extrabold text-primary tracking-tight uppercase">Trajectory</span>
               <button onClick={() => setMobileMenuOpen(false)} className="text-muted-foreground hover:text-foreground">
                 <X className="h-6 w-6" />
               </button>
@@ -111,9 +111,9 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                     key={item.name}
                     to={item.href}
                     onClick={() => setMobileMenuOpen(false)}
-                    className={`group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 ${
+                    className={`group flex items-center px-4 py-3 text-sm font-medium rounded-md transition-all duration-200 ${
                       isActive
-                        ? 'bg-primary text-primary-foreground shadow-md shadow-primary/20'
+                        ? 'bg-primary text-primary-foreground'
                         : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                     }`}
                   >
@@ -126,7 +126,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
             <div className="border-t border-border pt-4">
               <div className="flex items-center gap-3 px-2 py-2 mb-4">
-                <div className="h-9 w-9 rounded-full bg-primary/20 text-primary flex items-center justify-center font-display font-semibold uppercase">
+                <div className="h-9 w-9 rounded-md bg-primary/20 text-primary flex items-center justify-center font-display font-semibold uppercase">
                   {fullName?.substring(0, 2) || 'US'}
                 </div>
                 <div className="flex-1 min-w-0">
@@ -136,7 +136,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
               </div>
               <button
                 onClick={handleLogout}
-                className="w-full flex items-center px-4 py-2 text-sm font-medium text-rose-500 rounded-xl hover:bg-rose-500/10 transition-colors"
+                className="w-full flex items-center px-4 py-2 text-sm font-medium text-rose-500 rounded-md hover:bg-rose-500/10 transition-colors"
               >
                 <LogOut className="mr-3 h-5 w-5 flex-shrink-0" />
                 Logout
@@ -149,7 +149,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
       {/* Main Workspace View */}
       <div className="flex flex-1 flex-col overflow-hidden">
         {/* Top Header */}
-        <header className="flex h-16 items-center justify-between px-6 border-b border-border glass-panel z-10">
+        <header className="flex h-16 items-center justify-between px-6 border-b border-border bg-card z-10">
           <div className="flex items-center gap-4">
             <button
               onClick={() => setMobileMenuOpen(true)}
@@ -157,7 +157,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             >
               <Menu className="h-6 w-6" />
             </button>
-            <h1 className="text-xl font-display font-semibold">
+            <h1 className="text-xl font-display font-semibold tracking-tight uppercase text-muted-foreground">
               {navigation.find(nav => location.pathname.startsWith(nav.href))?.name || 'Trajectory'}
             </h1>
           </div>
@@ -166,7 +166,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             {/* Theme Toggle Button */}
             <button
               onClick={toggleTheme}
-              className="p-2 rounded-xl border border-border bg-card/50 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+              className="p-2 rounded-md border border-border bg-card hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
               aria-label="Toggle theme"
             >
               {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
