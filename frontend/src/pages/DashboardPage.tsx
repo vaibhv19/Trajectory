@@ -62,6 +62,8 @@ export const DashboardPage: React.FC = () => {
     { name: 'Ghosted', value: metrics.ghostedApplications }
   ];
 
+  const COLORS = ['hsl(var(--primary))', '#3F587A', '#8A5E14', '#6B4079', '#2F6E45', '#8C3A34', '#5C5850'];
+
   const sourceData = metrics.sourceDistribution.map((item, index) => ({
     name: item.source || 'Other',
     value: item.count,
@@ -79,22 +81,22 @@ export const DashboardPage: React.FC = () => {
       {/* High-level counters */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {[
-          { title: 'Total Applications', value: metrics.totalApplications, icon: Briefcase, color: 'text-indigo-500 bg-indigo-500/10' },
-          { title: 'Active Pipeline', value: metrics.activeApplications, icon: CheckCircle, color: 'text-emerald-500 bg-emerald-500/10' },
-          { title: 'Rejected Applications', value: metrics.rejectedApplications, icon: XCircle, color: 'text-rose-500 bg-rose-500/10' },
-          { title: 'Ghosted/Inactive', value: metrics.ghostedApplications, icon: Ghost, color: 'text-slate-500 bg-slate-500/10' },
+          { title: 'TOTAL', value: metrics.totalApplications, icon: Briefcase, color: 'text-primary bg-primary/10' },
+          { title: 'ACTIVE', value: metrics.activeApplications, icon: CheckCircle, color: 'text-primary bg-primary/10' },
+          { title: 'REJECTED', value: metrics.rejectedApplications, icon: XCircle, color: 'text-destructive bg-destructive/10' },
+          { title: 'GHOSTED', value: metrics.ghostedApplications, icon: Ghost, color: 'text-muted-foreground bg-muted' },
         ].map((card, i) => {
           const Icon = card.icon;
           return (
-            <div key={i} className="p-6 rounded-2xl border bg-card glass-card hover:shadow-md transition-shadow">
+            <div key={i} className="p-6 rounded-lg border bg-card">
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-muted-foreground">{card.title}</span>
-                <span className={`p-2 rounded-xl ${card.color}`}>
-                  <Icon className="h-5 w-5" />
+                <span className="text-xs font-mono uppercase tracking-wider text-muted-foreground">{card.title}</span>
+                <span className={`p-1.5 rounded-md ${card.color}`}>
+                  <Icon className="h-4 w-4" />
                 </span>
               </div>
               <div className="mt-4">
-                <span className="text-3xl font-display font-extrabold">{card.value}</span>
+                <span className="text-3xl font-mono font-bold text-foreground">{card.value}</span>
               </div>
             </div>
           );
@@ -104,25 +106,25 @@ export const DashboardPage: React.FC = () => {
       {/* Ratios row */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {[
-          { title: 'Response Rate', value: metrics.responseRate, desc: 'Ratios of positive updates' },
-          { title: 'Interview Conversion', value: metrics.interviewConversion, desc: 'Ratio of interview steps secured' },
-          { title: 'Offer Conversion', value: metrics.offerConversion, desc: 'Ratio of offers obtained' },
+          { title: 'RESPONSE RATE', value: metrics.responseRate, desc: 'Ratios of positive updates' },
+          { title: 'INTERVIEW CONVERSION', value: metrics.interviewConversion, desc: 'Ratio of interview steps secured' },
+          { title: 'OFFER CONVERSION', value: metrics.offerConversion, desc: 'Ratio of offers obtained' },
         ].map((ratio, i) => (
-          <div key={i} className="p-6 rounded-2xl border bg-card glass-card">
+          <div key={i} className="p-6 rounded-lg border bg-card">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">{ratio.title}</p>
+                <p className="text-xs font-mono uppercase tracking-wider text-muted-foreground">{ratio.title}</p>
                 <p className="text-xs text-muted-foreground mt-0.5">{ratio.desc}</p>
               </div>
               <Percent className="h-5 w-5 text-primary" />
             </div>
             <div className="mt-4 flex items-baseline gap-2">
-              <span className="text-3xl font-display font-extrabold text-primary">
+              <span className="text-3xl font-mono font-bold text-primary mr-2">
                 {Math.round(ratio.value)}%
               </span>
-              <div className="w-full bg-muted h-1.5 rounded-full overflow-hidden">
+              <div className="w-full bg-muted h-1.5 rounded-sm overflow-hidden">
                 <div 
-                  className="bg-primary h-full rounded-full transition-all duration-500" 
+                  className="bg-primary h-full rounded-sm transition-all duration-500" 
                   style={{ width: `${ratio.value}%` }} 
                 />
               </div>
@@ -134,32 +136,39 @@ export const DashboardPage: React.FC = () => {
       {/* Middle row: Funnel Chart & Agenda Widget */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
         {/* Funnel chart */}
-        <div className="col-span-12 lg:col-span-8 p-6 rounded-2xl border bg-card glass-card">
-          <h3 className="text-lg font-display font-bold mb-6">Pipeline Funnel Distribution</h3>
+        <div className="col-span-12 lg:col-span-8 p-6 rounded-lg border bg-card">
+          <h3 className="text-lg font-display font-bold mb-6 uppercase tracking-tight text-muted-foreground">Pipeline Funnel Distribution</h3>
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={funnelData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.2}/>
+                    <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
-                <XAxis dataKey="name" stroke="#94a3b8" fontSize={12} tickLine={false} />
-                <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} />
-                <Tooltip contentStyle={{ background: '#0f172a', border: '1px solid #334155', borderRadius: '8px' }} />
-                <Area type="monotone" dataKey="value" stroke="#6366f1" strokeWidth={2} fillOpacity={1} fill="url(#colorValue)" />
+                <XAxis dataKey="name" stroke="currentColor" className="text-muted-foreground font-mono" fontSize={11} tickLine={false} />
+                <YAxis stroke="currentColor" className="text-muted-foreground font-mono" fontSize={11} tickLine={false} />
+                <Tooltip 
+                  contentStyle={{ 
+                    background: 'hsl(var(--card))', 
+                    border: '1px solid hsl(var(--border))', 
+                    borderRadius: '4px',
+                    color: 'hsl(var(--foreground))'
+                  }} 
+                />
+                <Area type="monotone" dataKey="value" stroke="hsl(var(--primary))" strokeWidth={2} fillOpacity={1} fill="url(#colorValue)" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
         </div>
 
         {/* Agenda widget */}
-        <div className="col-span-12 lg:col-span-4 p-6 rounded-2xl border bg-card glass-card flex flex-col">
+        <div className="col-span-12 lg:col-span-4 p-6 rounded-lg border bg-card flex flex-col">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-display font-bold">Today's Agenda</h3>
-            <span className="p-1 px-2.5 rounded-full bg-primary/10 text-primary text-xs font-semibold">
-              {metrics.agenda.length} Tasks
+            <h3 className="text-lg font-display font-bold uppercase tracking-tight text-muted-foreground">Today's Agenda</h3>
+            <span className="p-1 px-2.5 rounded-md bg-primary/10 text-primary text-xs font-mono">
+              {metrics.agenda.length} TASKS
             </span>
           </div>
 
@@ -174,22 +183,22 @@ export const DashboardPage: React.FC = () => {
               metrics.agenda.map((item) => (
                 <div 
                   key={item.id} 
-                  className={`p-4 rounded-xl border flex flex-col justify-between hover:bg-muted/50 transition-colors ${
-                    item.type === 'OA' ? 'border-amber-500/20 bg-amber-500/5' : 
-                    item.type === 'INTERVIEW' ? 'border-purple-500/20 bg-purple-500/5' : 
-                    'border-blue-500/20 bg-blue-500/5'
+                  className={`p-4 rounded-md border flex flex-col justify-between hover:bg-muted/50 transition-colors ${
+                    item.type === 'OA' ? 'border-status-oa-border bg-status-oa-bg/30' : 
+                    item.type === 'INTERVIEW' ? 'border-status-interview-border bg-status-interview-bg/30' : 
+                    'border-status-applied-border bg-status-applied-bg/30'
                   }`}
                 >
                   <div className="flex items-start justify-between">
                     <div>
-                      <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase mb-1.5 ${
-                        item.type === 'OA' ? 'bg-amber-500/10 text-amber-500' :
-                        item.type === 'INTERVIEW' ? 'bg-purple-500/10 text-purple-500' :
-                        'bg-blue-500/10 text-blue-500'
+                      <span className={`inline-block px-2 py-0.5 rounded-md text-[10px] font-mono uppercase mb-1.5 ${
+                        item.type === 'OA' ? 'bg-status-oa-bg text-status-oa-text border border-status-oa-border' :
+                        item.type === 'INTERVIEW' ? 'bg-status-interview-bg text-status-interview-text border border-status-interview-border' :
+                        'bg-status-applied-bg text-status-applied-text border border-status-applied-border'
                       }`}>
                         {item.type}
                       </span>
-                      <h4 className="text-sm font-semibold truncate max-w-[180px]">{item.companyName}</h4>
+                      <h4 className="text-sm font-semibold truncate max-w-[180px] text-foreground">{item.companyName}</h4>
                       <p className="text-xs text-muted-foreground truncate max-w-[180px]">{item.roleTitle}</p>
                     </div>
                     {item.link && (
@@ -197,13 +206,13 @@ export const DashboardPage: React.FC = () => {
                         href={item.link} 
                         target="_blank" 
                         rel="noreferrer"
-                        className="p-1.5 rounded-lg border bg-card hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                        className="p-1.5 rounded-md border border-border bg-card hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
                       >
                         <LinkIcon className="h-4 w-4" />
                       </a>
                     )}
                   </div>
-                  <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground pt-2 border-t border-border/20">
+                  <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground pt-2 border-t border-border/20 font-mono">
                     <span>{item.date}</span>
                     <span>{item.time}</span>
                   </div>
@@ -217,8 +226,8 @@ export const DashboardPage: React.FC = () => {
       {/* Bottom row: Resume Hits & Source Allocations */}
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         {/* Resume hits comparator */}
-        <div className="p-6 rounded-2xl border bg-card glass-card">
-          <h3 className="text-lg font-display font-bold mb-6">Resume Response Comparator</h3>
+        <div className="p-6 rounded-lg border bg-card">
+          <h3 className="text-lg font-display font-bold mb-6 uppercase tracking-tight text-muted-foreground">Resume Response Comparator</h3>
           <div className="h-72">
             {resumeData.length === 0 ? (
               <div className="flex h-full items-center justify-center text-muted-foreground text-sm">
@@ -227,12 +236,19 @@ export const DashboardPage: React.FC = () => {
             ) : (
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={resumeData}>
-                  <XAxis dataKey="name" stroke="#94a3b8" fontSize={11} tickLine={false} />
-                  <YAxis stroke="#94a3b8" fontSize={11} tickLine={false} />
-                  <Tooltip contentStyle={{ background: '#0f172a', border: '1px solid #334155', borderRadius: '8px' }} />
+                  <XAxis dataKey="name" stroke="currentColor" className="text-muted-foreground font-mono" fontSize={11} tickLine={false} />
+                  <YAxis stroke="currentColor" className="text-muted-foreground font-mono" fontSize={11} tickLine={false} />
+                  <Tooltip 
+                    contentStyle={{ 
+                      background: 'hsl(var(--card))', 
+                      border: '1px solid hsl(var(--border))', 
+                      borderRadius: '4px',
+                      color: 'hsl(var(--foreground))'
+                    }} 
+                  />
                   <Legend />
-                  <Bar dataKey="Response Rate (%)" fill="#6366f1" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="Applications" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="Response Rate (%)" fill="hsl(var(--primary))" radius={[2, 2, 0, 0]} />
+                  <Bar dataKey="Applications" fill="hsl(var(--muted-foreground)/60%)" radius={[2, 2, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             )}
@@ -240,8 +256,8 @@ export const DashboardPage: React.FC = () => {
         </div>
 
         {/* Source Allocation */}
-        <div className="p-6 rounded-2xl border bg-card glass-card">
-          <h3 className="text-lg font-display font-bold mb-6">Application Source Channels</h3>
+        <div className="p-6 rounded-lg border bg-card">
+          <h3 className="text-lg font-display font-bold mb-6 uppercase tracking-tight text-muted-foreground">Application Source Channels</h3>
           <div className="h-72 flex flex-col md:flex-row items-center justify-around">
             {sourceData.length === 0 ? (
               <div className="flex h-full items-center justify-center text-muted-foreground text-sm">
@@ -265,15 +281,22 @@ export const DashboardPage: React.FC = () => {
                           <Cell key={`cell-${index}`} fill={entry.color} />
                         ))}
                       </Pie>
-                      <Tooltip contentStyle={{ background: '#0f172a', border: '1px solid #334155', borderRadius: '8px' }} />
+                      <Tooltip 
+                        contentStyle={{ 
+                          background: 'hsl(var(--card))', 
+                          border: '1px solid hsl(var(--border))', 
+                          borderRadius: '4px',
+                          color: 'hsl(var(--foreground))'
+                        }} 
+                      />
                     </PieChart>
                   </ResponsiveContainer>
                 </div>
-                <div className="space-y-2 mt-4 md:mt-0">
+                <div className="space-y-2 mt-4 md:mt-0 font-mono">
                   {sourceData.map((item, index) => (
                     <div key={index} className="flex items-center gap-2 text-sm">
-                      <span className="w-3.5 h-3.5 rounded-full inline-block" style={{ backgroundColor: item.color }} />
-                      <span className="font-medium">{item.name}</span>
+                      <span className="w-3 h-3 rounded-sm inline-block" style={{ backgroundColor: item.color }} />
+                      <span className="font-medium text-foreground">{item.name}</span>
                       <span className="text-muted-foreground">({item.value})</span>
                     </div>
                   ))}

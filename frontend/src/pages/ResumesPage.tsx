@@ -187,10 +187,10 @@ export const ResumesPage: React.FC = () => {
                   <div 
                     key={profile.id}
                     onClick={() => setSelectedProfileId(profile.id)}
-                    className={`p-3.5 rounded-xl border flex items-center justify-between cursor-pointer transition-all duration-200 relative overflow-hidden group ${
+                    className={`p-3.5 rounded-md border flex items-center justify-between cursor-pointer transition-all duration-200 relative overflow-hidden group ${
                       selectedProfileId === profile.id 
-                        ? 'border-primary bg-primary/5 shadow-sm' 
-                        : 'hover:bg-muted/50 border-border'
+                        ? 'border-primary bg-primary/5' 
+                        : 'hover:bg-muted/55 border-border'
                     }`}
                   >
                     <div 
@@ -199,14 +199,14 @@ export const ResumesPage: React.FC = () => {
                     />
 
                     <div className="flex items-center gap-3 pl-2">
-                      <div className="h-8 w-8 rounded-lg flex items-center justify-center bg-muted/80 text-foreground">
+                      <div className="h-8 w-8 rounded-md flex items-center justify-center bg-muted/80 text-foreground">
                         <Briefcase className="h-4 w-4" />
                       </div>
                       <div>
                         <h4 className="text-sm font-semibold flex items-center gap-1.5">
                           {profile.title}
                           {profile.isDefault && (
-                            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-primary/10 text-primary">
+                            <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded-md bg-primary/10 text-primary uppercase tracking-wide border border-primary/20">
                               Default
                             </span>
                           )}
@@ -217,7 +217,7 @@ export const ResumesPage: React.FC = () => {
                     {!profile.isDefault && (
                       <button
                         onClick={(e) => { e.stopPropagation(); handleDeleteProfile(profile.id); }}
-                        className="opacity-0 group-hover:opacity-100 p-1.5 border border-rose-500/20 bg-rose-500/5 hover:bg-rose-500/10 text-rose-500 rounded-lg transition-all"
+                        className="opacity-0 group-hover:opacity-100 p-1.5 border border-destructive/20 bg-destructive/5 hover:bg-destructive/10 text-destructive rounded-md transition-all"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
                       </button>
@@ -234,8 +234,8 @@ export const ResumesPage: React.FC = () => {
           {selectedProfileId && activeProfile ? (
             <>
               {/* Resume Version Uploader */}
-              <div className="p-6 rounded-2xl border bg-card glass-card space-y-4">
-                <h3 className="text-base font-display font-bold flex items-center gap-2">
+              <div className="p-6 rounded-lg border bg-card space-y-4">
+                <h3 className="text-base font-display font-bold flex items-center gap-2 uppercase tracking-tight text-muted-foreground">
                   <Upload className="h-4.5 w-4.5 text-primary" />
                   Upload New Resume Version
                 </h3>
@@ -253,7 +253,7 @@ export const ResumesPage: React.FC = () => {
                     />
                     <label
                       htmlFor="resume-file-input"
-                      className="flex items-center gap-2 px-4 py-2.5 border border-dashed rounded-xl text-xs font-semibold hover:bg-muted cursor-pointer transition-colors"
+                      className="flex items-center gap-2 px-4 py-2.5 border border-dashed border-border rounded-md text-xs font-semibold hover:bg-muted cursor-pointer transition-colors"
                     >
                       <FileText className="h-4 w-4 text-primary" />
                       {resumeFile ? resumeFile.name : 'Select Resume PDF File'}
@@ -261,20 +261,20 @@ export const ResumesPage: React.FC = () => {
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-xs font-semibold">Changelog Comments</label>
+                    <label className="text-xs font-semibold text-foreground">Changelog Comments</label>
                     <textarea
                       placeholder="e.g. Added Java 21 projects and updated summary keywords..."
                       value={resumeChangelog}
                       onChange={(e) => setResumeChangelog(e.target.value)}
                       rows={3}
-                      className="w-full p-2.5 bg-background border rounded-lg text-xs placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                      className="w-full p-2.5 bg-background border border-border rounded-md text-xs placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
                     />
                   </div>
 
                   <button
                     type="submit"
                     disabled={uploadingResume || !resumeFile}
-                    className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground hover:bg-primary/95 text-xs font-semibold transition-all disabled:opacity-50"
+                    className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-md bg-primary text-primary-foreground hover:bg-[#0C5A62] dark:hover:bg-[#4CB0BA] text-xs font-semibold transition-all disabled:opacity-50"
                   >
                     {uploadingResume && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
                     Submit Resume Version
@@ -283,15 +283,15 @@ export const ResumesPage: React.FC = () => {
               </div>
 
               {/* Resumes Versions Table */}
-              <div className="p-6 rounded-2xl border bg-card glass-card">
-                <h3 className="text-base font-display font-bold mb-4">Resume Version Matrix</h3>
+              <div className="p-6 rounded-lg border bg-card">
+                <h3 className="text-base font-display font-bold mb-4 uppercase tracking-tight text-muted-foreground">Resume Version Matrix</h3>
 
                 {resumesLoading ? (
                   <div className="flex justify-center py-10">
                     <Loader2 className="h-6 w-6 animate-spin text-primary" />
                   </div>
                 ) : resumes.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center text-center py-12 border border-dashed rounded-xl">
+                  <div className="flex flex-col items-center justify-center text-center py-12 border border-dashed border-border rounded-md">
                     <FileText className="h-8 w-8 text-muted-foreground/30 mb-2" />
                     <p className="text-xs font-semibold text-muted-foreground">No resumes uploaded yet</p>
                     <p className="text-[10px] text-muted-foreground mt-0.5">Attach your first resume version above.</p>
@@ -300,7 +300,7 @@ export const ResumesPage: React.FC = () => {
                   <div className="overflow-x-auto">
                     <table className="w-full text-left text-xs border-collapse">
                       <thead>
-                        <tr className="border-b border-border/60 text-muted-foreground">
+                        <tr className="border-b border-border/60 text-muted-foreground uppercase font-mono tracking-wider">
                           <th className="pb-3 font-semibold">Version</th>
                           <th className="pb-3 font-semibold">File Name</th>
                           <th className="pb-3 font-semibold">Changelog Notes</th>
@@ -312,28 +312,28 @@ export const ResumesPage: React.FC = () => {
                         {resumes.map((resume) => (
                           <tr key={resume.id} className="border-b border-border/20 last:border-0 hover:bg-muted/10">
                             <td className="py-4">
-                              <span className="p-1 px-2 rounded bg-primary/10 text-primary text-[10px] font-bold uppercase">
+                              <span className="p-1 px-2 rounded-md bg-primary/10 text-primary text-[10px] font-mono font-bold uppercase tracking-wide border border-primary/20">
                                 v{resume.versionNumber}
                               </span>
                             </td>
-                            <td className="py-4 font-semibold max-w-[150px] truncate">{resume.fileName}</td>
+                            <td className="py-4 font-mono text-xs font-semibold max-w-[150px] truncate">{resume.fileName}</td>
                             <td className="py-4 text-muted-foreground max-w-[200px] truncate">
                               {resume.changelog || 'No notes.'}
                             </td>
-                            <td className="py-4 text-muted-foreground">
+                            <td className="py-4 text-muted-foreground font-mono">
                               {new Date(resume.createdAt).toLocaleDateString()}
                             </td>
                             <td className="py-4 text-right">
                               <div className="flex items-center justify-end gap-1.5">
                                 <button
                                   onClick={() => handleDownload(resume.id, resume.fileName)}
-                                  className="p-1.5 border rounded-lg bg-card hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                                  className="p-1.5 border border-border rounded-md bg-card hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
                                 >
                                   <Download className="h-3.5 w-3.5" />
                                 </button>
                                 <button
                                   onClick={() => handleDeleteResume(resume.id)}
-                                  className="p-1.5 border border-rose-500/20 bg-rose-500/5 hover:bg-rose-500/10 text-rose-500 rounded-lg transition-colors"
+                                  className="p-1.5 border border-destructive/20 bg-destructive/5 hover:bg-destructive/10 text-destructive rounded-md transition-colors"
                                 >
                                   <Trash2 className="h-3.5 w-3.5" />
                                 </button>
@@ -348,9 +348,9 @@ export const ResumesPage: React.FC = () => {
               </div>
             </>
           ) : (
-            <div className="flex h-[50vh] flex-col items-center justify-center text-center border border-dashed rounded-2xl p-12 bg-card glass-card">
+            <div className="flex h-[50vh] flex-col items-center justify-center text-center border border-dashed border-border rounded-lg p-12 bg-card">
               <Briefcase className="h-8 w-8 text-muted-foreground/30 mb-2" />
-              <h4 className="text-sm font-semibold">No career profile selected</h4>
+              <h4 className="text-sm font-semibold uppercase tracking-tight text-muted-foreground">No career profile selected</h4>
               <p className="text-xs text-muted-foreground mt-0.5">Please create or select a career persona on the left side to display resumes.</p>
             </div>
           )}
@@ -362,74 +362,74 @@ export const ResumesPage: React.FC = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
           <form 
             onSubmit={handleProfileSubmit}
-            className="bg-slate-900 border border-slate-800 p-6 rounded-2xl w-full max-w-md space-y-4 animate-in zoom-in-95 duration-200"
+            className="bg-card border border-border p-6 rounded-lg w-full max-w-md space-y-4 animate-in zoom-in-95 duration-200 shadow-2xl"
           >
-            <div className="flex items-center justify-between pb-2 border-b border-slate-800">
-              <h3 className="text-lg font-display font-extrabold text-white">Create Career Persona</h3>
-              <button type="button" onClick={() => setIsProfileModalOpen(false)} className="text-slate-400 hover:text-white">
+            <div className="flex items-center justify-between pb-2 border-b border-border">
+              <h3 className="text-lg font-display font-extrabold text-foreground uppercase tracking-tight">Create Career Persona</h3>
+              <button type="button" onClick={() => setIsProfileModalOpen(false)} className="text-muted-foreground hover:text-foreground">
                 ✕
               </button>
             </div>
 
             <div className="space-y-1">
-              <label className="text-xs font-semibold text-slate-300">Persona Title *</label>
+              <label className="text-xs font-semibold text-foreground">Persona Title *</label>
               <input
                 type="text"
                 required
                 value={profileTitle}
                 onChange={(e) => setProfileTitle(e.target.value)}
                 placeholder="e.g. Frontend Engineer"
-                className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                className="w-full px-3 py-2 bg-background border border-border rounded-md text-sm text-foreground placeholder-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-slate-300">Theme Hex Color *</label>
+                <label className="text-xs font-semibold text-foreground">Theme Hex Color *</label>
                 <div className="flex gap-2 items-center">
                   <input
                     type="color"
                     value={profileColor}
                     onChange={(e) => setProfileColor(e.target.value)}
-                    className="w-8 h-8 rounded border bg-transparent cursor-pointer"
+                    className="w-8 h-8 rounded-sm border bg-transparent cursor-pointer"
                   />
                   <input
                     type="text"
                     required
                     value={profileColor}
                     onChange={(e) => setProfileColor(e.target.value)}
-                    className="w-full px-2 py-1.5 bg-slate-950 border border-slate-800 rounded-lg text-xs text-white"
+                    className="w-full px-2 py-1.5 bg-background border border-border rounded-md text-xs text-foreground font-mono"
                   />
                 </div>
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-slate-300">Default Profile</label>
+                <label className="text-xs font-semibold text-foreground">Default Profile</label>
                 <div className="flex items-center h-8">
                   <input
                     type="checkbox"
                     id="profile-default-checkbox"
                     checked={profileIsDefault}
                     onChange={(e) => setProfileIsDefault(e.target.checked)}
-                    className="h-4.5 w-4.5 text-primary border-slate-800 rounded focus:ring-primary"
+                    className="h-4.5 w-4.5 text-primary border-border rounded-sm focus:ring-ring"
                   />
-                  <label htmlFor="profile-default-checkbox" className="text-xs text-slate-300 ml-2 font-medium">Set as Default</label>
+                  <label htmlFor="profile-default-checkbox" className="text-xs text-muted-foreground ml-2 font-medium">Set as Default</label>
                 </div>
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-2 pt-4 border-t border-slate-800 mt-6">
+            <div className="flex items-center justify-end gap-2 pt-4 border-t border-border mt-6">
               <button
                 type="button"
                 onClick={() => setIsProfileModalOpen(false)}
-                className="px-4 py-2 border border-slate-800 hover:bg-slate-800 text-sm font-medium text-slate-300 rounded-xl transition-colors"
+                className="px-4 py-2 border border-border hover:bg-muted text-sm font-medium text-muted-foreground rounded-md transition-colors"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={createProfileMutation.isPending}
-                className="flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-primary hover:bg-primary/95 text-white text-sm font-semibold transition-all duration-200"
+                className="flex items-center justify-center gap-2 px-4 py-2 rounded-md bg-primary hover:bg-[#0C5A62] dark:hover:bg-[#4CB0BA] text-primary-foreground text-sm font-semibold transition-all duration-200"
               >
                 {createProfileMutation.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
                 Create Persona

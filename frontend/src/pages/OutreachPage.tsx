@@ -200,7 +200,7 @@ export const OutreachPage: React.FC = () => {
         </div>
         <button
           onClick={() => { resetForm(); setIsModalOpen(true); }}
-          className="flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground text-sm font-semibold transition-all duration-200 shadow-md shadow-primary/10 self-start sm:self-center"
+          className="flex items-center justify-center gap-2 px-4 py-2 rounded-md bg-primary hover:bg-[#0C5A62] dark:hover:bg-[#4CB0BA] text-primary-foreground text-sm font-semibold transition-all duration-200 self-start sm:self-center"
         >
           <Plus className="h-4 w-4" />
           Log Outreach Contact
@@ -208,7 +208,7 @@ export const OutreachPage: React.FC = () => {
       </div>
 
       {/* Filter Section */}
-      <div className="p-4 rounded-xl border bg-card glass-card flex flex-col sm:flex-row gap-4">
+      <div className="p-4 rounded-lg border bg-card flex flex-col sm:flex-row gap-4">
         <div className="relative flex-1">
           <Search className="absolute inset-y-0 left-0 pl-3 h-full w-4 text-muted-foreground flex items-center" />
           <input
@@ -216,13 +216,13 @@ export const OutreachPage: React.FC = () => {
             placeholder="Search contact, company name or position discussed..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 bg-background border rounded-lg text-sm placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+            className="w-full pl-9 pr-3 py-2 bg-background border border-border rounded-md text-sm placeholder-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
           />
         </div>
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="px-3 py-2 bg-background border rounded-lg text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+          className="px-3 py-2 bg-background border border-border rounded-md text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
         >
           <option value="">All Statuses</option>
           <option value="PENDING">Pending</option>
@@ -239,7 +239,7 @@ export const OutreachPage: React.FC = () => {
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
       ) : contacts.length === 0 ? (
-        <div className="flex h-[40vh] flex-col items-center justify-center text-center border border-dashed rounded-2xl p-12">
+        <div className="flex h-[40vh] flex-col items-center justify-center text-center border border-dashed border-border rounded-lg p-12">
           <Users className="h-10 w-10 text-muted-foreground/30 mb-2" />
           <h4 className="text-sm font-semibold">No outreach logs found</h4>
           <p className="text-xs text-muted-foreground mt-0.5">Start networking with recruiter outreach contacts today.</p>
@@ -249,15 +249,15 @@ export const OutreachPage: React.FC = () => {
           {contacts.map((contact) => (
             <div 
               key={contact.id}
-              className="p-6 rounded-xl border bg-card glass-card hover:shadow-md transition-all duration-200 flex flex-col justify-between h-[230px]"
+              className="p-6 rounded-lg border bg-card hover:border-primary/45 transition-all duration-200 flex flex-col justify-between h-[230px]"
             >
               <div className="space-y-2">
                 <div className="flex items-start justify-between">
                   <div>
-                    <h4 className="text-base font-semibold truncate max-w-[170px]">{contact.contactName}</h4>
-                    <p className="text-xs text-muted-foreground truncate max-w-[170px]">{contact.positionDiscussed}</p>
+                    <h4 className="text-base font-semibold truncate max-w-[170px] text-foreground">{contact.contactName}</h4>
+                    <p className="text-[10px] text-muted-foreground font-mono uppercase tracking-wide truncate max-w-[170px]">{contact.positionDiscussed}</p>
                   </div>
-                  <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${statusColors[contact.status]}`}>
+                  <span className={`px-2 py-0.5 rounded-md text-[10px] font-mono uppercase tracking-wide border ${statusColors[contact.status]}`}>
                     {contact.status.replace('_', ' ')}
                   </span>
                 </div>
@@ -267,14 +267,14 @@ export const OutreachPage: React.FC = () => {
                   
                   {/* Action alert banner for overdue follow-up */}
                   {contact.followUpDate && (
-                    <div className={`flex items-center gap-1 text-[11px] font-medium ${
+                    <div className={`flex items-center gap-1 text-[11px] font-mono ${
                       isOverdue(contact.followUpDate) && contact.status !== 'INTERVIEW_SECURED' && contact.status !== 'NO_RESPONSE'
-                        ? 'text-rose-500 animate-pulse' 
-                        : 'text-slate-500'
+                        ? 'text-destructive animate-pulse font-semibold' 
+                        : 'text-muted-foreground'
                     }`}>
                       <Clock className="h-3.5 w-3.5" />
                       Follow-up: {contact.followUpDate} 
-                      {isOverdue(contact.followUpDate) && contact.status !== 'INTERVIEW_SECURED' && contact.status !== 'NO_RESPONSE' && ' (Overdue)'}
+                      {isOverdue(contact.followUpDate) && contact.status !== 'INTERVIEW_SECURED' && contact.status !== 'NO_RESPONSE' && ' (OVERDUE)'}
                     </div>
                   )}
                 </div>
@@ -288,7 +288,7 @@ export const OutreachPage: React.FC = () => {
                       href={contact.linkedinUrl} 
                       target="_blank" 
                       rel="noreferrer"
-                      className="p-1.5 rounded-lg border bg-card hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                      className="p-1.5 rounded-md border border-border bg-card hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
                     >
                       <svg className="h-4 w-4 text-[#0077b5] fill-current" viewBox="0 0 24 24">
                         <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
@@ -298,7 +298,7 @@ export const OutreachPage: React.FC = () => {
                   {contact.email && (
                     <a 
                       href={`mailto:${contact.email}`} 
-                      className="p-1.5 rounded-lg border bg-card hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                      className="p-1.5 rounded-md border border-border bg-card hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
                     >
                       <Mail className="h-4 w-4" />
                     </a>
@@ -308,20 +308,20 @@ export const OutreachPage: React.FC = () => {
                 <div className="flex items-center gap-1.5">
                   <button
                     onClick={() => handleEditClick(contact)}
-                    className="p-1.5 border rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                    className="p-1.5 border border-border rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
                   >
                     <Edit3 className="h-3.5 w-3.5" />
                   </button>
                   <button
                     onClick={() => handleDelete(contact.id)}
-                    className="p-1.5 border border-rose-500/20 bg-rose-500/5 hover:bg-rose-500/10 text-rose-500 rounded-lg transition-colors"
+                    className="p-1.5 border border-destructive/20 bg-destructive/5 hover:bg-destructive/10 text-destructive rounded-md transition-colors"
                   >
                     <Trash2 className="h-3.5 w-3.5" />
                   </button>
                   {contact.status !== 'INTERVIEW_SECURED' && (
                     <button
                       onClick={() => { setSelectedId(contact.id); setProfileId(profiles[0]?.id || ''); setIsConvertOpen(true); }}
-                      className="flex items-center gap-1 py-1.5 px-3 rounded-lg bg-primary hover:bg-primary/95 text-white text-[10px] font-bold transition-colors"
+                      className="flex items-center gap-1 py-1.5 px-3 rounded-md bg-primary hover:bg-[#0C5A62] dark:hover:bg-[#4CB0BA] text-primary-foreground text-[10px] font-mono font-bold uppercase tracking-wide transition-colors"
                     >
                       <Briefcase className="h-3 w-3" />
                       Convert
@@ -339,62 +339,62 @@ export const OutreachPage: React.FC = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
           <form 
             onSubmit={handleSubmit}
-            className="bg-slate-900 border border-slate-800 p-6 rounded-2xl w-full max-w-lg max-h-[85vh] overflow-y-auto space-y-4 animate-in zoom-in-95 duration-200"
+            className="bg-card border border-border p-6 rounded-lg w-full max-w-lg max-h-[85vh] overflow-y-auto space-y-4 animate-in zoom-in-95 duration-200 shadow-2xl"
           >
-            <div className="flex items-center justify-between pb-2 border-b border-slate-800">
-              <h3 className="text-lg font-display font-extrabold text-white">
+            <div className="flex items-center justify-between pb-2 border-b border-border">
+              <h3 className="text-lg font-display font-extrabold text-foreground uppercase tracking-tight">
                 {selectedId ? 'Modify Outreach Log' : 'Create Outreach Log'}
               </h3>
-              <button type="button" onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-white">
+              <button type="button" onClick={() => setIsModalOpen(false)} className="text-muted-foreground hover:text-foreground">
                 ✕
               </button>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-slate-300">Contact/Recruiter Name *</label>
+                <label className="text-xs font-semibold text-foreground">Contact/Recruiter Name *</label>
                 <input
                   type="text"
                   required
                   value={contactName}
                   onChange={(e) => setContactName(e.target.value)}
                   placeholder="e.g. Sarah Jenkins"
-                  className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                  className="w-full px-3 py-2 bg-background border border-border rounded-md text-sm text-foreground placeholder-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-slate-300">Company Name *</label>
+                <label className="text-xs font-semibold text-foreground">Company Name *</label>
                 <input
                   type="text"
                   required
                   value={companyName}
                   onChange={(e) => setCompanyName(e.target.value)}
                   placeholder="e.g. Google"
-                  className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                  className="w-full px-3 py-2 bg-background border border-border rounded-md text-sm text-foreground placeholder-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-slate-300">Position Discussed *</label>
+                <label className="text-xs font-semibold text-foreground">Position Discussed *</label>
                 <input
                   type="text"
                   required
                   value={positionDiscussed}
                   onChange={(e) => setPositionDiscussed(e.target.value)}
                   placeholder="e.g. Senior Java Dev"
-                  className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                  className="w-full px-3 py-2 bg-background border border-border rounded-md text-sm text-foreground placeholder-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-slate-300">Status *</label>
+                <label className="text-xs font-semibold text-foreground">Status *</label>
                 <select
                   value={status}
                   onChange={(e) => setStatus(e.target.value)}
-                  className="w-full px-3 py-2.5 bg-slate-950 border border-slate-800 rounded-lg text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-3 py-2.5 bg-background border border-border rounded-md text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                 >
                   <option value="PENDING">Pending</option>
                   <option value="CONTACTED">Contacted</option>
@@ -407,87 +407,87 @@ export const OutreachPage: React.FC = () => {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-slate-300">Email Address</label>
+                <label className="text-xs font-semibold text-foreground">Email Address</label>
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="recruiter@company.com"
-                  className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                  className="w-full px-3 py-2 bg-background border border-border rounded-md text-sm text-foreground placeholder-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-slate-300">LinkedIn URL</label>
+                <label className="text-xs font-semibold text-foreground">LinkedIn URL</label>
                 <input
                   type="text"
                   value={linkedinUrl}
                   onChange={(e) => setLinkedinUrl(e.target.value)}
                   placeholder="https://linkedin.com/in/..."
-                  className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                  className="w-full px-3 py-2 bg-background border border-border rounded-md text-sm text-foreground placeholder-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-slate-300">Date Sent</label>
+                <label className="text-xs font-semibold text-foreground">Date Sent</label>
                 <input
                   type="date"
                   value={dateSent}
                   onChange={(e) => setDateSent(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-3 py-2 bg-background border border-border rounded-md text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-slate-300">Follow-up Reminder Date</label>
+                <label className="text-xs font-semibold text-foreground">Follow-up Reminder Date</label>
                 <input
                   type="date"
                   value={followUpDate}
                   onChange={(e) => setFollowUpDate(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-3 py-2 bg-background border border-border rounded-md text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                 />
               </div>
             </div>
 
             {/* AI Sentiment Analysis trigger */}
-            <div className="p-3 bg-slate-950/40 border border-slate-800 rounded-xl flex items-center justify-between">
-              <span className="text-xs font-semibold text-slate-300 flex items-center gap-1">
+            <div className="p-3 bg-muted/20 border border-border rounded-md flex items-center justify-between">
+              <span className="text-xs font-semibold text-foreground flex items-center gap-1">
                 <Sparkles className="h-4 w-4 text-primary" />
                 Analyze Recruiter Sentiment
               </span>
               <button
                 type="button"
                 onClick={() => { setRecruiterMsg(''); setIsAiOpen(true); }}
-                className="p-1 px-3 border border-primary/20 bg-primary/10 hover:bg-primary/20 text-primary text-[10px] font-bold rounded-lg transition-colors"
+                className="p-1 px-3 border border-primary/20 bg-primary/10 hover:bg-primary/20 text-primary text-[10px] font-mono uppercase tracking-wide rounded-md"
               >
                 Analyze Reply
               </button>
             </div>
 
             <div className="space-y-1">
-              <label className="text-xs font-semibold text-slate-300">Outreach Discussion Notes</label>
+              <label className="text-xs font-semibold text-foreground">Outreach Discussion Notes</label>
               <textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Details of discussion or message content..."
                 rows={4}
-                className="w-full p-2.5 bg-slate-950 border border-slate-800 rounded-lg text-xs text-white focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full p-2.5 bg-background border border-border rounded-md text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
               />
             </div>
 
-            <div className="flex items-center justify-end gap-2 pt-4 border-t border-slate-800 mt-6">
+            <div className="flex items-center justify-end gap-2 pt-4 border-t border-border mt-6">
               <button
                 type="button"
                 onClick={() => setIsModalOpen(false)}
-                className="px-4 py-2 border border-slate-800 hover:bg-slate-800 text-sm font-medium text-slate-300 rounded-xl transition-colors"
+                className="px-4 py-2 border border-border hover:bg-muted text-sm font-medium text-muted-foreground rounded-md transition-colors"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-primary hover:bg-primary/95 text-white text-sm font-semibold transition-all duration-200"
+                className="flex items-center justify-center gap-2 px-4 py-2 rounded-md bg-primary hover:bg-[#0C5A62] dark:hover:bg-[#4CB0BA] text-primary-foreground text-sm font-semibold transition-all duration-200"
               >
                 Save Log
               </button>
@@ -501,23 +501,23 @@ export const OutreachPage: React.FC = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
           <form 
             onSubmit={handleConvertSubmit}
-            className="bg-slate-900 border border-slate-800 p-6 rounded-2xl w-full max-w-md space-y-4 animate-in zoom-in-95 duration-200"
+            className="bg-card border border-border p-6 rounded-lg w-full max-w-md space-y-4 animate-in zoom-in-95 duration-200 shadow-2xl"
           >
             <div>
-              <h3 className="text-lg font-display font-extrabold text-white flex items-center gap-2">
+              <h3 className="text-lg font-display font-extrabold text-foreground flex items-center gap-2 uppercase tracking-tight">
                 <Briefcase className="h-5 w-5 text-primary" />
                 Convert to Job Application
               </h3>
-              <p className="text-xs text-slate-400 mt-1">Convert this successfully secured outreach conversation into a tracked job application. Company and contact notes will migrate automatically.</p>
+              <p className="text-xs text-muted-foreground mt-1 font-sans">Convert this successfully secured outreach conversation into a tracked job application. Company and contact notes will migrate automatically.</p>
             </div>
 
             <div className="space-y-1">
-              <label className="text-xs font-semibold text-slate-300">Select Career Profile Alignment *</label>
+              <label className="text-xs font-semibold text-foreground">Select Career Profile Alignment *</label>
               <select
                 required
                 value={profileId}
                 onChange={(e) => setProfileId(e.target.value)}
-                className="w-full px-3 py-2.5 bg-slate-950 border border-slate-800 rounded-lg text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full px-3 py-2.5 bg-background border border-border rounded-md text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
               >
                 <option value="">Select Profile</option>
                 {profiles.map(p => (
@@ -526,18 +526,18 @@ export const OutreachPage: React.FC = () => {
               </select>
             </div>
 
-            <div className="flex items-center justify-end gap-2 pt-4">
+            <div className="flex items-center justify-end gap-2 pt-4 border-t border-border mt-6">
               <button
                 type="button"
                 onClick={() => setIsConvertOpen(false)}
-                className="px-4 py-2 border border-slate-800 hover:bg-slate-800 text-sm font-medium text-slate-300 rounded-xl transition-colors"
+                className="px-4 py-2 border border-border hover:bg-muted text-sm font-medium text-muted-foreground rounded-md transition-colors"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={convertMutation.isPending}
-                className="flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-primary hover:bg-primary/95 text-white text-sm font-semibold transition-all duration-200"
+                className="flex items-center justify-center gap-2 px-4 py-2 rounded-md bg-primary hover:bg-[#0C5A62] dark:hover:bg-[#4CB0BA] text-primary-foreground text-sm font-semibold transition-all duration-200"
               >
                 {convertMutation.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
                 Convert Thread
@@ -550,32 +550,32 @@ export const OutreachPage: React.FC = () => {
       {/* Recruiter Reply Analysis Modal */}
       {isAiOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl w-full max-w-lg space-y-4 animate-in zoom-in-95 duration-200">
+          <div className="bg-card border border-border p-6 rounded-lg w-full max-w-lg space-y-4 animate-in zoom-in-95 duration-200 shadow-2xl">
             <div>
-              <h3 className="text-lg font-display font-extrabold text-white flex items-center gap-2">
+              <h3 className="text-lg font-display font-extrabold text-foreground flex items-center gap-2 uppercase tracking-tight">
                 <Sparkles className="h-5 w-5 text-primary" />
                 AI Recruiter Response Analyst
               </h3>
-              <p className="text-xs text-slate-400 mt-1">Paste the exact response message from the recruiter. The AI will detect positive or negative sentiment, recommend next steps, and suggest status updates.</p>
+              <p className="text-xs text-muted-foreground mt-1">Paste the exact response message from the recruiter. The AI will detect positive or negative sentiment, recommend next steps, and suggest status updates.</p>
             </div>
             <textarea
               placeholder="Paste recruiter's reply text here..."
               value={recruiterMsg}
               onChange={(e) => setRecruiterMsg(e.target.value)}
               rows={8}
-              className="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+              className="w-full p-3 bg-background border border-border rounded-md text-sm text-foreground placeholder-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
             />
             <div className="flex items-center justify-end gap-2 pt-2">
               <button
                 onClick={() => setIsAiOpen(false)}
-                className="px-4 py-2 border border-slate-800 hover:bg-slate-800 text-sm font-medium text-slate-300 rounded-xl transition-colors"
+                className="px-4 py-2 border border-border hover:bg-muted text-sm font-medium text-muted-foreground rounded-md transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={handleAiAnalysis}
                 disabled={analyzingMsg || !recruiterMsg.trim()}
-                className="flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-primary hover:bg-primary/95 text-white text-sm font-semibold transition-all duration-200"
+                className="flex items-center justify-center gap-2 px-4 py-2 rounded-md bg-primary hover:bg-[#0C5A62] dark:hover:bg-[#4CB0BA] text-primary-foreground text-sm font-semibold transition-all duration-200"
               >
                 {analyzingMsg ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
