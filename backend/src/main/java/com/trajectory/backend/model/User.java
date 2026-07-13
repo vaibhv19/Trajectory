@@ -49,6 +49,21 @@ public class User {
     @Builder.Default
     private boolean autoArchiveEnabled = false;
 
+    @Column(name = "browser_notifications_enabled")
+    @Builder.Default
+    private boolean browserNotificationsEnabled = true;
+
+    @Column(name = "email_notifications_enabled")
+    @Builder.Default
+    private boolean emailNotificationsEnabled = true;
+
+    @Column(name = "ai_extractions_count")
+    @Builder.Default
+    private int aiExtractionsCount = 0;
+
+    @Column(name = "last_ai_extraction_date")
+    private java.time.LocalDate lastAiExtractionDate;
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private OffsetDateTime createdAt;

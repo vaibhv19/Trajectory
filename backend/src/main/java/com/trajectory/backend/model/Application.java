@@ -81,6 +81,10 @@ public class Application {
     @Builder.Default
     private OffsetDateTime lastActivityAt = OffsetDateTime.now();
 
+    @Column(name = "is_archived", nullable = false)
+    @Builder.Default
+    private boolean isArchived = false;
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private OffsetDateTime createdAt;
