@@ -341,12 +341,12 @@ export const ApplicationsPage: React.FC = () => {
         </div>
       ) : (
         <div className="space-y-6">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg overflow-hidden shadow-sm">
+          <div className="bg-card border border-border rounded-lg overflow-hidden shadow-sm">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse text-sm">
                 <thead>
-                  <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50">
-                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider font-mono">
+                  <tr className="border-b border-border bg-muted">
+                    <th className="px-6 py-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider font-mono">
                       <button 
                         type="button"
                         onClick={() => handleSort('companyName')}
@@ -356,7 +356,7 @@ export const ApplicationsPage: React.FC = () => {
                         {renderSortIcon('companyName')}
                       </button>
                     </th>
-                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider font-mono">
+                    <th className="px-6 py-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider font-mono">
                       <button 
                         type="button"
                         onClick={() => handleSort('status')}
@@ -366,10 +366,10 @@ export const ApplicationsPage: React.FC = () => {
                         {renderSortIcon('status')}
                       </button>
                     </th>
-                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider font-mono">
+                    <th className="px-6 py-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider font-mono">
                       Linked Resume
                     </th>
-                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider font-mono">
+                    <th className="px-6 py-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider font-mono">
                       <button 
                         type="button"
                         onClick={() => handleSort('dateApplied')}
@@ -379,7 +379,7 @@ export const ApplicationsPage: React.FC = () => {
                         {renderSortIcon('dateApplied')}
                       </button>
                     </th>
-                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider font-mono">
+                    <th className="px-6 py-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider font-mono">
                       <button 
                         type="button"
                         onClick={() => handleSort('followUpDate')}
@@ -391,12 +391,12 @@ export const ApplicationsPage: React.FC = () => {
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-250 dark:divide-slate-800">
+                <tbody className="divide-y divide-border">
                   {(data?.content || []).map((app) => (
                     <tr 
                       key={app.id} 
                       onClick={() => navigate(`/applications/${app.id}`)}
-                      className="cursor-pointer border-b border-slate-200 dark:border-slate-800 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors relative"
+                      className="cursor-pointer border-b border-border hover:bg-muted/50 transition-colors relative"
                     >
                       <td className="px-6 py-4 font-sans text-sm text-foreground">
                         <div className="flex items-center gap-3">
@@ -405,7 +405,7 @@ export const ApplicationsPage: React.FC = () => {
                             style={{ backgroundColor: app.profile.colorCode }} 
                           />
                           <div>
-                            <span className="font-semibold block text-slate-900 dark:text-slate-100">{app.companyName}</span>
+                            <span className="font-semibold block text-foreground">{app.companyName}</span>
                             <span className="text-xs text-muted-foreground block">{app.roleTitle}</span>
                           </div>
                         </div>
@@ -417,7 +417,7 @@ export const ApplicationsPage: React.FC = () => {
                       </td>
                       <td className="px-6 py-4">
                         {app.resumeFileName ? (
-                          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-teal-50 dark:bg-teal-950/20 border border-teal-100 dark:border-teal-900 text-teal-700 dark:text-teal-400 text-xs rounded-md truncate max-w-[200px]" title={app.resumeFileName}>
+                          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-muted border border-border text-muted-foreground text-xs rounded-md truncate max-w-[200px] hover:bg-muted/80" title={app.resumeFileName}>
                             <FileText className="h-3.5 w-3.5" />
                             <span className="truncate">Version {app.resumeVersion}</span>
                           </div>
@@ -591,9 +591,9 @@ export const ApplicationsPage: React.FC = () => {
 
             {/* Smart Status Fields */}
             {status === 'OA' && (
-              <div className="grid grid-cols-2 gap-4 p-4 rounded-md border border-teal-500/20 bg-teal-500/5">
+              <div className="grid grid-cols-2 gap-4 p-4 rounded-md border border-border bg-muted/30">
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-foreground">OA Date & Time</label>
+                  <label className="text-xs font-semibold text-foreground font-display">OA Date & Time</label>
                   <input
                     type="datetime-local"
                     value={oaDateTime}
@@ -602,7 +602,7 @@ export const ApplicationsPage: React.FC = () => {
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-foreground">Meeting / Test Link</label>
+                  <label className="text-xs font-semibold text-foreground font-display">Meeting / Test Link</label>
                   <input
                     type="text"
                     value={meetingLink}
@@ -615,7 +615,7 @@ export const ApplicationsPage: React.FC = () => {
             )}
 
             {status === 'INTERVIEW' && (
-              <div className="grid grid-cols-2 gap-4 p-4 rounded-md border border-teal-500/20 bg-teal-500/5">
+              <div className="grid grid-cols-2 gap-4 p-4 rounded-md border border-border bg-muted/30">
                 <div className="space-y-1">
                   <label className="text-xs font-semibold text-foreground">Interview Date & Time</label>
                   <input
