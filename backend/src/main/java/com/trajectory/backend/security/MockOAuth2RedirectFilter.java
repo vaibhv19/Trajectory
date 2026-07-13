@@ -9,13 +9,12 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.env.Environment;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Optional;
 
 @Component
@@ -25,16 +24,16 @@ public class MockOAuth2RedirectFilter extends OncePerRequestFilter {
     private final UserRepository userRepository;
     private final CareerProfileRepository careerProfileRepository;
     private final JwtTokenProvider tokenProvider;
-    private final Environment environment;
+    private final boolean mockEnabled;
 
     public MockOAuth2RedirectFilter(UserRepository userRepository,
                                     CareerProfileRepository careerProfileRepository,
                                     JwtTokenProvider tokenProvider,
-                                    Environment environment) {
+                                    @Value("${security.oauth2.mock.enabled:false}") boolean mockEnabled) {
         this.userRepository = userRepository;
         this.careerProfileRepository = careerProfileRepository;
         this.tokenProvider = tokenProvider;
-        this.environment = environment;
+        this.mockEnabled = mockEnabled;
     }
 
     @Override
@@ -42,9 +41,8 @@ public class MockOAuth2RedirectFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         String requestURI = request.getRequestURI();
-        boolean isLocalProfile = Arrays.asList(environment.getActiveProfiles()).contains("local");
 
-        if (isLocalProfile && (requestURI.equals("/oauth2/authorization/google") || requestURI.equals("/oauth2/authorization/github"))) {
+        if (mockEnabled && (requestURI.equals("/oauth2/authorization/google") || requestURI.equals("/oauth2/authorization/github"))) {
             String provider = requestURI.substring(requestURI.lastIndexOf("/") + 1);
             log.info("Intercepting local OAuth redirect request for provider: {}", provider);
 
