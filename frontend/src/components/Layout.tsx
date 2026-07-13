@@ -49,6 +49,9 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     queryFn: api.users.getProfile,
   });
 
+  const displayName = userProfile?.fullName || fullName;
+  const displayEmail = userProfile?.email || email;
+
   // Fetch notifications
   const { data: unreadCount = 0 } = useQuery<number>({
     queryKey: ['notifications-unread-count'],
@@ -142,11 +145,11 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         <div className="p-4 border-t border-border">
           <div className="flex items-center gap-3 px-2 py-2 mb-2">
             <div className="h-9 w-9 rounded-md bg-primary/20 text-primary flex items-center justify-center font-display font-semibold uppercase">
-              {fullName?.substring(0, 2) || 'US'}
+              {displayName?.substring(0, 2) || 'US'}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium truncate">{fullName}</p>
-              <p className="text-xs text-muted-foreground truncate">{email}</p>
+              <p className="text-sm font-medium truncate">{displayName}</p>
+              <p className="text-xs text-muted-foreground truncate">{displayEmail}</p>
             </div>
           </div>
           <button
@@ -197,11 +200,11 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             <div className="border-t border-border pt-4">
               <div className="flex items-center gap-3 px-2 py-2 mb-4">
                 <div className="h-9 w-9 rounded-md bg-primary/20 text-primary flex items-center justify-center font-display font-semibold uppercase">
-                  {fullName?.substring(0, 2) || 'US'}
+                  {displayName?.substring(0, 2) || 'US'}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">{fullName}</p>
-                  <p className="text-xs text-muted-foreground truncate">{email}</p>
+                  <p className="text-sm font-medium truncate">{displayName}</p>
+                  <p className="text-xs text-muted-foreground truncate">{displayEmail}</p>
                 </div>
               </div>
               <button
