@@ -42,23 +42,14 @@ public class ApplicationService {
 
     @Transactional(readOnly = true)
     public Page<ApplicationResponse> searchApplications(
-            UUID userId, String search, List<ApplicationStatus> statuses, UUID profileId, Pageable pageable) {
+            UUID userId, String search, List<ApplicationStatus> statuses, UUID profileId, boolean isArchived, Pageable pageable) {
         
-        // If no statuses are provided but we want to filter out archived if auto_archive_enabled is true
-        List<ApplicationStatus> activeStatuses = statuses;
-        if (statuses == null || statuses.isEmpty()) {
-            User user = userRepository.findById(userId).orElseThrow();
-            if (user.isAutoArchiveEnabled()) {
-                // Return only active statuses
-                activeStatuses = List.of(ApplicationStatus.APPLIED, ApplicationStatus.OA, ApplicationStatus.INTERVIEW, ApplicationStatus.OFFER);
-            }
-        }
-
         Page<Application> apps = applicationRepository.searchApplications(
                 userId, 
                 search == null || search.trim().isEmpty() ? null : search, 
-                activeStatuses, 
+                statuses, 
                 profileId, 
+                isArchived,
                 pageable
         );
 
@@ -76,10 +67,10 @@ public class ApplicationService {
     public ApplicationResponse createApplication(UUID userId, ApplicationRequest request) {
         User user = userRepository.findById(userId).orElseThrow();
 
-        // Duplicate check (Company + Role)
-        if (applicationRepository.existsByUserIdAndCompanyNameIgnoreCaseAndRoleTitleIgnoreCase(
+        // Duplicate check (Company + Role) among active applications
+        if (applicationRepository.existsByUserIdAndCompanyNameIgnoreCaseAndRoleTitleIgnoreCaseAndIsArchivedFalse(
                 userId, request.companyName(), request.roleTitle())) {
-            throw new IllegalArgumentException("You have already added an application for " + request.roleTitle() + " at " + request.companyName());
+            throw new IllegalArgumentException("You have already added an active application for " + request.roleTitle() + " at " + request.companyName());
         }
 
         CareerProfile profile = careerProfileRepository.findById(request.profileId())
@@ -109,6 +100,10 @@ public class ApplicationService {
             }
         }
 
+        // Auto-Archive Logic
+        boolean shouldArchive = (status == ApplicationStatus.REJECTED || status == ApplicationStatus.GHOSTED) && user.isAutoArchiveEnabled();
+        boolean isArchived = request.isArchived() != null ? request.isArchived() : shouldArchive;
+
         Application app = Application.builder()
                 .user(user)
                 .careerProfile(profile)
@@ -124,6 +119,7 @@ public class ApplicationService {
                 .dateApplied(appliedDate)
                 .followUpDate(request.followUpDate())
                 .responseDate(request.responseDate())
+                .isArchived(isArchived)
                 .lastActivityAt(OffsetDateTime.now())
                 .build();
 
@@ -172,6 +168,10 @@ public class ApplicationService {
 
         boolean statusChanged = !app.getStatus().equals(nextStatus);
 
+        // Auto-Archive Logic
+        boolean shouldArchive = (nextStatus == ApplicationStatus.REJECTED || nextStatus == ApplicationStatus.GHOSTED) && app.getUser().isAutoArchiveEnabled();
+        boolean isArchived = request.isArchived() != null ? request.isArchived() : (statusChanged ? shouldArchive : app.isArchived());
+
         app.setCareerProfile(profile);
         app.setResume(resume);
         app.setCompanyName(request.companyName());
@@ -185,6 +185,7 @@ public class ApplicationService {
         app.setDateApplied(appliedDate);
         app.setFollowUpDate(request.followUpDate());
         app.setResponseDate(request.responseDate());
+        app.setArchived(isArchived);
         app.setLastActivityAt(OffsetDateTime.now());
 
         Application saved = applicationRepository.save(app);
@@ -193,10 +194,9 @@ public class ApplicationService {
             ApplicationStatusHistory history = ApplicationStatusHistory.builder()
                     .application(saved)
                     .status(saved.getStatus())
-                    .notes("Status updated to " + saved.getStatus())
+                    .notes("Status changed via update")
                     .build();
             statusHistoryRepository.save(history);
-            log.info("Status transition logged for application {}: {} -> {}", saved.getId(), app.getStatus(), saved.getStatus());
         }
 
         return mapToResponse(saved);
@@ -249,7 +249,8 @@ public class ApplicationService {
                 app.getDateApplied(),
                 app.getFollowUpDate(),
                 app.getResponseDate(),
-                app.getLastActivityAt()
+                app.getLastActivityAt(),
+                app.isArchived()
         );
     }
 }

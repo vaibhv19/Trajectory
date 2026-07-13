@@ -25,5 +25,6 @@ public record ApplicationRequest(
     String salaryRange,
     LocalDate dateApplied,
     LocalDate followUpDate,
-    LocalDate responseDate
+    LocalDate responseDate,
+    Boolean isArchived
 ) {}

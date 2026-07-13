@@ -18,6 +18,7 @@ import java.util.UUID;
 public interface ApplicationRepository extends JpaRepository<Application, UUID> {
 
     @Query("SELECT a FROM Application a WHERE a.user.id = :userId AND " +
+           "a.isArchived = :isArchived AND " +
            "(:search IS NULL OR LOWER(a.companyName) LIKE LOWER(CONCAT('%', :search, '%')) OR LOWER(a.roleTitle) LIKE LOWER(CONCAT('%', :search, '%')) OR LOWER(a.location) LIKE LOWER(CONCAT('%', :search, '%'))) AND " +
            "(:statuses IS NULL OR a.status IN :statuses) AND " +
            "(:profileId IS NULL OR a.careerProfile.id = :profileId)")
@@ -26,6 +27,7 @@ public interface ApplicationRepository extends JpaRepository<Application, UUID> 
             @Param("search") String search,
             @Param("statuses") List<ApplicationStatus> statuses,
             @Param("profileId") UUID profileId,
+            @Param("isArchived") boolean isArchived,
             Pageable pageable
     );
 
@@ -65,5 +67,5 @@ public interface ApplicationRepository extends JpaRepository<Application, UUID> 
     List<Application> findUpcomingAgenda(@Param("userId") UUID userId, @Param("today") LocalDate today);
 
     // Duplicate detection
-    boolean existsByUserIdAndCompanyNameIgnoreCaseAndRoleTitleIgnoreCase(UUID userId, String companyName, String roleTitle);
+    boolean existsByUserIdAndCompanyNameIgnoreCaseAndRoleTitleIgnoreCaseAndIsArchivedFalse(UUID userId, String companyName, String roleTitle);
 }

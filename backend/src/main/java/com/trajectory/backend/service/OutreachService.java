@@ -149,7 +149,8 @@ public class OutreachService {
                 null, // Salary unknown
                 LocalDate.now(),
                 outreach.getFollowUpDate(),
-                null // Response date unknown
+                null, // Response date unknown
+                false // isArchived
         );
 
         ApplicationResponse appResponse = applicationService.createApplication(userId, appRequest);
