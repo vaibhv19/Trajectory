@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
-import type { CareerProfile } from '../types';
+import type { CareerProfile, Resume } from '../types';
 import { 
   Plus, 
   Search, 
@@ -38,6 +38,7 @@ export const ApplicationsPage: React.FC = () => {
   const [status, setStatus] = useState('APPLIED');
   const [dateApplied, setDateApplied] = useState(new Date().toISOString().split('T')[0]);
   const [followUpDate, setFollowUpDate] = useState('');
+  const [responseDate, setResponseDate] = useState('');
   const [oaDateTime, setOaDateTime] = useState('');
   const [interviewDateTime, setInterviewDateTime] = useState('');
   const [meetingLink, setMeetingLink] = useState('');
@@ -54,6 +55,13 @@ export const ApplicationsPage: React.FC = () => {
   const { data: profiles = [] } = useQuery<CareerProfile[]>({
     queryKey: ['profiles'],
     queryFn: api.profiles.list,
+  });
+
+  // Fetch resumes for selected profile
+  const { data: resumes = [] } = useQuery<Resume[]>({
+    queryKey: ['resumes', profileId],
+    queryFn: () => api.resumes.listForProfile(profileId),
+    enabled: !!profileId,
   });
 
   // Fetch applications
@@ -146,6 +154,7 @@ export const ApplicationsPage: React.FC = () => {
       status,
       dateApplied,
       followUpDate: followUpDate || null,
+      responseDate: responseDate || null,
       oaDateTime: oaDateTime ? new Date(oaDateTime).toISOString() : null,
       interviewDateTime: interviewDateTime ? new Date(interviewDateTime).toISOString() : null,
       meetingLink: meetingLink || null
@@ -166,6 +175,7 @@ export const ApplicationsPage: React.FC = () => {
     setStatus('APPLIED');
     setDateApplied(new Date().toISOString().split('T')[0]);
     setFollowUpDate('');
+    setResponseDate('');
     setAiText('');
     setErrorMsg('');
     setOaDateTime('');
@@ -544,42 +554,54 @@ export const ApplicationsPage: React.FC = () => {
               </div>
             )}
 
-            {/* Quick Resume Upload within Form */}
-            <div className="space-y-2 p-4 rounded-md border border-border bg-muted/20">
-              <div className="flex items-center justify-between">
-                <label className="text-xs font-semibold text-foreground flex items-center gap-1.5">
-                  <FileText className="h-4 w-4 text-primary" />
-                  Attach Resume Version
+            {/* Resume Selection & Upload */}
+            <div className="grid grid-cols-2 gap-4 p-4 rounded-md border border-border bg-muted/20">
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-foreground flex items-center gap-1">
+                  <FileText className="h-3.5 w-3.5 text-primary" />
+                  Linked Resume
                 </label>
-                {resumeFileName && (
-                  <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-mono">✓ {resumeFileName}</span>
-                )}
-              </div>
-              
-              <div className="flex items-center gap-4">
-                <input
-                  type="file"
-                  accept="application/pdf"
-                  onChange={handleResumeUpload}
-                  disabled={uploadingResume || !profileId}
-                  className="hidden"
-                  id="modal-resume-file"
-                />
-                <label
-                  htmlFor="modal-resume-file"
-                  className={`flex items-center gap-2 px-3 py-2 border border-border hover:bg-muted bg-card rounded-md text-xs font-semibold text-foreground cursor-pointer transition-colors ${
-                    !profileId ? 'opacity-40 pointer-events-none' : ''
-                  }`}
+                <select
+                  value={resumeId}
+                  onChange={(e) => setResumeId(e.target.value)}
+                  className="w-full px-3 py-2 bg-background border border-border rounded-md text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                 >
-                  {uploadingResume ? (
-                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                  ) : (
-                    <Upload className="h-3.5 w-3.5" />
-                  )}
-                  {resumeId ? 'Change Resume PDF' : 'Quick Upload PDF'}
+                  <option value="">No Resume Linked</option>
+                  {resumes.map(r => (
+                    <option key={r.id} value={r.id}>Version {r.versionNumber} ({r.fileName})</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-foreground flex items-center gap-1">
+                  <Upload className="h-3.5 w-3.5 text-primary" />
+                  Upload New Version
                 </label>
-                {!profileId && (
-                  <p className="text-[10px] text-muted-foreground">Select a career persona first to enable resume attachment.</p>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="file"
+                    accept="application/pdf"
+                    onChange={handleResumeUpload}
+                    disabled={uploadingResume || !profileId}
+                    className="hidden"
+                    id="modal-resume-file"
+                  />
+                  <label
+                    htmlFor="modal-resume-file"
+                    className={`w-full flex items-center justify-center gap-2 px-3 py-2 border border-border hover:bg-muted bg-card rounded-md text-xs font-semibold text-foreground cursor-pointer transition-colors ${
+                      !profileId ? 'opacity-40 pointer-events-none' : ''
+                    }`}
+                  >
+                    {uploadingResume ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    ) : (
+                      'Choose File'
+                    )}
+                  </label>
+                </div>
+                {resumeFileName && (
+                  <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-mono truncate mt-0.5">✓ {resumeFileName}</p>
                 )}
               </div>
             </div>
@@ -608,7 +630,7 @@ export const ApplicationsPage: React.FC = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-3 gap-4">
               <div className="space-y-1">
                 <label className="text-xs font-semibold text-foreground">Date Applied</label>
                 <input
@@ -625,6 +647,16 @@ export const ApplicationsPage: React.FC = () => {
                   type="date"
                   value={followUpDate}
                   onChange={(e) => setFollowUpDate(e.target.value)}
+                  className="w-full px-3 py-2 bg-background border border-border rounded-md text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-foreground">Response Date</label>
+                <input
+                  type="date"
+                  value={responseDate}
+                  onChange={(e) => setResponseDate(e.target.value)}
                   className="w-full px-3 py-2 bg-background border border-border rounded-md text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                 />
               </div>
@@ -652,6 +684,17 @@ export const ApplicationsPage: React.FC = () => {
                   className="w-full px-3 py-2 bg-background border border-border rounded-md text-sm text-foreground placeholder-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
                 />
               </div>
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-xs font-semibold text-foreground">Preserved Description</label>
+              <textarea
+                value={jobDescriptionRaw}
+                onChange={(e) => setJobDescriptionRaw(e.target.value)}
+                placeholder="Paste the full job description details here..."
+                rows={4}
+                className="w-full p-2 bg-background border border-border rounded-md text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+              />
             </div>
 
             <div className="flex items-center justify-end gap-2 pt-4 border-t border-border mt-6">
