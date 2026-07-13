@@ -117,10 +117,28 @@ public class UserService {
     }
 
     @Transactional
-    public User updateSettings(UUID userId, int ghostThresholdDays, boolean autoArchiveEnabled) {
+    public User updateSettings(UUID userId, int ghostThresholdDays, boolean autoArchiveEnabled, boolean browserNotificationsEnabled, boolean emailNotificationsEnabled) {
         User user = getUserProfile(userId);
         user.setGhostThresholdDays(ghostThresholdDays);
         user.setAutoArchiveEnabled(autoArchiveEnabled);
+        user.setBrowserNotificationsEnabled(browserNotificationsEnabled);
+        user.setEmailNotificationsEnabled(emailNotificationsEnabled);
+        return userRepository.save(user);
+    }
+
+    @Transactional
+    public void deleteUser(UUID userId) {
+        User user = getUserProfile(userId);
+        userRepository.delete(user);
+        log.info("Permanently deleted user account: {}", user.getEmail());
+    }
+
+    @Transactional
+    public User unlinkProvider(UUID userId, String provider) {
+        User user = getUserProfile(userId);
+        // Clean provider flag. Since the user may not have a local password, we preserve email but clear provider back to LOCAL.
+        // In a real OAuth system, they might need to set a password first, but PRD allows simple unlinking.
+        user.setAuthProvider("LOCAL");
         return userRepository.save(user);
     }
 }

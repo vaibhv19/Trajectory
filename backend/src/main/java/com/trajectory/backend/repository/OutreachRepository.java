@@ -35,4 +35,6 @@ public interface OutreachRepository extends JpaRepository<Outreach, UUID> {
             @Param("today") LocalDate today,
             @Param("activeStatuses") List<OutreachStatus> activeStatuses
     );
+
+    List<Outreach> findByUserId(UUID userId);
 }

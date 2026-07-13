@@ -68,4 +68,6 @@ public interface ApplicationRepository extends JpaRepository<Application, UUID> 
 
     // Duplicate detection
     boolean existsByUserIdAndCompanyNameIgnoreCaseAndRoleTitleIgnoreCaseAndIsArchivedFalse(UUID userId, String companyName, String roleTitle);
+
+    List<Application> findByUserId(UUID userId);
 }
