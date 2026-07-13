@@ -44,6 +44,14 @@ This project is structured as a decoupled full-stack application (React Frontend
 *   **Web Push Notifications:** Real-time push alerts via Web Push API for OA/Interview times and outreach follow-ups.
 *   **Daily Digest:** A consolidated overview of the daily agenda displayed in the dashboard widget.
 
+### 📁 7. Company Resources & Placement Sheets
+*   **Integrated Placement Sheets:** Built-in repository covering recruitment criteria for 100+ top technology companies, listing salary packages (CTC), eligibility thresholds (CGPA, high school grades), and common interview topics.
+*   **Private S3 Document Storage:** Dedicated document vault to upload and manage company-specific PDFs, offer details, and benefit guidelines stored securely in S3/MinIO.
+
+### ⚙️ 8. User Preferences & Settings
+*   **Pipeline Fine-Tuning:** Define custom thresholds for the automatic "Ghosted" detection cron job.
+*   **Automated Lifecycle Actions:** Toggle preferences like auto-archiving rejected roles and managing notification alerts.
+
 ---
 
 ## 🔄 Application Flow & User Journey
@@ -125,10 +133,12 @@ The React frontend uses client-side routing to separate core career management d
 
 *   **`/login`** — Authentication Canvas: Single container with toggle tabs for credentials login and social authentication buttons (Google/GitHub).
 *   **`/dashboard`** — The Command Center: Displays rollups for active pipelines, Recharts funnel rates, and the Daily Agenda widget.
-*   **`/applications`** — Application Matrix: Searchable and paginated grid layout of all job applications with triggers for Quick Resume Upload and AI Import.
+*   **`/applications`** — Application Matrix: Searchable and paginated data table of all job applications featuring database-driven sorting, pagination, and multi-select filtering with triggers for Quick Resume Upload and AI Import.
 *   **`/applications/:id`** — Application Inspector: Detailed page displaying the status change history on a chronological timeline with pulsing indicators.
 *   **`/outreach`** — Networking CRM: Recruiter grid view showing contact details, LinkedIn links, and follow-up warnings.
 *   **`/resumes`** — Career Profile Matrix: Displays custom color-coded career personas, resume file version tables (e.g. `v1`, `v2`), and logs.
+*   **`/resources`** — Placement Sheets & Company Documents: Dashboard displaying integrated placement data for 100+ top tech companies (CTC, CGPA/12th marks criteria, prep topics) and private S3-backed document storage.
+*   **`/settings`** — User Profile & Settings: Configurations for display name, custom inactivity thresholds for automatic "Ghosted" detection, and lifecycle automation (auto-archive toggles).
 
 ---
 
