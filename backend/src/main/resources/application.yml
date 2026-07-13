@@ -101,4 +101,4 @@ spring:
 security:
   oauth2:
     mock:
-      enabled: true
+      enabled: false
