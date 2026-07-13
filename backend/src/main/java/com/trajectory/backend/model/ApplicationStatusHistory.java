@@ -27,6 +27,7 @@ public class ApplicationStatusHistory {
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "application_id", nullable = false)
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private Application application;
 
     @NotNull
