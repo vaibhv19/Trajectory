@@ -10,7 +10,10 @@ import {
   Upload, 
   FileText, 
   Loader2, 
-  Briefcase
+  Briefcase,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown
 } from 'lucide-react';
 
 export const ApplicationsPage: React.FC = () => {
@@ -24,6 +27,28 @@ export const ApplicationsPage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+
+  // Sorting state
+  const [sortField, setSortField] = useState<'companyName' | 'roleTitle' | 'status' | 'dateApplied' | 'followUpDate'>('dateApplied');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
+
+  const handleSort = (field: 'companyName' | 'roleTitle' | 'status' | 'dateApplied' | 'followUpDate') => {
+    if (sortField === field) {
+      setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('asc');
+    }
+  };
+
+  const renderSortIcon = (field: 'companyName' | 'roleTitle' | 'status' | 'dateApplied' | 'followUpDate') => {
+    if (sortField !== field) {
+      return <ArrowUpDown className="ml-1.5 h-3.5 w-3.5 text-muted-foreground/40 shrink-0" />;
+    }
+    return sortDirection === 'asc' 
+      ? <ArrowUp className="ml-1.5 h-3.5 w-3.5 text-primary shrink-0" />
+      : <ArrowDown className="ml-1.5 h-3.5 w-3.5 text-primary shrink-0" />;
+  };
 
   // Form State
   const [companyName, setCompanyName] = useState('');
@@ -74,9 +99,37 @@ export const ApplicationsPage: React.FC = () => {
       isArchived: showArchived,
       page,
       size: 9,
-      sort: 'dateApplied,desc'
     }),
   });
+
+  const sortedApplications = React.useMemo(() => {
+    if (!data?.content) return [];
+    return [...data.content].sort((a, b) => {
+      let valA = a[sortField];
+      let valB = b[sortField];
+
+      // Handle null values
+      if (valA === null || valA === undefined) return sortDirection === 'asc' ? 1 : -1;
+      if (valB === null || valB === undefined) return sortDirection === 'asc' ? -1 : 1;
+
+      // If it is a string
+      if (typeof valA === 'string' && typeof valB === 'string') {
+        const dateA = Date.parse(valA);
+        const dateB = Date.parse(valB);
+        if (!isNaN(dateA) && !isNaN(dateB)) {
+          return sortDirection === 'asc' ? dateA - dateB : dateB - dateA;
+        }
+        return sortDirection === 'asc' 
+          ? valA.localeCompare(valB) 
+          : valB.localeCompare(valA);
+      }
+
+      // fallback comparison
+      if (valA < valB) return sortDirection === 'asc' ? -1 : 1;
+      if (valA > valB) return sortDirection === 'asc' ? 1 : -1;
+      return 0;
+    });
+  }, [data?.content, sortField, sortDirection]);
 
   // Create Application Mutation
   const createMutation = useMutation({
@@ -307,51 +360,101 @@ export const ApplicationsPage: React.FC = () => {
         </div>
       ) : (
         <div className="space-y-6">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {data.content.map((app) => (
-              <div 
-                key={app.id} 
-                onClick={() => navigate(`/applications/${app.id}`)}
-                className="p-6 rounded-lg border bg-card hover:border-primary/45 transition-all duration-200 cursor-pointer flex flex-col justify-between h-48 relative overflow-hidden group"
-              >
-                {/* Profile tag indicator */}
-                <div 
-                  className="absolute top-0 left-0 w-full h-[3px]" 
-                  style={{ backgroundColor: app.profile.colorCode }} 
-                />
-
-                <div className="space-y-2">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <h4 className="text-base font-semibold truncate max-w-[170px]">{app.companyName}</h4>
-                      <p className="text-sm text-muted-foreground truncate max-w-[170px]">{app.roleTitle}</p>
-                    </div>
-                    <span className={`px-2 py-0.5 rounded-md text-[10px] font-mono uppercase tracking-wide border ${statusColors[app.status]}`}>
-                      {app.status}
-                    </span>
-                  </div>
-
-                  <div className="flex flex-col gap-1 pt-2">
-                    <p className="text-xs text-muted-foreground truncate">
-                      {app.location || 'Location unspecified'}
-                    </p>
-                    {app.resumeFileName && (
-                      <div className="flex items-center gap-1 text-[11px] text-primary font-mono truncate">
-                        <FileText className="h-3 w-3" />
-                        {app.resumeFileName} (v{app.resumeVersion})
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between pt-4 border-t border-border/40 text-[10px] text-muted-foreground font-mono">
-                  <span>LOGGED: {new Date(app.dateApplied).toLocaleDateString()}</span>
-                  {app.followUpDate && (
-                    <span className="text-primary font-semibold">ACTION: {new Date(app.followUpDate).toLocaleDateString()}</span>
-                  )}
-                </div>
-              </div>
-            ))}
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg overflow-hidden shadow-sm">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse text-sm">
+                <thead>
+                  <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50">
+                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider font-mono">
+                      <button 
+                        type="button"
+                        onClick={() => handleSort('companyName')}
+                        className="flex items-center hover:text-foreground focus:outline-none transition-colors"
+                      >
+                        Company & Role
+                        {renderSortIcon('companyName')}
+                      </button>
+                    </th>
+                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider font-mono">
+                      <button 
+                        type="button"
+                        onClick={() => handleSort('status')}
+                        className="flex items-center hover:text-foreground focus:outline-none transition-colors"
+                      >
+                        Status
+                        {renderSortIcon('status')}
+                      </button>
+                    </th>
+                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider font-mono">
+                      Linked Resume
+                    </th>
+                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider font-mono">
+                      <button 
+                        type="button"
+                        onClick={() => handleSort('dateApplied')}
+                        className="flex items-center hover:text-foreground focus:outline-none transition-colors"
+                      >
+                        Date Logged
+                        {renderSortIcon('dateApplied')}
+                      </button>
+                    </th>
+                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider font-mono">
+                      <button 
+                        type="button"
+                        onClick={() => handleSort('followUpDate')}
+                        className="flex items-center hover:text-foreground focus:outline-none transition-colors"
+                      >
+                        Next Action Date
+                        {renderSortIcon('followUpDate')}
+                      </button>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-250 dark:divide-slate-800">
+                  {sortedApplications.map((app) => (
+                    <tr 
+                      key={app.id} 
+                      onClick={() => navigate(`/applications/${app.id}`)}
+                      className="cursor-pointer border-b border-slate-200 dark:border-slate-800 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors relative"
+                    >
+                      <td className="px-6 py-4 font-sans text-sm text-foreground">
+                        <div className="flex items-center gap-3">
+                          <span 
+                            className="w-1.5 h-6 rounded-full shrink-0" 
+                            style={{ backgroundColor: app.profile.colorCode }} 
+                          />
+                          <div>
+                            <span className="font-semibold block text-slate-900 dark:text-slate-100">{app.companyName}</span>
+                            <span className="text-xs text-muted-foreground block">{app.roleTitle}</span>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className={`inline-block px-2.5 py-0.5 rounded-md text-[10px] font-mono uppercase tracking-wide border ${statusColors[app.status]}`}>
+                          {app.status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        {app.resumeFileName ? (
+                          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-teal-50 dark:bg-teal-950/20 border border-teal-100 dark:border-teal-900 text-teal-700 dark:text-teal-400 text-xs rounded-md truncate max-w-[200px]" title={app.resumeFileName}>
+                            <FileText className="h-3.5 w-3.5" />
+                            <span className="truncate">Version {app.resumeVersion}</span>
+                          </div>
+                        ) : (
+                          <span className="text-xs text-muted-foreground font-sans">No Resume</span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 text-xs font-mono text-muted-foreground">
+                        {new Date(app.dateApplied).toLocaleDateString()}
+                      </td>
+                      <td className="px-6 py-4 text-xs font-mono text-primary font-semibold">
+                        {app.followUpDate ? new Date(app.followUpDate).toLocaleDateString() : '-'}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
 
           {/* Pagination */}
