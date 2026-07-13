@@ -23,8 +23,10 @@ export const ApplicationsPage: React.FC = () => {
   const [profileFilter, setProfileFilter] = useState('');
   const [statusFilters, setStatusFilters] = useState<string[]>([]);
   const [page, setPage] = useState(0);
+  const [showArchived, setShowArchived] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
 
   // Form State
   const [companyName, setCompanyName] = useState('');
@@ -56,11 +58,12 @@ export const ApplicationsPage: React.FC = () => {
 
   // Fetch applications
   const { data, isLoading } = useQuery({
-    queryKey: ['applications', search, statusFilters, profileFilter, page],
+    queryKey: ['applications', search, statusFilters, profileFilter, showArchived, page],
     queryFn: () => api.applications.list({
       search,
       status: statusFilters.length > 0 ? statusFilters : undefined,
       profileId: profileFilter || undefined,
+      isArchived: showArchived,
       page,
       size: 9,
       sort: 'dateApplied,desc'
@@ -76,6 +79,9 @@ export const ApplicationsPage: React.FC = () => {
       resetForm();
       setIsModalOpen(false);
     },
+    onError: (err: any) => {
+      setErrorMsg(err.message || 'Failed to add application.');
+    }
   });
 
   // AI parse mutation
@@ -158,6 +164,7 @@ export const ApplicationsPage: React.FC = () => {
     setDateApplied(new Date().toISOString().split('T')[0]);
     setFollowUpDate('');
     setAiText('');
+    setErrorMsg('');
   };
 
   const toggleStatusFilter = (status: string) => {
@@ -206,8 +213,8 @@ export const ApplicationsPage: React.FC = () => {
       {/* Filters Section */}
       <div className="p-4 rounded-lg border bg-card flex flex-col gap-4">
         {/* Search & Profile select */}
-        <div className="flex flex-col sm:flex-row gap-4">
-          <div className="relative flex-1">
+        <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
+          <div className="relative flex-1 w-full">
             <Search className="absolute inset-y-0 left-0 pl-3 h-full w-4 text-muted-foreground flex items-center" />
             <input
               type="text"
@@ -217,16 +224,28 @@ export const ApplicationsPage: React.FC = () => {
               className="w-full pl-9 pr-3 py-2 bg-background border border-border rounded-md text-sm placeholder-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
             />
           </div>
-          <select
-            value={profileFilter}
-            onChange={(e) => { setProfileFilter(e.target.value); setPage(0); }}
-            className="px-3 py-2 bg-background border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-          >
-            <option value="">All Career Personas</option>
-            {profiles.map(p => (
-              <option key={p.id} value={p.id}>{p.title}</option>
-            ))}
-          </select>
+          <div className="flex items-center gap-4 w-full sm:w-auto">
+            <select
+              value={profileFilter}
+              onChange={(e) => { setProfileFilter(e.target.value); setPage(0); }}
+              className="px-3 py-2 bg-background border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring w-full sm:w-auto"
+            >
+              <option value="">All Career Personas</option>
+              {profiles.map(p => (
+                <option key={p.id} value={p.id}>{p.title}</option>
+              ))}
+            </select>
+
+            <label className="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-muted-foreground cursor-pointer shrink-0">
+              <input
+                type="checkbox"
+                checked={showArchived}
+                onChange={(e) => { setShowArchived(e.target.checked); setPage(0); }}
+                className="w-4 h-4 accent-teal-700 cursor-pointer border border-border rounded focus:ring-0"
+              />
+              Show Archived
+            </label>
+          </div>
         </div>
 
         {/* Status badges row */}
@@ -403,6 +422,12 @@ export const ApplicationsPage: React.FC = () => {
                 ✕
               </button>
             </div>
+
+            {errorMsg && (
+              <div className="bg-red-50 dark:bg-red-950/20 border border-red-100 dark:border-red-900/50 p-3 text-red-700 dark:text-red-400 text-xs font-sans rounded-md">
+                {errorMsg}
+              </div>
+            )}
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
