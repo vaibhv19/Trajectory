@@ -1,5 +1,7 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { api } from '../services/api';
 import { useAuthStore } from '../store/authStore';
 import { useThemeStore } from '../store/themeStore';
 import { 
@@ -11,7 +13,12 @@ import {
   Sun, 
   Moon,
   Menu,
-  X
+  X,
+  Folder,
+  Settings,
+  Bell,
+  Check,
+  CheckCheck
 } from 'lucide-react';
 
 interface LayoutProps {
@@ -24,13 +31,46 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+  const [notificationsOpen, setNotificationsOpen] = React.useState(false);
+  const queryClient = useQueryClient();
 
   const navigation = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
     { name: 'Applications', href: '/applications', icon: Briefcase },
     { name: 'Outreach CRM', href: '/outreach', icon: Users },
     { name: 'Resumes & Profiles', href: '/resumes', icon: FileText },
+    { name: 'Company Resources', href: '/resources', icon: Folder },
+    { name: 'Settings', href: '/settings', icon: Settings },
   ];
+
+  // Fetch notifications
+  const { data: unreadCount = 0 } = useQuery<number>({
+    queryKey: ['notifications-unread-count'],
+    queryFn: api.notifications.unreadCount,
+    refetchInterval: 15000,
+  });
+
+  const { data: notifications = [] } = useQuery<any[]>({
+    queryKey: ['notifications'],
+    queryFn: api.notifications.list,
+    enabled: notificationsOpen,
+  });
+
+  const readMutation = useMutation({
+    mutationFn: (id: string) => api.notifications.read(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notifications-unread-count'] });
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+    }
+  });
+
+  const readAllMutation = useMutation({
+    mutationFn: api.notifications.readAll,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notifications-unread-count'] });
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+    }
+  });
 
   const handleLogout = () => {
     logout();
@@ -47,7 +87,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           </Link>
         </div>
 
-        <nav className="flex-1 space-y-1 px-4 py-6">
+        <nav className="flex-1 space-y-1 px-4 py-6 overflow-y-auto">
           {navigation.map((item) => {
             const isActive = location.pathname.startsWith(item.href);
             const Icon = item.icon;
@@ -102,7 +142,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
               </button>
             </div>
 
-            <nav className="flex-1 space-y-1 py-6">
+            <nav className="flex-1 space-y-1 py-6 overflow-y-auto">
               {navigation.map((item) => {
                 const isActive = location.pathname.startsWith(item.href);
                 const Icon = item.icon;
@@ -163,6 +203,78 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           </div>
 
           <div className="flex items-center gap-4">
+            {/* Notifications Dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => setNotificationsOpen(!notificationsOpen)}
+                className="p-2 rounded-md border border-border bg-card hover:bg-muted text-muted-foreground hover:text-foreground transition-colors relative"
+                aria-label="Toggle notifications"
+              >
+                <Bell className="h-5 w-5" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 h-5 w-5 rounded-md bg-teal-600 border border-card text-[10px] font-mono font-bold text-white flex items-center justify-center">
+                    {unreadCount}
+                  </span>
+                )}
+              </button>
+
+              {notificationsOpen && (
+                <>
+                  <div 
+                    className="fixed inset-0 z-30" 
+                    onClick={() => setNotificationsOpen(false)} 
+                  />
+                  <div className="absolute right-0 mt-2 w-80 bg-card border border-border shadow-lg rounded-md overflow-hidden z-40 animate-in fade-in slide-in-from-top-2 duration-150">
+                    <div className="flex items-center justify-between px-4 py-2.5 border-b border-border bg-muted/30">
+                      <span className="text-xs font-mono font-bold uppercase tracking-wider text-muted-foreground">
+                        Notifications ({unreadCount})
+                      </span>
+                      {unreadCount > 0 && (
+                        <button
+                          onClick={() => readAllMutation.mutate()}
+                          className="text-[10px] font-semibold text-teal-600 dark:text-teal-400 hover:underline flex items-center gap-1 font-sans"
+                        >
+                          <CheckCheck className="w-3.5 h-3.5" />
+                          Mark all read
+                        </button>
+                      )}
+                    </div>
+                    <div className="divide-y divide-border max-h-72 overflow-y-auto">
+                      {notifications.length === 0 ? (
+                        <div className="p-8 text-center text-xs text-muted-foreground font-sans">
+                          No notifications found.
+                        </div>
+                      ) : (
+                        notifications.map((n) => (
+                          <div 
+                            key={n.id} 
+                            className={`p-3 text-left transition-colors flex gap-2 items-start ${n.isRead ? 'opacity-60' : 'bg-muted/10'}`}
+                          >
+                            <div className="flex-1 min-w-0">
+                              <h4 className="text-xs font-semibold text-foreground font-sans">{n.title}</h4>
+                              <p className="text-[11px] text-muted-foreground font-sans mt-0.5 leading-relaxed">{n.message}</p>
+                              <span className="text-[9px] text-muted-foreground/60 font-sans block mt-1">
+                                {new Date(n.createdAt).toLocaleTimeString()}
+                              </span>
+                            </div>
+                            {!n.isRead && (
+                              <button
+                                onClick={() => readMutation.mutate(n.id)}
+                                className="p-1 hover:bg-muted text-teal-600 rounded-md transition-colors"
+                                title="Mark read"
+                              >
+                                <Check className="w-3 h-3" />
+                              </button>
+                            )}
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+
             {/* Theme Toggle Button */}
             <button
               onClick={toggleTheme}
