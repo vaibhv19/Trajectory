@@ -69,3 +69,22 @@
 2.  **Context Alignment:** When building UI, check `DESIGN.md` for specific spacing/color values. Do not hallucinate styles.
 3.  **Consistency:** Ensure that if a field is added to the PostgreSQL schema, it is reflected in the Spring Record DTO, the Zod schema on the frontend, and the TypeScript interface.
 4.  **No Boilerplate:** Avoid adding unnecessary libraries. Stick to the stack defined in `TECH-STACK.md`.
+
+---
+
+## 7. Command Reference
+
+### Infrastructure
+*   Start local Docker database/caching/storage: `docker-compose up -d`
+*   Stop local services: `docker-compose down`
+
+### Backend (Spring Boot)
+*   Build & run tests: `mvn clean test`
+*   Build deployment JAR: `mvn clean package -DskipTests`
+*   Run application locally: `mvn spring-boot:run`
+
+### Frontend (Vite/React)
+*   Install dependencies: `npm install`
+*   Run local dev server: `npm run dev`
+*   Build for production: `npm run build`
+*   Run linter: `npm run lint` (or `npx oxlint`)
