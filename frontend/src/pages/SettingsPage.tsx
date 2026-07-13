@@ -268,29 +268,29 @@ export const SettingsPage: React.FC = () => {
         </div>
 
         {/* Tab Content Panel */}
-        <div className="flex-1 bg-card border border-border p-6 rounded-md shadow-none">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-6 shadow-sm flex-1">
           
           {/* Profile details */}
           {activeTab === 'profile' && (
             <form onSubmit={handleProfileSubmit} className="space-y-4">
-              <h3 className="text-lg font-semibold text-foreground font-display border-b border-border pb-2">
+              <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4 pb-2 border-b border-slate-100 dark:border-slate-800">
                 Identity Profile
               </h3>
               
               <div>
-                <label className="block text-xs font-mono uppercase tracking-wider text-muted-foreground mb-1">
+                <label className="block text-xs font-semibold tracking-wider text-slate-500 dark:text-slate-400 mb-2">
                   Email Address
                 </label>
                 <input
                   type="email"
                   disabled
                   value={userProfile?.email}
-                  className="w-full bg-muted border border-border text-muted-foreground px-3 py-2 text-sm font-mono focus:outline-none rounded-md cursor-not-allowed"
+                  className="w-full px-3 py-2 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-md text-sm text-slate-500 dark:text-slate-400 cursor-not-allowed"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-mono uppercase tracking-wider text-muted-foreground mb-1">
+                <label className="block text-xs font-semibold tracking-wider text-slate-500 dark:text-slate-400 mb-2">
                   Full Display Name
                 </label>
                 <input
@@ -299,12 +299,12 @@ export const SettingsPage: React.FC = () => {
                   placeholder="e.g. Jane Doe"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  className="w-full bg-background border border-border text-foreground px-3 py-2 text-sm font-sans focus:outline-none focus:ring-1 focus:ring-primary rounded-md"
+                  className="w-full px-3 py-2 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-md text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-mono uppercase tracking-wider text-muted-foreground mb-1">
+                <label className="block text-xs font-semibold tracking-wider text-slate-500 dark:text-slate-400 mb-2">
                   Avatar / Profile Pic URL
                 </label>
                 <input
@@ -312,11 +312,11 @@ export const SettingsPage: React.FC = () => {
                   placeholder="https://example.com/avatar.png"
                   value={avatarUrl}
                   onChange={(e) => setAvatarUrl(e.target.value)}
-                  className="w-full bg-background border border-border text-foreground px-3 py-2 text-sm font-sans focus:outline-none focus:ring-1 focus:ring-primary rounded-md"
+                  className="w-full px-3 py-2 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-md text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
 
-              <div className="pt-2 border-t border-border flex justify-end">
+              <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex justify-end">
                 <button
                   type="submit"
                   disabled={updateProfileMutation.isPending}
@@ -340,12 +340,12 @@ export const SettingsPage: React.FC = () => {
             <div className="space-y-6">
               {/* Local Password Form */}
               <form onSubmit={handlePasswordSubmit} className="space-y-4">
-                <h3 className="text-lg font-semibold text-foreground font-display border-b border-border pb-2">
+                <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4 pb-2 border-b border-slate-100 dark:border-slate-800">
                   Change Password
                 </h3>
                 
                 <div>
-                  <label className="block text-xs font-mono uppercase tracking-wider text-muted-foreground mb-1">
+                  <label className="block text-xs font-semibold tracking-wider text-slate-500 dark:text-slate-400 mb-2">
                     Current Password
                   </label>
                   <input
@@ -354,12 +354,12 @@ export const SettingsPage: React.FC = () => {
                     placeholder="Enter current password"
                     value={oldPassword}
                     onChange={(e) => setOldPassword(e.target.value)}
-                    className="w-full bg-background border border-border text-foreground px-3 py-2 text-sm font-sans focus:outline-none focus:ring-1 focus:ring-primary rounded-md"
+                    className="w-full px-3 py-2 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-md text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-mono uppercase tracking-wider text-muted-foreground mb-1">
+                  <label className="block text-xs font-semibold tracking-wider text-slate-500 dark:text-slate-400 mb-2">
                     New Password
                   </label>
                   <input
@@ -368,12 +368,12 @@ export const SettingsPage: React.FC = () => {
                     placeholder="Enter new password"
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
-                    className="w-full bg-background border border-border text-foreground px-3 py-2 text-sm font-sans focus:outline-none focus:ring-1 focus:ring-primary rounded-md"
+                    className="w-full px-3 py-2 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-md text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-mono uppercase tracking-wider text-muted-foreground mb-1">
+                  <label className="block text-xs font-semibold tracking-wider text-slate-500 dark:text-slate-400 mb-2">
                     Confirm New Password
                   </label>
                   <input
@@ -382,11 +382,11 @@ export const SettingsPage: React.FC = () => {
                     placeholder="Re-enter new password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full bg-background border border-border text-foreground px-3 py-2 text-sm font-sans focus:outline-none focus:ring-1 focus:ring-primary rounded-md"
+                    className="w-full px-3 py-2 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-md text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   />
                 </div>
 
-                <div className="pt-2 border-t border-border flex justify-end">
+                <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex justify-end">
                   <button
                     type="submit"
                     disabled={changePasswordMutation.isPending}
@@ -405,11 +405,11 @@ export const SettingsPage: React.FC = () => {
               </form>
 
               {/* Linked Accounts */}
-              <div className="space-y-4 pt-4 border-t border-border">
-                <h3 className="text-base font-semibold text-foreground font-display">
+              <div className="space-y-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+                <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100 mb-2">
                   Linked Identity Providers
                 </h3>
-                <p className="text-xs text-muted-foreground font-sans">
+                <p className="text-xs text-slate-500 dark:text-slate-400 font-sans">
                   Current authentication system link: <strong className="font-mono text-teal-700 dark:text-teal-400">{userProfile?.authProvider}</strong>
                 </p>
 
@@ -424,7 +424,7 @@ export const SettingsPage: React.FC = () => {
                       Unlink {userProfile?.authProvider} Connection
                     </button>
                   ) : (
-                    <span className="text-xs text-muted-foreground font-sans italic">
+                    <span className="text-xs text-slate-500 dark:text-slate-400 font-sans italic">
                       No external OAuth social profiles currently linked to this email user.
                     </span>
                   )}
@@ -436,17 +436,17 @@ export const SettingsPage: React.FC = () => {
           {/* Automation & Alerts */}
           {activeTab === 'toggles' && (
             <form onSubmit={handleSettingsSubmit} className="space-y-6">
-              <h3 className="text-lg font-semibold text-foreground font-display border-b border-border pb-2">
+              <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4 pb-2 border-b border-slate-100 dark:border-slate-800">
                 Inactivity & Alerts Parameters
               </h3>
 
               {/* Slider for Ghost threshold */}
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <label className="text-xs font-mono uppercase tracking-wider text-muted-foreground">
+                  <label className="text-xs font-semibold tracking-wider text-slate-500 dark:text-slate-400 mb-2">
                     Ghost Detection Threshold
                   </label>
-                  <span className="text-xs font-mono font-semibold bg-muted text-primary px-2 py-0.5 rounded-md">
+                  <span className="text-xs font-mono font-semibold bg-slate-100 dark:bg-slate-800 text-teal-700 dark:text-teal-400 px-2 py-0.5 rounded-md">
                     {ghostThreshold} Days
                   </span>
                 </div>
@@ -456,20 +456,20 @@ export const SettingsPage: React.FC = () => {
                   max="90"
                   value={ghostThreshold}
                   onChange={(e) => setGhostThreshold(Number(e.target.value))}
-                  className="w-full accent-primary h-1.5 bg-muted rounded-lg appearance-none cursor-pointer"
+                  className="w-full accent-primary h-1.5 bg-slate-200 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer"
                 />
-                <p className="text-[10px] text-muted-foreground font-sans">
+                <p className="text-[10px] text-slate-500 dark:text-slate-400 font-sans">
                   Applications will automatically transition to "GHOSTED" if they are in Applied/OA/Interview state with no updates for this number of days.
                 </p>
               </div>
 
               {/* Toggle for Auto-Archive */}
-              <div className="flex items-start justify-between border-t border-border pt-4">
+              <div className="flex items-start justify-between border-t border-slate-100 dark:border-slate-800 pt-4">
                 <div className="space-y-0.5 pr-4">
-                  <label className="text-sm font-semibold text-foreground font-sans block">
+                  <label className="text-sm font-semibold text-slate-900 dark:text-slate-100 block">
                     Auto-Archive Rejections & Ghosts
                   </label>
-                  <span className="text-xs text-muted-foreground font-sans block">
+                  <span className="text-xs text-slate-500 dark:text-slate-400 block">
                     When enabled, transitioning any application status to Rejected or Ghosted automatically marks it archived.
                   </span>
                 </div>
@@ -477,17 +477,17 @@ export const SettingsPage: React.FC = () => {
                   type="checkbox"
                   checked={autoArchive}
                   onChange={(e) => setAutoArchive(e.target.checked)}
-                  className="w-4 h-4 accent-primary cursor-pointer border border-border rounded focus:ring-0"
+                  className="w-4 h-4 accent-primary cursor-pointer border border-slate-300 dark:border-slate-700 rounded focus:ring-0"
                 />
               </div>
 
               {/* Toggle for Browser Push Alerts */}
-              <div className="flex items-start justify-between border-t border-border pt-4">
+              <div className="flex items-start justify-between border-t border-slate-100 dark:border-slate-800 pt-4">
                 <div className="space-y-0.5 pr-4">
-                  <label className="text-sm font-semibold text-foreground font-sans block">
+                  <label className="text-sm font-semibold text-slate-900 dark:text-slate-100 block">
                     Enable Internal & Browser Notifications
                   </label>
-                  <span className="text-xs text-muted-foreground font-sans block">
+                  <span className="text-xs text-slate-500 dark:text-slate-400 block">
                     Receive morning alerts and follow-up nudge reminders inside the dashboard header bell.
                   </span>
                 </div>
@@ -495,17 +495,17 @@ export const SettingsPage: React.FC = () => {
                   type="checkbox"
                   checked={browserAlerts}
                   onChange={(e) => setBrowserAlerts(e.target.checked)}
-                  className="w-4 h-4 accent-primary cursor-pointer border border-border rounded focus:ring-0"
+                  className="w-4 h-4 accent-primary cursor-pointer border border-slate-300 dark:border-slate-700 rounded focus:ring-0"
                 />
               </div>
 
               {/* Toggle for Email Alerts */}
-              <div className="flex items-start justify-between border-t border-border pt-4">
+              <div className="flex items-start justify-between border-t border-slate-100 dark:border-slate-800 pt-4">
                 <div className="space-y-0.5 pr-4">
-                  <label className="text-sm font-semibold text-foreground font-sans block">
+                  <label className="text-sm font-semibold text-slate-900 dark:text-slate-100 block">
                     Enable Email Reminders
                   </label>
-                  <span className="text-xs text-muted-foreground font-sans block">
+                  <span className="text-xs text-slate-500 dark:text-slate-400 block">
                     Send critical daily digest notifications to your registered email address.
                   </span>
                 </div>
@@ -513,11 +513,11 @@ export const SettingsPage: React.FC = () => {
                   type="checkbox"
                   checked={emailAlerts}
                   onChange={(e) => setEmailAlerts(e.target.checked)}
-                  className="w-4 h-4 accent-primary cursor-pointer border border-border rounded focus:ring-0"
+                  className="w-4 h-4 accent-primary cursor-pointer border border-slate-300 dark:border-slate-700 rounded focus:ring-0"
                 />
               </div>
 
-              <div className="pt-2 border-t border-border flex justify-end">
+              <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex justify-end">
                 <button
                   type="submit"
                   disabled={updateSettingsMutation.isPending}
@@ -539,19 +539,19 @@ export const SettingsPage: React.FC = () => {
           {/* Data Portability */}
           {activeTab === 'data' && (
             <div className="space-y-6">
-              <h3 className="text-lg font-semibold text-foreground font-display border-b border-border pb-2">
+              <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4 pb-2 border-b border-slate-100 dark:border-slate-800">
                 Workspace Backups & Portability
               </h3>
 
               {/* Import/Export buttons */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="border border-border p-4 rounded-md flex flex-col justify-between">
+                <div className="border border-slate-200 dark:border-slate-800 p-4 rounded-md flex flex-col justify-between">
                   <div>
-                    <h4 className="font-semibold text-sm text-foreground font-sans flex items-center gap-2">
+                    <h4 className="font-semibold text-sm text-slate-900 dark:text-slate-100 flex items-center gap-2">
                       <Download className="w-4 h-4 text-teal-600" />
                       Export Career Workspace
                     </h4>
-                    <p className="text-xs text-muted-foreground font-sans mt-1">
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-sans">
                       Download all of your career profiles, applications, outreach conversations, resume histories, and uploaded PDF guides in a single JSON backup.
                     </p>
                   </div>
@@ -563,13 +563,13 @@ export const SettingsPage: React.FC = () => {
                   </button>
                 </div>
 
-                <div className="border border-border p-4 rounded-md flex flex-col justify-between">
+                <div className="border border-slate-200 dark:border-slate-800 p-4 rounded-md flex flex-col justify-between">
                   <div>
-                    <h4 className="font-semibold text-sm text-foreground font-sans flex items-center gap-2">
+                    <h4 className="font-semibold text-sm text-slate-900 dark:text-slate-100 flex items-center gap-2">
                       <Upload className="w-4 h-4 text-teal-600" />
                       Import Workspace Backup
                     </h4>
-                    <p className="text-xs text-muted-foreground font-sans mt-1">
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-sans">
                       Upload a previously exported Trajectory JSON file to restore your entire database. <span className="font-semibold text-red-500">Warning: this will overwrite your current active records!</span>
                     </p>
                   </div>
@@ -584,7 +584,7 @@ export const SettingsPage: React.FC = () => {
                     <button
                       type="button"
                       disabled={importing}
-                      className="w-full bg-muted hover:bg-muted/80 text-foreground text-xs font-semibold py-2 px-3 border border-border rounded-md transition-colors flex items-center justify-center gap-1.5"
+                      className="w-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs font-semibold py-2 px-3 border border-slate-300 dark:border-slate-800 rounded-md transition-colors flex items-center justify-center gap-1.5"
                     >
                       {importing ? (
                         <>
@@ -605,7 +605,7 @@ export const SettingsPage: React.FC = () => {
                   <Trash2 className="w-4.5 h-4.5" />
                   Danger Zone
                 </h4>
-                <p className="text-xs text-muted-foreground font-sans">
+                <p className="text-xs text-slate-500 dark:text-slate-400 font-sans">
                   Deleting your account permanently erases your identity, settings, applications matrix, CRM outreaches, resume files, and attachments from the system. This action cannot be undone.
                 </p>
                 <div className="pt-2">
