@@ -91,7 +91,7 @@ export const ApplicationsPage: React.FC = () => {
 
   // Fetch applications
   const { data, isLoading } = useQuery({
-    queryKey: ['applications', search, statusFilters, profileFilter, showArchived, page],
+    queryKey: ['applications', search, statusFilters, profileFilter, showArchived, page, sortField, sortDirection],
     queryFn: () => api.applications.list({
       search,
       status: statusFilters.length > 0 ? statusFilters : undefined,
@@ -99,37 +99,9 @@ export const ApplicationsPage: React.FC = () => {
       isArchived: showArchived,
       page,
       size: 9,
+      sort: `${sortField},${sortDirection}`
     }),
   });
-
-  const sortedApplications = React.useMemo(() => {
-    if (!data?.content) return [];
-    return [...data.content].sort((a, b) => {
-      let valA = a[sortField];
-      let valB = b[sortField];
-
-      // Handle null values
-      if (valA === null || valA === undefined) return sortDirection === 'asc' ? 1 : -1;
-      if (valB === null || valB === undefined) return sortDirection === 'asc' ? -1 : 1;
-
-      // If it is a string
-      if (typeof valA === 'string' && typeof valB === 'string') {
-        const dateA = Date.parse(valA);
-        const dateB = Date.parse(valB);
-        if (!isNaN(dateA) && !isNaN(dateB)) {
-          return sortDirection === 'asc' ? dateA - dateB : dateB - dateA;
-        }
-        return sortDirection === 'asc' 
-          ? valA.localeCompare(valB) 
-          : valB.localeCompare(valA);
-      }
-
-      // fallback comparison
-      if (valA < valB) return sortDirection === 'asc' ? -1 : 1;
-      if (valA > valB) return sortDirection === 'asc' ? 1 : -1;
-      return 0;
-    });
-  }, [data?.content, sortField, sortDirection]);
 
   // Create Application Mutation
   const createMutation = useMutation({
@@ -411,7 +383,7 @@ export const ApplicationsPage: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-250 dark:divide-slate-800">
-                  {sortedApplications.map((app) => (
+                  {(data?.content || []).map((app) => (
                     <tr 
                       key={app.id} 
                       onClick={() => navigate(`/applications/${app.id}`)}
