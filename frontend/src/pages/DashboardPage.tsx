@@ -23,8 +23,7 @@ import {
   Pie,
   Cell,
   Legend,
-  AreaChart,
-  Area
+  CartesianGrid
 } from 'recharts';
 
 export const DashboardPage: React.FC = () => {
@@ -138,15 +137,10 @@ export const DashboardPage: React.FC = () => {
           <h3 className="text-lg font-display font-bold mb-6 uppercase tracking-tight text-muted-foreground">Pipeline Funnel Distribution</h3>
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={funnelData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                <defs>
-                  <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.2}/>
-                    <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <XAxis dataKey="name" stroke="currentColor" className="text-muted-foreground font-mono" fontSize={11} tickLine={false} />
-                <YAxis stroke="currentColor" className="text-muted-foreground font-mono" fontSize={11} tickLine={false} />
+              <BarChart data={funnelData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                <CartesianGrid stroke="hsl(var(--border))" strokeDasharray="3 3" vertical={false} />
+                <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" className="text-muted-foreground font-mono" fontSize={11} tickLine={false} />
+                <YAxis stroke="hsl(var(--muted-foreground))" allowDecimals={false} className="text-muted-foreground font-mono" fontSize={11} tickLine={false} />
                 <Tooltip 
                   contentStyle={{ 
                     background: 'hsl(var(--card))', 
@@ -155,8 +149,8 @@ export const DashboardPage: React.FC = () => {
                     color: 'hsl(var(--foreground))'
                   }} 
                 />
-                <Area type="monotone" dataKey="value" stroke="hsl(var(--primary))" strokeWidth={2} fillOpacity={1} fill="url(#colorValue)" />
-              </AreaChart>
+                <Bar dataKey="value" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+              </BarChart>
             </ResponsiveContainer>
           </div>
         </div>
