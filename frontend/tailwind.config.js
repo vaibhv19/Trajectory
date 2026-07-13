@@ -76,9 +76,9 @@ export default {
         xl: "var(--radius-xl, 6px)",
       },
       fontFamily: {
-        sans: ["Times New Roman", "Times", "serif"],
-        display: ["Times New Roman", "Times", "serif"],
-        mono: ["Times New Roman", "Times", "serif"],
+        sans: ["Public Sans", "sans-serif"],
+        display: ["IBM Plex Sans", "sans-serif"],
+        mono: ["IBM Plex Mono", "monospace"],
       },
       keyframes: {
         "status-pulse": {

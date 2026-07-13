@@ -125,10 +125,10 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
               <Link
                 key={item.name}
                 to={item.href}
-                className={`group flex items-center px-4 py-3 text-sm font-medium rounded-md transition-all duration-200 ${
+                className={`group flex items-center px-4 py-3 text-sm font-medium rounded-md transition-all duration-200 border-l-2 ${
                   isActive
-                    ? 'bg-primary text-primary-foreground'
-                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                    ? 'bg-primary/10 border-primary text-foreground font-semibold rounded-r-md pl-3.5'
+                    : 'text-muted-foreground hover:bg-muted hover:text-foreground border-transparent'
                 }`}
               >
                 <Icon className="mr-3 h-5 w-5 flex-shrink-0" />
@@ -181,10 +181,10 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                     key={item.name}
                     to={item.href}
                     onClick={() => setMobileMenuOpen(false)}
-                    className={`group flex items-center px-4 py-3 text-sm font-medium rounded-md transition-all duration-200 ${
+                    className={`group flex items-center px-4 py-3 text-sm font-medium rounded-md transition-all duration-200 border-l-2 ${
                       isActive
-                        ? 'bg-primary text-primary-foreground'
-                        : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                        ? 'bg-primary/10 border-primary text-foreground font-semibold rounded-r-md pl-3.5'
+                        : 'text-muted-foreground hover:bg-muted hover:text-foreground border-transparent'
                     }`}
                   >
                     <Icon className="mr-3 h-5 w-5 flex-shrink-0" />

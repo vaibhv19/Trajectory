@@ -78,19 +78,17 @@ export const DashboardPage: React.FC = () => {
       {/* High-level counters */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {[
-          { title: 'TOTAL', value: metrics.totalApplications, icon: Briefcase, color: 'text-primary bg-primary/10' },
-          { title: 'ACTIVE', value: metrics.activeApplications, icon: CheckCircle, color: 'text-primary bg-primary/10' },
-          { title: 'REJECTED', value: metrics.rejectedApplications, icon: XCircle, color: 'text-destructive bg-destructive/10' },
-          { title: 'GHOSTED', value: metrics.ghostedApplications, icon: Ghost, color: 'text-muted-foreground bg-muted' },
+          { title: 'TOTAL', value: metrics.totalApplications, icon: Briefcase },
+          { title: 'ACTIVE', value: metrics.activeApplications, icon: CheckCircle },
+          { title: 'REJECTED', value: metrics.rejectedApplications, icon: XCircle },
+          { title: 'GHOSTED', value: metrics.ghostedApplications, icon: Ghost },
         ].map((card, i) => {
           const Icon = card.icon;
           return (
             <div key={i} className="p-6 rounded-lg border bg-card">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-mono uppercase tracking-wider text-muted-foreground">{card.title}</span>
-                <span className={`p-1.5 rounded-md ${card.color}`}>
-                  <Icon className="h-4 w-4" />
-                </span>
+                <Icon className="h-5 w-5 text-muted-foreground shrink-0" />
               </div>
               <div className="mt-4">
                 <span className="text-3xl font-mono font-bold text-foreground">{card.value}</span>
@@ -158,7 +156,7 @@ export const DashboardPage: React.FC = () => {
         <div className="col-span-12 lg:col-span-4 p-6 rounded-lg border bg-card flex flex-col">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-display font-bold uppercase tracking-tight text-muted-foreground">Today's Agenda</h3>
-            <span className="p-1 px-2.5 rounded-md bg-primary/10 text-primary text-xs font-mono">
+            <span className="bg-muted text-muted-foreground border border-border rounded-md px-2 py-0.5 font-mono text-xs">
               {metrics.agenda.length} TASKS
             </span>
           </div>

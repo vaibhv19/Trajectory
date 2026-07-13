@@ -94,8 +94,8 @@
     --destructive: 6 48% 38%;
     --destructive-foreground: 43 14% 92%;
 
-    --border: 216 10% 19%; /* #2C3036 (Graphite 700) */
-    --input: 216 10% 19%;
+    --border: 215 10% 24%; /* #363B42 (Graphite 600) */
+    --input: 215 10% 24%;
     --ring: 185 46% 46%;
 
     /* Flat Status Colors (Dark Mode HSL) */
