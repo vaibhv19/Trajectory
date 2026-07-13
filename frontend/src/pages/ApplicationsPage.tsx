@@ -89,6 +89,15 @@ export const ApplicationsPage: React.FC = () => {
     enabled: !!profileId,
   });
 
+  // Auto-select latest resume when profile resumes update
+  React.useEffect(() => {
+    if (resumes.length > 0) {
+      setResumeId(resumes[0].id);
+    } else {
+      setResumeId('');
+    }
+  }, [resumes]);
+
   // Fetch applications
   const { data, isLoading } = useQuery({
     queryKey: ['applications', search, statusFilters, profileFilter, showArchived, page, sortField, sortDirection],

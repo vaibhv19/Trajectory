@@ -5,6 +5,7 @@ import com.trajectory.backend.dto.LoginRequest;
 import com.trajectory.backend.dto.RegisterRequest;
 import com.trajectory.backend.model.CareerProfile;
 import com.trajectory.backend.model.User;
+import com.trajectory.backend.model.RefreshToken;
 import com.trajectory.backend.repository.CareerProfileRepository;
 import com.trajectory.backend.repository.UserRepository;
 import com.trajectory.backend.security.JwtTokenProvider;
@@ -44,6 +45,9 @@ class UserServiceTest {
     @Mock
     private JwtTokenProvider tokenProvider;
 
+    @Mock
+    private RefreshTokenService refreshTokenService;
+
     private UserService userService;
 
     @BeforeEach
@@ -53,7 +57,8 @@ class UserServiceTest {
                 careerProfileRepository,
                 passwordEncoder,
                 authenticationManager,
-                tokenProvider
+                tokenProvider,
+                refreshTokenService
         );
     }
 
@@ -68,10 +73,12 @@ class UserServiceTest {
                 .fullName(request.fullName())
                 .build();
 
+        RefreshToken mockRefreshToken = RefreshToken.builder().token("mock-refresh-token").build();
         when(userRepository.existsByEmail(request.email())).thenReturn(false);
         when(passwordEncoder.encode(request.password())).thenReturn("hashed-pwd");
         when(userRepository.save(any(User.class))).thenReturn(savedUser);
         when(tokenProvider.generateTokenForUser(any(UserPrincipal.class))).thenReturn("mock-jwt-token");
+        when(refreshTokenService.createRefreshToken(any(UUID.class))).thenReturn(mockRefreshToken);
 
         // Act
         AuthResponse response = userService.registerUser(request);
@@ -79,6 +86,7 @@ class UserServiceTest {
         // Assert
         assertNotNull(response);
         assertEquals("mock-jwt-token", response.token());
+        assertEquals("mock-refresh-token", response.refreshToken());
         assertEquals("test@email.com", response.email());
         assertEquals("Test User", response.fullName());
         assertEquals(savedUser.getId(), response.userId());

@@ -129,6 +129,7 @@ export interface DashboardMetrics {
 
 export interface AuthResponse {
   token: string;
+  refreshToken: string;
   email: string;
   fullName: string;
   userId: string;

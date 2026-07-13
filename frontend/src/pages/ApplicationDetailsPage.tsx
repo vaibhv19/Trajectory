@@ -70,6 +70,17 @@ export const ApplicationDetailsPage: React.FC = () => {
     enabled: !!selectedProfileId,
   });
 
+  // Auto-select latest resume when profile resumes update
+  React.useEffect(() => {
+    if (resumes.length > 0) {
+      if (!resumeId) {
+        setResumeId(resumes[0].id);
+      }
+    } else {
+      setResumeId('');
+    }
+  }, [resumes]);
+
   // Mutators
   const updateMutation = useMutation({
     mutationFn: (data: any) => api.applications.update(id!, data),

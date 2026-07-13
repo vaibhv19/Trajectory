@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../services/api';
 import { useAuthStore } from '../store/authStore';
+import { useThemeStore } from '../store/themeStore';
 import type { User } from '../types';
 import { 
   User as UserIcon,
@@ -21,6 +22,7 @@ export const SettingsPage: React.FC = () => {
   const queryClient = useQueryClient();
   const logout = useAuthStore((state) => state.logout);
   const token = useAuthStore((state) => state.token);
+  const { fontSize, setFontSize, compactMode, setCompactMode } = useThemeStore();
 
   // States
   const [activeTab, setActiveTab] = useState<'profile' | 'security' | 'toggles' | 'data'>('profile');
@@ -185,6 +187,16 @@ export const SettingsPage: React.FC = () => {
 
   const handleSettingsSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (browserAlerts && 'Notification' in window && Notification.permission !== 'granted') {
+      Notification.requestPermission().then(permission => {
+        if (permission === 'granted') {
+          new Notification("Trajectory Notifications Enabled", {
+            body: "You will now receive alerts for follow-ups and deadlines.",
+            icon: '/favicon.ico'
+          });
+        }
+      });
+    }
     updateSettingsMutation.mutate();
   };
 
@@ -515,6 +527,50 @@ export const SettingsPage: React.FC = () => {
                   onChange={(e) => setEmailAlerts(e.target.checked)}
                   className="w-4 h-4 accent-primary cursor-pointer border border-slate-300 dark:border-slate-700 rounded focus:ring-0"
                 />
+              </div>
+
+              {/* Appearance Preferences (Local Layout) */}
+              <div className="border-t border-slate-100 dark:border-slate-800 pt-4 space-y-4">
+                <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                  Aesthetic & Density Preferences
+                </h4>
+
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5 pr-4">
+                    <label className="text-sm font-semibold text-slate-900 dark:text-slate-100 block">
+                      Compact Layout Mode
+                    </label>
+                    <span className="text-xs text-slate-500 dark:text-slate-400 block">
+                      Reduce spacing and padding for high density data visualization screens.
+                    </span>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={compactMode}
+                    onChange={(e) => setCompactMode(e.target.checked)}
+                    className="w-4 h-4 accent-primary cursor-pointer border border-slate-300 dark:border-slate-700 rounded focus:ring-0"
+                  />
+                </div>
+
+                <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-800 pt-4">
+                  <div className="space-y-0.5 pr-4">
+                    <label className="text-sm font-semibold text-slate-900 dark:text-slate-100 block">
+                      Text Font Size
+                    </label>
+                    <span className="text-xs text-slate-500 dark:text-slate-400 block">
+                      Adjust base text size for optimal readability.
+                    </span>
+                  </div>
+                  <select
+                    value={fontSize}
+                    onChange={(e) => setFontSize(e.target.value as any)}
+                    className="px-3 py-1.5 bg-background border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring w-32 text-foreground"
+                  >
+                    <option value="small">Small</option>
+                    <option value="medium">Medium</option>
+                    <option value="large">Large</option>
+                  </select>
+                </div>
               </div>
 
               <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex justify-end">

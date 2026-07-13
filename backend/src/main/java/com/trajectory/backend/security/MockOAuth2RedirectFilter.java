@@ -16,6 +16,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 import java.util.Optional;
+import com.trajectory.backend.service.RefreshTokenService;
 
 @Component
 @Slf4j
@@ -24,15 +25,18 @@ public class MockOAuth2RedirectFilter extends OncePerRequestFilter {
     private final UserRepository userRepository;
     private final CareerProfileRepository careerProfileRepository;
     private final JwtTokenProvider tokenProvider;
+    private final RefreshTokenService refreshTokenService;
     private final boolean mockEnabled;
 
     public MockOAuth2RedirectFilter(UserRepository userRepository,
                                     CareerProfileRepository careerProfileRepository,
                                     JwtTokenProvider tokenProvider,
+                                    RefreshTokenService refreshTokenService,
                                     @Value("${security.oauth2.mock.enabled:false}") boolean mockEnabled) {
         this.userRepository = userRepository;
         this.careerProfileRepository = careerProfileRepository;
         this.tokenProvider = tokenProvider;
+        this.refreshTokenService = refreshTokenService;
         this.mockEnabled = mockEnabled;
     }
 
@@ -55,9 +59,11 @@ public class MockOAuth2RedirectFilter extends OncePerRequestFilter {
             User user = getOrCreateMockUser(email, name, avatarUrl, provider.toUpperCase());
             UserPrincipal principal = UserPrincipal.create(user);
             String token = tokenProvider.generateTokenForUser(principal);
+            String refreshToken = refreshTokenService.createRefreshToken(user.getId()).getToken();
 
             String targetUrl = UriComponentsBuilder.fromUriString("http://localhost:5173/login")
                     .queryParam("token", token)
+                    .queryParam("refreshToken", refreshToken)
                     .queryParam("email", user.getEmail())
                     .queryParam("name", user.getFullName())
                     .queryParam("userId", user.getId().toString())

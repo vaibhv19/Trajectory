@@ -43,6 +43,12 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     { name: 'Settings', href: '/settings', icon: Settings },
   ];
 
+  // Fetch user profile settings
+  const { data: userProfile } = useQuery({
+    queryKey: ['user-settings-profile'],
+    queryFn: api.users.getProfile,
+  });
+
   // Fetch notifications
   const { data: unreadCount = 0 } = useQuery<number>({
     queryKey: ['notifications-unread-count'],
@@ -53,8 +59,32 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { data: notifications = [] } = useQuery<any[]>({
     queryKey: ['notifications'],
     queryFn: api.notifications.list,
-    enabled: notificationsOpen,
+    refetchInterval: 15000,
   });
+
+  const alertedIdsRef = React.useRef<Set<string>>(new Set());
+  const isInitialLoadRef = React.useRef(true);
+
+  React.useEffect(() => {
+    if (!notifications || notifications.length === 0) return;
+
+    if (isInitialLoadRef.current) {
+      notifications.forEach(n => alertedIdsRef.current.add(n.id));
+      isInitialLoadRef.current = false;
+      return;
+    }
+
+    if (userProfile?.browserNotificationsEnabled && 'Notification' in window && Notification.permission === 'granted') {
+      const newUnreads = notifications.filter(n => !n.isRead && !alertedIdsRef.current.has(n.id));
+      newUnreads.forEach(n => {
+        alertedIdsRef.current.add(n.id);
+        new Notification("Trajectory Alert", {
+          body: n.message,
+          icon: '/favicon.ico'
+        });
+      });
+    }
+  }, [notifications, userProfile?.browserNotificationsEnabled]);
 
   const readMutation = useMutation({
     mutationFn: (id: string) => api.notifications.read(id),

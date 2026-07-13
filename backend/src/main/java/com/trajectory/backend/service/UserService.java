@@ -29,17 +29,20 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider tokenProvider;
+    private final RefreshTokenService refreshTokenService;
 
     public UserService(UserRepository userRepository, 
                        CareerProfileRepository careerProfileRepository,
                        PasswordEncoder passwordEncoder, 
                        AuthenticationManager authenticationManager, 
-                       JwtTokenProvider tokenProvider) {
+                       JwtTokenProvider tokenProvider,
+                       RefreshTokenService refreshTokenService) {
         this.userRepository = userRepository;
         this.careerProfileRepository = careerProfileRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.tokenProvider = tokenProvider;
+        this.refreshTokenService = refreshTokenService;
     }
 
     @Transactional
@@ -74,7 +77,8 @@ public class UserService {
         // Authenticate new user automatically
         UserPrincipal principal = UserPrincipal.create(savedUser);
         String token = tokenProvider.generateTokenForUser(principal);
-        return new AuthResponse(token, savedUser.getEmail(), savedUser.getFullName(), savedUser.getId());
+        String refreshToken = refreshTokenService.createRefreshToken(savedUser.getId()).getToken();
+        return new AuthResponse(token, refreshToken, savedUser.getEmail(), savedUser.getFullName(), savedUser.getId());
     }
 
     public AuthResponse loginUser(LoginRequest request) {
@@ -85,11 +89,12 @@ public class UserService {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
         String token = tokenProvider.generateToken(authentication);
+        String refreshToken = refreshTokenService.createRefreshToken(principal.getId()).getToken();
 
         User user = userRepository.findById(principal.getId()).orElseThrow();
 
         log.info("User logged in: {}", user.getEmail());
-        return new AuthResponse(token, user.getEmail(), user.getFullName(), user.getId());
+        return new AuthResponse(token, refreshToken, user.getEmail(), user.getFullName(), user.getId());
     }
 
     @Transactional(readOnly = true)

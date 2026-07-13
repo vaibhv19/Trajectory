@@ -11,6 +11,7 @@ export const LoginPage: React.FC = () => {
   React.useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const token = params.get('token');
+    const refreshToken = params.get('refreshToken') || '';
     const paramEmail = params.get('email');
     const name = params.get('name');
     const userId = params.get('userId');
@@ -18,6 +19,7 @@ export const LoginPage: React.FC = () => {
     if (token && paramEmail && name && userId) {
       setAuth({
         token,
+        refreshToken,
         email: paramEmail,
         fullName: name,
         userId,

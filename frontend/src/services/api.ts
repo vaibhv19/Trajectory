@@ -8,7 +8,19 @@ import type {
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
 
-async function apiCall(endpoint: string, options: RequestInit = {}) {
+let isRefreshing = false;
+let refreshSubscribers: ((token: string) => void)[] = [];
+
+function subscribeTokenRefresh(cb: (token: string) => void) {
+  refreshSubscribers.push(cb);
+}
+
+function onRefreshed(token: string) {
+  refreshSubscribers.forEach((cb) => cb(token));
+  refreshSubscribers = [];
+}
+
+async function apiCall(endpoint: string, options: RequestInit = {}): Promise<any> {
   const token = useAuthStore.getState().token;
   const headers = new Headers(options.headers || {});
 
@@ -24,6 +36,67 @@ async function apiCall(endpoint: string, options: RequestInit = {}) {
     ...options,
     headers,
   });
+
+  if (response.status === 401 && endpoint !== '/auth/login' && endpoint !== '/auth/register' && endpoint !== '/auth/refresh') {
+    const refreshToken = useAuthStore.getState().refreshToken;
+    if (refreshToken) {
+      if (!isRefreshing) {
+        isRefreshing = true;
+        try {
+          const refreshRes = await fetch(`${BASE_URL}/auth/refresh`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ refreshToken }),
+          });
+
+          if (refreshRes.ok) {
+            const data = await refreshRes.json();
+            const newToken = data.token;
+            useAuthStore.getState().setToken(newToken);
+            isRefreshing = false;
+            onRefreshed(newToken);
+          } else {
+            isRefreshing = false;
+            useAuthStore.getState().logout();
+            throw new Error('Unauthorized');
+          }
+        } catch (err) {
+          isRefreshing = false;
+          useAuthStore.getState().logout();
+          throw err;
+        }
+      }
+
+      return new Promise((resolve, reject) => {
+        subscribeTokenRefresh((newToken) => {
+          const retryHeaders = new Headers(options.headers || {});
+          retryHeaders.set('Authorization', `Bearer ${newToken}`);
+          if (options.body && !(options.body instanceof FormData) && !retryHeaders.has('Content-Type')) {
+            retryHeaders.set('Content-Type', 'application/json');
+          }
+          fetch(`${BASE_URL}${endpoint}`, {
+            ...options,
+            headers: retryHeaders,
+          })
+            .then(res => {
+              if (!res.ok) {
+                res.json().then(err => reject(new Error(err.message || 'API request failed'))).catch(() => reject(new Error('API request failed')));
+              } else if (endpoint.endsWith('/download')) {
+                resolve(res.blob());
+              } else if (res.status === 204) {
+                resolve(null);
+              } else {
+                resolve(res.json());
+              }
+            })
+            .catch(reject);
+        });
+      });
+    } else {
+      useAuthStore.getState().logout();
+      throw new Error('Unauthorized');
+    }
+  }
 
   if (response.status === 401) {
     useAuthStore.getState().logout();

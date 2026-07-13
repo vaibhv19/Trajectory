@@ -10,7 +10,8 @@ import {
   Briefcase, 
   Download, 
   Loader2,
-  Layers
+  Layers,
+  Pencil
 } from 'lucide-react';
 
 export const ResumesPage: React.FC = () => {
@@ -19,6 +20,7 @@ export const ResumesPage: React.FC = () => {
   
   // Profile Form State
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [editingProfileId, setEditingProfileId] = useState<string | null>(null);
   const [profileTitle, setProfileTitle] = useState('');
   const [profileColor, setProfileColor] = useState('#3b82f6');
   const [profileIcon, setProfileIcon] = useState('Briefcase');
@@ -63,6 +65,15 @@ export const ResumesPage: React.FC = () => {
     },
   });
 
+  const updateProfileMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: Omit<CareerProfile, 'id'> }) => api.profiles.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['profiles'] });
+      setIsProfileModalOpen(false);
+      resetProfileForm();
+    },
+  });
+
   const deleteProfileMutation = useMutation({
     mutationFn: (id: string) => api.profiles.delete(id),
     onSuccess: () => {
@@ -81,12 +92,18 @@ export const ResumesPage: React.FC = () => {
 
   const handleProfileSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    createProfileMutation.mutate({
+    const payload = {
       title: profileTitle,
       colorCode: profileColor,
       iconIdentifier: profileIcon,
       isDefault: profileIsDefault
-    });
+    };
+
+    if (editingProfileId) {
+      updateProfileMutation.mutate({ id: editingProfileId, data: payload });
+    } else {
+      createProfileMutation.mutate(payload);
+    }
   };
 
   const handleResumeUploadSubmit = async (e: React.FormEvent) => {
@@ -141,10 +158,20 @@ export const ResumesPage: React.FC = () => {
   };
 
   const resetProfileForm = () => {
+    setEditingProfileId(null);
     setProfileTitle('');
     setProfileColor('#3b82f6');
     setProfileIcon('Briefcase');
     setProfileIsDefault(false);
+  };
+
+  const handleEditProfileClick = (profile: CareerProfile) => {
+    setEditingProfileId(profile.id);
+    setProfileTitle(profile.title);
+    setProfileColor(profile.colorCode);
+    setProfileIcon(profile.iconIdentifier);
+    setProfileIsDefault(profile.isDefault);
+    setIsProfileModalOpen(true);
   };
 
   const activeProfile = profiles.find(p => p.id === selectedProfileId);
@@ -214,14 +241,24 @@ export const ResumesPage: React.FC = () => {
                       </div>
                     </div>
 
-                    {!profile.isDefault && (
+                    <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-all shrink-0">
                       <button
-                        onClick={(e) => { e.stopPropagation(); handleDeleteProfile(profile.id); }}
-                        className="opacity-0 group-hover:opacity-100 p-1.5 border border-destructive/20 bg-destructive/5 hover:bg-destructive/10 text-destructive rounded-md transition-all"
+                        onClick={(e) => { e.stopPropagation(); handleEditProfileClick(profile); }}
+                        className="p-1.5 border border-border bg-card hover:bg-muted text-muted-foreground rounded-md transition-all"
+                        title="Edit profile"
                       >
-                        <Trash2 className="h-3.5 w-3.5" />
+                        <Pencil className="h-3.5 w-3.5" />
                       </button>
-                    )}
+                      {!profile.isDefault && (
+                        <button
+                          onClick={(e) => { e.stopPropagation(); handleDeleteProfile(profile.id); }}
+                          className="p-1.5 border border-destructive/20 bg-destructive/5 hover:bg-destructive/10 text-destructive rounded-md transition-all"
+                          title="Delete profile"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -365,7 +402,9 @@ export const ResumesPage: React.FC = () => {
             className="bg-card border border-border p-6 rounded-lg w-full max-w-md space-y-4 animate-in zoom-in-95 duration-200 shadow-2xl"
           >
             <div className="flex items-center justify-between pb-2 border-b border-border">
-              <h3 className="text-lg font-display font-extrabold text-foreground uppercase tracking-tight">Create Career Persona</h3>
+              <h3 className="text-lg font-display font-extrabold text-foreground uppercase tracking-tight">
+                {editingProfileId ? 'Modify Career Persona' : 'Create Career Persona'}
+              </h3>
               <button type="button" onClick={() => setIsProfileModalOpen(false)} className="text-muted-foreground hover:text-foreground">
                 ✕
               </button>
@@ -428,11 +467,11 @@ export const ResumesPage: React.FC = () => {
               </button>
               <button
                 type="submit"
-                disabled={createProfileMutation.isPending}
+                disabled={createProfileMutation.isPending || updateProfileMutation.isPending}
                 className="flex items-center justify-center gap-2 px-4 py-2 rounded-md bg-primary hover:bg-[#0C5A62] dark:hover:bg-[#4CB0BA] text-primary-foreground text-sm font-semibold transition-all duration-200"
               >
-                {createProfileMutation.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
-                Create Persona
+                {(createProfileMutation.isPending || updateProfileMutation.isPending) && <Loader2 className="h-4 w-4 animate-spin" />}
+                {editingProfileId ? 'Save Changes' : 'Create Persona'}
               </button>
             </div>
           </form>
