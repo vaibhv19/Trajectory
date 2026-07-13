@@ -40,6 +40,7 @@ public class ApplicationService {
         this.resumeRepository = resumeRepository;
     }
 
+    @Transactional(readOnly = true)
     public Page<ApplicationResponse> searchApplications(
             UUID userId, String search, List<ApplicationStatus> statuses, UUID profileId, Pageable pageable) {
         
@@ -64,6 +65,7 @@ public class ApplicationService {
         return apps.map(this::mapToResponse);
     }
 
+    @Transactional(readOnly = true)
     public ApplicationResponse getApplication(UUID userId, UUID id) {
         Application app = applicationRepository.findByIdAndUserId(id, userId)
                 .orElseThrow(() -> new RuntimeException("Application not found"));
@@ -208,6 +210,7 @@ public class ApplicationService {
         log.info("Deleted application {}", id);
     }
 
+    @Transactional(readOnly = true)
     public List<ApplicationStatusHistory> getStatusHistory(UUID userId, UUID applicationId) {
         // Validate ownership
         applicationRepository.findByIdAndUserId(applicationId, userId)

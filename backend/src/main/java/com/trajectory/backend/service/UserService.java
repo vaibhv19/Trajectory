@@ -92,6 +92,7 @@ public class UserService {
         return new AuthResponse(token, user.getEmail(), user.getFullName(), user.getId());
     }
 
+    @Transactional(readOnly = true)
     public User getUserProfile(UUID userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));

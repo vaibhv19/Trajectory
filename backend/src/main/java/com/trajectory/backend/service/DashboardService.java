@@ -12,6 +12,7 @@ import com.trajectory.backend.model.enums.OutreachStatus;
 import com.trajectory.backend.repository.ApplicationRepository;
 import com.trajectory.backend.repository.OutreachRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -32,6 +33,7 @@ public class DashboardService {
         this.outreachRepository = outreachRepository;
     }
 
+    @Transactional(readOnly = true)
     public DashboardMetricsResponse getDashboardMetrics(UUID userId) {
         long total = applicationRepository.countByUserId(userId);
         

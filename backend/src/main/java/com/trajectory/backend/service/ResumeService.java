@@ -35,6 +35,7 @@ public class ResumeService {
         this.storageService = storageService;
     }
 
+    @Transactional(readOnly = true)
     public List<ResumeResponse> getResumesForProfile(UUID userId, UUID profileId) {
         // Validate profile ownership
         CareerProfile profile = careerProfileRepository.findById(profileId)
@@ -73,6 +74,7 @@ public class ResumeService {
         return mapToResponse(saved);
     }
 
+    @Transactional(readOnly = true)
     public byte[] downloadResumeFile(UUID userId, UUID resumeId) {
         Resume resume = resumeRepository.findById(resumeId)
                 .filter(r -> r.getCareerProfile().getUser().getId().equals(userId))
