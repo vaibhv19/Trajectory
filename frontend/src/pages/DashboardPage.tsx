@@ -52,11 +52,11 @@ export const DashboardPage: React.FC = () => {
   }
 
   // Formatting chart data
-  const funnelData = [
-    { name: 'Applied', value: metrics.totalApplications },
-    { name: 'Active', value: metrics.activeApplications },
-    { name: 'Rejected', value: metrics.rejectedApplications },
-    { name: 'Ghosted', value: metrics.ghostedApplications }
+  const pipelineData = [
+    { status: 'Applied', value: metrics.totalApplications },
+    { status: 'Active', value: metrics.activeApplications },
+    { status: 'Rejected', value: metrics.rejectedApplications },
+    { status: 'Ghosted', value: metrics.ghostedApplications }
   ];
 
   const COLORS = ['hsl(var(--primary))', '#3F587A', '#8A5E14', '#6B4079', '#2F6E45', '#8C3A34', '#5C5850'];
@@ -136,18 +136,14 @@ export const DashboardPage: React.FC = () => {
         <div className="col-span-12 lg:col-span-8 p-6 rounded-lg border bg-card">
           <h3 className="text-lg font-display font-bold mb-6 uppercase tracking-tight text-muted-foreground">Pipeline Funnel Distribution</h3>
           <div className="h-72">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={funnelData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                <CartesianGrid stroke="hsl(var(--border))" strokeDasharray="3 3" vertical={false} />
-                <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" className="text-muted-foreground font-mono" fontSize={11} tickLine={false} />
-                <YAxis stroke="hsl(var(--muted-foreground))" allowDecimals={false} className="text-muted-foreground font-mono" fontSize={11} tickLine={false} />
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={pipelineData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis dataKey="status" stroke="hsl(var(--muted-foreground))" />
+                <YAxis allowDecimals={false} stroke="hsl(var(--muted-foreground))" />
                 <Tooltip 
-                  contentStyle={{ 
-                    background: 'hsl(var(--card))', 
-                    border: '1px solid hsl(var(--border))', 
-                    borderRadius: '4px',
-                    color: 'hsl(var(--foreground))'
-                  }} 
+                  contentStyle={{ backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))' }}
+                  labelStyle={{ color: 'hsl(var(--foreground))' }}
                 />
                 <Bar dataKey="value" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
               </BarChart>
