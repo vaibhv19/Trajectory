@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Sans:wght@300;400;500;600;700&family=Public+Sans:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,68 +6,126 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 40 12% 96%; /* #F7F6F3 (Paper) */
+    --foreground: 220 10% 12%; /* #1B1D21 (Graphite 900) */
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%; /* #FFFFFF */
+    --card-foreground: 220 10% 12%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 220 10% 12%;
 
-    --primary: 243.4 75.4% 58.6%; /* Indigo 600 */
-    --primary-foreground: 210 40% 98%;
+    --primary: 186 78% 26%; /* #0F6E78 (Petrol 600) */
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 42 17% 91%; /* #ECE9E2 (Paper 200) */
+    --secondary-foreground: 220 10% 12%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 42 17% 91%; /* #ECE9E2 */
+    --muted-foreground: 40 4% 40%; /* #6B6862 (Stone 500) */
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 42 17% 91%;
+    --accent-foreground: 220 10% 12%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 6 48% 38%; /* #8C3A34 (Brick) */
+    --destructive-foreground: 43 14% 92%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 243.4 75.4% 58.6%;
+    --border: 46 17% 86%; /* #E2DFD6 (Paper 300) */
+    --input: 46 17% 86%;
+    --ring: 186 78% 26%;
 
-    --radius-lg: 12px;
-    --radius-md: 8px;
-    --radius-sm: 4px;
-    --radius-xl: 16px;
+    --radius-lg: 4px;
+    --radius-md: 3px;
+    --radius-sm: 2px;
+    --radius-xl: 6px;
+
+    /* Flat Status Colors (Light Mode HSL) */
+    --status-applied-bg: 211 43% 93%;
+    --status-applied-text: 215 32% 36%;
+    --status-applied-border: 215 20% 81%;
+
+    --status-oa-bg: 41 47% 89%;
+    --status-oa-text: 38 75% 31%;
+    --status-oa-border: 40 49% 75%;
+
+    --status-interview-bg: 288 25% 92%;
+    --status-interview-text: 288 31% 36%;
+    --status-interview-border: 289 27% 80%;
+
+    --status-offer-bg: 136 34% 92%;
+    --status-offer-text: 141 40% 31%;
+    --status-offer-border: 136 26% 80%;
+
+    --status-rejected-bg: 6 38% 92%;
+    --status-rejected-text: 4 46% 38%;
+    --status-rejected-border: 7 36% 80%;
+
+    --status-ghosted-bg: 40 17% 91%;
+    --status-ghosted-text: 38 7% 34%;
+    --status-ghosted-border: 41 12% 79%;
+
+    --status-withdrawn-bg: 38 22% 91%;
+    --status-withdrawn-text: 36 12% 39%;
+    --status-withdrawn-border: 39 23% 79%;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%; /* Slate 950 */
-    --foreground: 210 40% 98%;
+    --background: 210 10% 9%; /* #14171A (Graphite 950) */
+    --foreground: 43 14% 92%; /* #EDEBE6 (Paper 100) */
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 214 11% 12%; /* #1B1E22 (Graphite 900) */
+    --card-foreground: 43 14% 92%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 214 11% 12%;
+    --popover-foreground: 43 14% 92%;
 
-    --primary: 243.4 75.4% 58.6%; /* Indigo 500 */
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 185 46% 46%; /* #3FA0AA (Petrol 400) */
+    --primary-foreground: 210 10% 9%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 215 11% 15%; /* #22262B (Graphite 800) */
+    --secondary-foreground: 43 14% 92%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 215 11% 15%; /* #22262B */
+    --muted-foreground: 39 7% 58%; /* #9A968D (Stone 300) */
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 215 11% 15%;
+    --accent-foreground: 43 14% 92%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 6 48% 38%;
+    --destructive-foreground: 43 14% 92%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 243.4 75.4% 58.6%;
+    --border: 216 10% 19%; /* #2C3036 (Graphite 700) */
+    --input: 216 10% 19%;
+    --ring: 185 46% 46%;
+
+    /* Flat Status Colors (Dark Mode HSL) */
+    --status-applied-bg: 214 26% 22%;
+    --status-applied-text: 214 34% 66%;
+    --status-applied-border: 215 32% 36%;
+
+    --status-oa-bg: 40 37% 16%;
+    --status-oa-text: 40 64% 61%;
+    --status-oa-border: 38 75% 31%;
+
+    --status-interview-bg: 288 20% 18%;
+    --status-interview-text: 288 33% 67%;
+    --status-interview-border: 288 31% 36%;
+
+    --status-offer-bg: 137 24% 15%;
+    --status-offer-text: 141 33% 58%;
+    --status-offer-border: 141 40% 31%;
+
+    --status-rejected-bg: 6 29% 18%;
+    --status-rejected-text: 4 44% 65%;
+    --status-rejected-border: 4 46% 38%;
+
+    --status-ghosted-bg: 40 7% 15%;
+    --status-ghosted-text: 39 8% 62%;
+    --status-ghosted-border: 38 7% 34%;
+
+    --status-withdrawn-bg: 38 15% 16%;
+    --status-withdrawn-text: 39 17% 61%;
+    --status-withdrawn-border: 36 12% 39%;
   }
 }
 
@@ -76,7 +134,7 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground font-sans;
+    @apply bg-background text-foreground font-sans antialiased;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
   h1, h2, h3, h4, h5, h6 {
@@ -86,8 +144,8 @@
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -95,14 +153,14 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-muted-foreground/20 rounded-full hover:bg-muted-foreground/30 transition-colors;
+  @apply bg-muted-foreground/30 rounded-none hover:bg-muted-foreground/45 transition-colors;
 }
 
-/* Glassmorphism Classes */
+/* Panel Classes (Flat over Glass) */
 .glass-panel {
-  @apply backdrop-blur-md bg-background/80 border border-border;
+  @apply bg-card border border-border;
 }
 
 .glass-card {
-  @apply backdrop-blur-md bg-card/70 border border-border shadow-sm;
+  @apply bg-card border border-border shadow-none;
 }
