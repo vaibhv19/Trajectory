@@ -22,5 +22,8 @@ public record ApplicationResponse(
     LocalDate followUpDate,
     LocalDate responseDate,
     OffsetDateTime lastActivityAt,
-    boolean isArchived
+    boolean isArchived,
+    OffsetDateTime oaDateTime,
+    OffsetDateTime interviewDateTime,
+    String meetingLink
 ) {}

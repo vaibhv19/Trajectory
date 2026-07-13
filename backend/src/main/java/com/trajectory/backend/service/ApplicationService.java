@@ -27,17 +27,20 @@ public class ApplicationService {
     private final UserRepository userRepository;
     private final CareerProfileRepository careerProfileRepository;
     private final ResumeRepository resumeRepository;
+    private final NotificationService notificationService;
 
     public ApplicationService(ApplicationRepository applicationRepository,
                               ApplicationStatusHistoryRepository statusHistoryRepository,
                               UserRepository userRepository,
                               CareerProfileRepository careerProfileRepository,
-                              ResumeRepository resumeRepository) {
+                              ResumeRepository resumeRepository,
+                              NotificationService notificationService) {
         this.applicationRepository = applicationRepository;
         this.statusHistoryRepository = statusHistoryRepository;
         this.userRepository = userRepository;
         this.careerProfileRepository = careerProfileRepository;
         this.resumeRepository = resumeRepository;
+        this.notificationService = notificationService;
     }
 
     @Transactional(readOnly = true)
@@ -121,9 +124,32 @@ public class ApplicationService {
                 .responseDate(request.responseDate())
                 .isArchived(isArchived)
                 .lastActivityAt(OffsetDateTime.now())
+                .oaDateTime(request.oaDateTime())
+                .interviewDateTime(request.interviewDateTime())
+                .meetingLink(request.meetingLink())
                 .build();
 
         Application saved = applicationRepository.save(app);
+
+        // Auto create reminders if date/time is provided
+        if (saved.getOaDateTime() != null) {
+            String linkStr = saved.getMeetingLink() != null && !saved.getMeetingLink().isEmpty() ? " Link: " + saved.getMeetingLink() : "";
+            notificationService.createNotification(
+                userId, 
+                "OA Scheduled Reminder", 
+                "Online Assessment scheduled for " + saved.getRoleTitle() + " at " + saved.getCompanyName() + " on " + saved.getOaDateTime() + "." + linkStr, 
+                "AGENDA"
+            );
+        }
+        if (saved.getInterviewDateTime() != null) {
+            String linkStr = saved.getMeetingLink() != null && !saved.getMeetingLink().isEmpty() ? " Link: " + saved.getMeetingLink() : "";
+            notificationService.createNotification(
+                userId, 
+                "Interview Scheduled Reminder", 
+                "Interview scheduled for " + saved.getRoleTitle() + " at " + saved.getCompanyName() + " on " + saved.getInterviewDateTime() + "." + linkStr, 
+                "AGENDA"
+            );
+        }
 
         // Add history transition
         ApplicationStatusHistory history = ApplicationStatusHistory.builder()
@@ -172,6 +198,9 @@ public class ApplicationService {
         boolean shouldArchive = (nextStatus == ApplicationStatus.REJECTED || nextStatus == ApplicationStatus.GHOSTED) && app.getUser().isAutoArchiveEnabled();
         boolean isArchived = request.isArchived() != null ? request.isArchived() : (statusChanged ? shouldArchive : app.isArchived());
 
+        boolean oaUpdated = request.oaDateTime() != null && (app.getOaDateTime() == null || !app.getOaDateTime().equals(request.oaDateTime()));
+        boolean interviewUpdated = request.interviewDateTime() != null && (app.getInterviewDateTime() == null || !app.getInterviewDateTime().equals(request.interviewDateTime()));
+
         app.setCareerProfile(profile);
         app.setResume(resume);
         app.setCompanyName(request.companyName());
@@ -186,9 +215,31 @@ public class ApplicationService {
         app.setFollowUpDate(request.followUpDate());
         app.setResponseDate(request.responseDate());
         app.setArchived(isArchived);
+        app.setOaDateTime(request.oaDateTime());
+        app.setInterviewDateTime(request.interviewDateTime());
+        app.setMeetingLink(request.meetingLink());
         app.setLastActivityAt(OffsetDateTime.now());
 
         Application saved = applicationRepository.save(app);
+
+        if (oaUpdated) {
+            String linkStr = saved.getMeetingLink() != null && !saved.getMeetingLink().isEmpty() ? " Link: " + saved.getMeetingLink() : "";
+            notificationService.createNotification(
+                userId, 
+                "OA Scheduled Reminder", 
+                "Online Assessment scheduled for " + saved.getRoleTitle() + " at " + saved.getCompanyName() + " on " + saved.getOaDateTime() + "." + linkStr, 
+                "AGENDA"
+            );
+        }
+        if (interviewUpdated) {
+            String linkStr = saved.getMeetingLink() != null && !saved.getMeetingLink().isEmpty() ? " Link: " + saved.getMeetingLink() : "";
+            notificationService.createNotification(
+                userId, 
+                "Interview Scheduled Reminder", 
+                "Interview scheduled for " + saved.getRoleTitle() + " at " + saved.getCompanyName() + " on " + saved.getInterviewDateTime() + "." + linkStr, 
+                "AGENDA"
+            );
+        }
 
         if (statusChanged) {
             ApplicationStatusHistory history = ApplicationStatusHistory.builder()
@@ -250,7 +301,10 @@ public class ApplicationService {
                 app.getFollowUpDate(),
                 app.getResponseDate(),
                 app.getLastActivityAt(),
-                app.isArchived()
+                app.isArchived(),
+                app.getOaDateTime(),
+                app.getInterviewDateTime(),
+                app.getMeetingLink()
         );
     }
 }

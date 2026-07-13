@@ -85,6 +85,15 @@ public class Application {
     @Builder.Default
     private boolean isArchived = false;
 
+    @Column(name = "oa_date_time")
+    private OffsetDateTime oaDateTime;
+
+    @Column(name = "interview_date_time")
+    private OffsetDateTime interviewDateTime;
+
+    @Column(name = "meeting_link")
+    private String meetingLink;
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private OffsetDateTime createdAt;

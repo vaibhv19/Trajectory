@@ -36,6 +36,9 @@ export const ApplicationDetailsPage: React.FC = () => {
   const [dateApplied, setDateApplied] = useState('');
   const [followUpDate, setFollowUpDate] = useState('');
   const [responseDate, setResponseDate] = useState('');
+  const [oaDateTime, setOaDateTime] = useState('');
+  const [interviewDateTime, setInterviewDateTime] = useState('');
+  const [meetingLink, setMeetingLink] = useState('');
 
   // Scheduling Parsing State
   const [eventEmailText, setEventEmailText] = useState('');
@@ -102,6 +105,9 @@ export const ApplicationDetailsPage: React.FC = () => {
     setDateApplied(app.dateApplied);
     setFollowUpDate(app.followUpDate || '');
     setResponseDate(app.responseDate || '');
+    setOaDateTime((app as any).oaDateTime ? (app as any).oaDateTime.substring(0, 16) : '');
+    setInterviewDateTime((app as any).interviewDateTime ? (app as any).interviewDateTime.substring(0, 16) : '');
+    setMeetingLink((app as any).meetingLink || '');
     setIsEditOpen(true);
   };
 
@@ -120,7 +126,10 @@ export const ApplicationDetailsPage: React.FC = () => {
       status,
       dateApplied,
       followUpDate: followUpDate || null,
-      responseDate: responseDate || null
+      responseDate: responseDate || null,
+      oaDateTime: oaDateTime ? new Date(oaDateTime).toISOString() : null,
+      interviewDateTime: interviewDateTime ? new Date(interviewDateTime).toISOString() : null,
+      meetingLink: meetingLink || null
     });
   };
 
@@ -272,6 +281,36 @@ export const ApplicationDetailsPage: React.FC = () => {
                 <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">Next Follow-Up</span>
                 <p className="text-sm font-mono text-primary font-semibold">{app.followUpDate ? new Date(app.followUpDate).toLocaleDateString() : 'None scheduled'}</p>
               </div>
+
+              {(app as any).oaDateTime && (
+                <div className="space-y-1 col-span-2 sm:col-span-1">
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">OA Date & Time</span>
+                  <p className="text-sm font-mono text-teal-600 dark:text-teal-400 font-semibold">
+                    {new Date((app as any).oaDateTime).toLocaleString()}
+                  </p>
+                </div>
+              )}
+              {(app as any).interviewDateTime && (
+                <div className="space-y-1 col-span-2 sm:col-span-1">
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">Interview Date & Time</span>
+                  <p className="text-sm font-mono text-teal-600 dark:text-teal-400 font-semibold">
+                    {new Date((app as any).interviewDateTime).toLocaleString()}
+                  </p>
+                </div>
+              )}
+              {(app as any).meetingLink && (
+                <div className="space-y-1 col-span-2">
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">Meeting / Assessment URL</span>
+                  <a 
+                    href={(app as any).meetingLink} 
+                    target="_blank" 
+                    rel="noreferrer" 
+                    className="text-xs font-mono text-teal-700 dark:text-teal-400 hover:underline block truncate"
+                  >
+                    {(app as any).meetingLink}
+                  </a>
+                </div>
+              )}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6 pt-6 border-t border-border/40">
@@ -484,6 +523,55 @@ export const ApplicationDetailsPage: React.FC = () => {
                 </select>
               </div>
             </div>
+
+            {/* Smart Status Fields */}
+            {status === 'OA' && (
+              <div className="grid grid-cols-2 gap-4 p-4 rounded-md border border-teal-500/20 bg-teal-500/5">
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-foreground">OA Date & Time</label>
+                  <input
+                    type="datetime-local"
+                    value={oaDateTime}
+                    onChange={(e) => setOaDateTime(e.target.value)}
+                    className="w-full px-3 py-2 bg-background border border-border rounded-md text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-foreground">Meeting / Test Link</label>
+                  <input
+                    type="text"
+                    value={meetingLink}
+                    onChange={(e) => setMeetingLink(e.target.value)}
+                    placeholder="e.g. https://hackerrank.com/..."
+                    className="w-full px-3 py-2 bg-background border border-border rounded-md text-sm text-foreground placeholder-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+                  />
+                </div>
+              </div>
+            )}
+
+            {status === 'INTERVIEW' && (
+              <div className="grid grid-cols-2 gap-4 p-4 rounded-md border border-teal-500/20 bg-teal-500/5">
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-foreground">Interview Date & Time</label>
+                  <input
+                    type="datetime-local"
+                    value={interviewDateTime}
+                    onChange={(e) => setInterviewDateTime(e.target.value)}
+                    className="w-full px-3 py-2 bg-background border border-border rounded-md text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-foreground">Meeting Link</label>
+                  <input
+                    type="text"
+                    value={meetingLink}
+                    onChange={(e) => setMeetingLink(e.target.value)}
+                    placeholder="e.g. https://zoom.us/j/..."
+                    className="w-full px-3 py-2 bg-background border border-border rounded-md text-sm text-foreground placeholder-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+                  />
+                </div>
+              </div>
+            )}
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">

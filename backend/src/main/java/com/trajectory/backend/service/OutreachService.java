@@ -150,7 +150,10 @@ public class OutreachService {
                 LocalDate.now(),
                 outreach.getFollowUpDate(),
                 null, // Response date unknown
-                false // isArchived
+                false, // isArchived
+                null, // oaDateTime
+                null, // interviewDateTime
+                null  // meetingLink
         );
 
         ApplicationResponse appResponse = applicationService.createApplication(userId, appRequest);

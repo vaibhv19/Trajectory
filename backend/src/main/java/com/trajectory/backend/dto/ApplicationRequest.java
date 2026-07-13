@@ -26,5 +26,8 @@ public record ApplicationRequest(
     LocalDate dateApplied,
     LocalDate followUpDate,
     LocalDate responseDate,
-    Boolean isArchived
+    Boolean isArchived,
+    java.time.OffsetDateTime oaDateTime,
+    java.time.OffsetDateTime interviewDateTime,
+    String meetingLink
 ) {}
