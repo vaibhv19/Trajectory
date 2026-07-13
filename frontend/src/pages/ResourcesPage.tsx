@@ -158,34 +158,34 @@ export const ResourcesPage: React.FC = () => {
     <div className="space-y-6">
       {/* Title */}
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-100 font-display">
+        <h1 className="text-2xl font-semibold tracking-tight text-foreground font-display">
           Tech Placement Resources
         </h1>
-        <p className="text-sm text-slate-500 dark:text-slate-400 font-sans mt-1">
+        <p className="text-sm text-muted-foreground font-sans mt-1">
           Explore CTC estimates, CGPA criteria, and key technical preparation topics for 100 top tech employers.
         </p>
       </div>
 
       {/* Filter panel */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-lg shadow-sm">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-card border border-border p-4 rounded-lg shadow-sm">
         <div className="relative">
-          <label className="block text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
+          <label className="block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
             Search Company or Prep Topic
           </label>
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/60" />
             <input
               type="text"
               placeholder="e.g. Google, Trees, SQL..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-slate-900 dark:text-slate-100 pl-10 pr-4 py-2 text-sm rounded-md placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full bg-background border border-border text-foreground pl-10 pr-4 py-2 text-sm rounded-md placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
             />
           </div>
         </div>
 
         <div>
-          <label className="block text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
+          <label className="block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
             Minimum CTC (LPA)
           </label>
           <input
@@ -193,12 +193,12 @@ export const ResourcesPage: React.FC = () => {
             placeholder="e.g. 10"
             value={minCtc}
             onChange={(e) => setMinCtc(e.target.value)}
-            className="w-full px-3 py-2 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-md text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-3 py-2 bg-background border border-border rounded-md text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
           />
         </div>
 
         <div>
-          <label className="block text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
+          <label className="block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
             Maximum CGPA Cutoff
           </label>
           <input
@@ -207,20 +207,20 @@ export const ResourcesPage: React.FC = () => {
             placeholder="e.g. 7.0"
             value={minCgpa}
             onChange={(e) => setMinCgpa(e.target.value)}
-            className="w-full px-3 py-2 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-md text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-3 py-2 bg-background border border-border rounded-md text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
           />
         </div>
       </div>
 
       {/* Placement List Container */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg overflow-hidden shadow-sm">
+      <div className="bg-card border border-border rounded-lg overflow-hidden shadow-sm">
         {filteredCompanies.length === 0 ? (
-          <div className="py-20 flex flex-col items-center justify-center text-slate-500">
-            <Building2 className="w-12 h-12 text-slate-300 dark:text-slate-700 mb-3" />
-            <h3 className="text-base font-semibold text-slate-700 dark:text-slate-300 font-sans">
+          <div className="py-20 flex flex-col items-center justify-center text-muted-foreground">
+            <Building2 className="w-12 h-12 text-muted-foreground/30 mb-3" />
+            <h3 className="text-base font-semibold text-foreground font-sans font-display">
               No Companies Match Criteria
             </h3>
-            <p className="text-xs text-slate-400 font-sans mt-1">
+            <p className="text-xs text-muted-foreground font-sans mt-1">
               Adjust your search keywords or filter values.
             </p>
           </div>
@@ -228,62 +228,62 @@ export const ResourcesPage: React.FC = () => {
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50">
-                  <th className="px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider font-mono">
+                <tr className="border-b border-border bg-muted">
+                  <th className="px-6 py-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider font-mono">
                     Company Name
                   </th>
-                  <th className="px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider font-mono">
+                  <th className="px-6 py-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider font-mono">
                     CTC Range
                   </th>
-                  <th className="px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider font-mono">
+                  <th className="px-6 py-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider font-mono">
                     CGPA Cutoff
                   </th>
-                  <th className="px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider font-mono">
+                  <th className="px-6 py-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider font-mono">
                     12th Cutoff
                   </th>
-                  <th className="px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider font-mono">
+                  <th className="px-6 py-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider font-mono">
                     Important Preparation Topics
                   </th>
-                  <th className="px-6 py-4 text-right text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider font-mono">
+                  <th className="px-6 py-4 text-right text-xs font-semibold text-muted-foreground uppercase tracking-wider font-mono">
                     Career Link
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
+              <tbody className="divide-y divide-border">
                 {filteredCompanies.map((comp, idx) => (
                   <tr 
                     key={idx}
-                    className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors"
+                    className="hover:bg-muted/30 transition-colors"
                   >
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2.5">
-                        <div className="p-1.5 rounded-md bg-teal-50 dark:bg-teal-950/20 border border-teal-100 dark:border-teal-900 text-teal-700 dark:text-teal-400">
+                        <div className="p-1.5 rounded-md bg-muted border border-border text-muted-foreground">
                           <Building2 className="w-4 h-4" />
                         </div>
-                        <span className="font-semibold text-sm text-slate-900 dark:text-slate-100 font-sans block">
+                        <span className="font-semibold text-sm text-foreground font-sans block">
                           {comp.name}
                         </span>
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="flex items-center gap-1 text-slate-900 dark:text-slate-100">
-                        <DollarSign className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400 shrink-0" />
+                      <div className="flex items-center gap-1 text-foreground">
+                        <DollarSign className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
                         <span className="text-xs font-mono font-semibold">
                           {comp.ctc} LPA
                         </span>
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="flex items-center gap-1 text-slate-700 dark:text-slate-300">
-                        <GraduationCap className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
+                      <div className="flex items-center gap-1 text-foreground">
+                        <GraduationCap className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
                         <span className="text-xs font-mono font-medium">
                           {comp.cgpa === 'None' ? 'No Limit' : `${comp.cgpa} +`}
                         </span>
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="flex items-center gap-1 text-slate-700 dark:text-slate-300">
-                        <Award className="w-3.5 h-3.5 text-purple-500 shrink-0" />
+                      <div className="flex items-center gap-1 text-foreground">
+                        <Award className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
                         <span className="text-xs font-mono">
                           {comp.marks12th === 'None' ? 'No Limit' : comp.marks12th}
                         </span>
@@ -291,8 +291,8 @@ export const ResourcesPage: React.FC = () => {
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-1.5">
-                        <BookOpen className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                        <span className="text-xs text-slate-600 dark:text-slate-300 font-sans line-clamp-2" title={comp.topics}>
+                        <BookOpen className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                        <span className="text-xs text-muted-foreground font-sans line-clamp-2" title={comp.topics}>
                           {comp.topics}
                         </span>
                       </div>
@@ -302,7 +302,7 @@ export const ResourcesPage: React.FC = () => {
                         href={comp.link}
                         target="_blank"
                         rel="noreferrer"
-                        className="inline-flex items-center gap-1 px-3 py-1.5 border border-slate-200 dark:border-slate-750 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-semibold rounded-md transition-colors"
+                        className="inline-flex items-center gap-1 px-3 py-1.5 border border-border hover:bg-muted text-foreground text-xs font-semibold rounded-md transition-colors font-sans"
                       >
                         Careers
                         <ExternalLink className="w-3 h-3" />

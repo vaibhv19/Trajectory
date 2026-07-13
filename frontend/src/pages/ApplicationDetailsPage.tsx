@@ -537,9 +537,9 @@ export const ApplicationDetailsPage: React.FC = () => {
 
             {/* Smart Status Fields */}
             {status === 'OA' && (
-              <div className="grid grid-cols-2 gap-4 p-4 rounded-md border border-teal-500/20 bg-teal-500/5">
+              <div className="grid grid-cols-2 gap-4 p-4 rounded-md border border-border bg-muted/30">
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-foreground">OA Date & Time</label>
+                  <label className="text-xs font-semibold text-foreground font-display">OA Date & Time</label>
                   <input
                     type="datetime-local"
                     value={oaDateTime}
@@ -548,7 +548,7 @@ export const ApplicationDetailsPage: React.FC = () => {
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-foreground">Meeting / Test Link</label>
+                  <label className="text-xs font-semibold text-foreground font-display">Meeting / Test Link</label>
                   <input
                     type="text"
                     value={meetingLink}
@@ -561,7 +561,7 @@ export const ApplicationDetailsPage: React.FC = () => {
             )}
 
             {status === 'INTERVIEW' && (
-              <div className="grid grid-cols-2 gap-4 p-4 rounded-md border border-teal-500/20 bg-teal-500/5">
+              <div className="grid grid-cols-2 gap-4 p-4 rounded-md border border-border bg-muted/30">
                 <div className="space-y-1">
                   <label className="text-xs font-semibold text-foreground">Interview Date & Time</label>
                   <input
