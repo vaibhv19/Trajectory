@@ -336,7 +336,7 @@ export const ApplicationDetailsPage: React.FC = () => {
             {/* Visual steps mapping */}
             <div className="relative pl-6 space-y-6">
               {/* Vertical line connector (The Trajectory Line) */}
-              <div className="absolute left-[5px] top-1 bottom-1 w-[2px] bg-primary" />
+              <div className="absolute left-[5px] top-1 bottom-1 w-0 border-l-2 border-dashed border-primary/55" />
 
               {history.map((hist, index) => {
                 const isActive = index === history.length - 1;
@@ -345,21 +345,21 @@ export const ApplicationDetailsPage: React.FC = () => {
                     {/* Diamond tick timeline node */}
                     <span className={`absolute left-[-25px] top-[5px] h-2.5 w-2.5 rotate-45 border border-background z-10 ${
                       isActive 
-                        ? 'bg-primary animate-pulse-slow' 
-                        : 'bg-primary'
+                        ? 'bg-primary ring-2 ring-primary/30 animate-pulse-slow' 
+                        : 'bg-background border-2 border-primary'
                     }`} />
 
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
-                        <span className="text-sm font-bold text-foreground">
+                        <span className="text-sm font-mono font-bold uppercase tracking-wide text-foreground">
                           {hist.status}
                         </span>
-                        <span className="text-[10px] font-mono text-muted-foreground bg-muted/50 px-1.5 py-0.5 rounded-sm">
+                        <span className="text-[10px] font-mono text-muted-foreground bg-muted px-1.5 py-0.5 rounded-sm">
                           {new Date(hist.changedAt).toLocaleDateString()}
                         </span>
                       </div>
                       {hist.notes && (
-                        <p className="text-xs text-muted-foreground leading-relaxed">
+                        <p className="text-xs text-muted-foreground leading-relaxed font-sans">
                           {hist.notes}
                         </p>
                       )}
@@ -423,7 +423,7 @@ export const ApplicationDetailsPage: React.FC = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
           <form 
             onSubmit={handleUpdate}
-            className="bg-slate-900 border border-slate-800 p-6 rounded-2xl w-full max-w-xl max-h-[85vh] overflow-y-auto space-y-4 animate-in zoom-in-95 duration-200"
+            className="bg-card border border-border p-6 rounded-lg w-full max-w-xl max-h-[85vh] overflow-y-auto space-y-4 animate-in zoom-in-95 duration-200 shadow-2xl"
           >
             <div className="flex items-center justify-between pb-2 border-b border-border">
               <h3 className="text-lg font-display font-extrabold text-foreground uppercase tracking-tight">Modify Application</h3>
