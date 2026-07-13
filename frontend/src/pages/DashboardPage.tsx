@@ -27,8 +27,6 @@ import {
   Area
 } from 'recharts';
 
-const COLORS = ['#6366f1', '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#64748b'];
-
 export const DashboardPage: React.FC = () => {
   const { data: metrics, isLoading, error } = useQuery({
     queryKey: ['dashboard-metrics'],

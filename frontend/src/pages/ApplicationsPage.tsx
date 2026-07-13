@@ -9,9 +9,6 @@ import {
   Sparkles, 
   Upload, 
   FileText, 
-  Eye, 
-  ChevronLeft, 
-  ChevronRight, 
   Loader2, 
   Briefcase
 } from 'lucide-react';
