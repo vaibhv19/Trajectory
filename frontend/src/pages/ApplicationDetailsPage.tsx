@@ -7,12 +7,8 @@ import {
   ArrowLeft, 
   Trash2, 
   Edit3, 
-  Calendar, 
   FileText, 
   Link as LinkIcon, 
-  DollarSign, 
-  MapPin, 
-  Clock,
   Sparkles,
   Loader2,
   AlertCircle,
@@ -40,6 +36,9 @@ export const ApplicationDetailsPage: React.FC = () => {
   const [dateApplied, setDateApplied] = useState('');
   const [followUpDate, setFollowUpDate] = useState('');
   const [responseDate, setResponseDate] = useState('');
+  const [oaDateTime, setOaDateTime] = useState('');
+  const [interviewDateTime, setInterviewDateTime] = useState('');
+  const [meetingLink, setMeetingLink] = useState('');
 
   // Scheduling Parsing State
   const [eventEmailText, setEventEmailText] = useState('');
@@ -70,6 +69,17 @@ export const ApplicationDetailsPage: React.FC = () => {
     queryFn: () => api.resumes.listForProfile(selectedProfileId!),
     enabled: !!selectedProfileId,
   });
+
+  // Auto-select latest resume when profile resumes update
+  React.useEffect(() => {
+    if (resumes.length > 0) {
+      if (!resumeId) {
+        setResumeId(resumes[0].id);
+      }
+    } else {
+      setResumeId('');
+    }
+  }, [resumes]);
 
   // Mutators
   const updateMutation = useMutation({
@@ -106,6 +116,9 @@ export const ApplicationDetailsPage: React.FC = () => {
     setDateApplied(app.dateApplied);
     setFollowUpDate(app.followUpDate || '');
     setResponseDate(app.responseDate || '');
+    setOaDateTime((app as any).oaDateTime ? (app as any).oaDateTime.substring(0, 16) : '');
+    setInterviewDateTime((app as any).interviewDateTime ? (app as any).interviewDateTime.substring(0, 16) : '');
+    setMeetingLink((app as any).meetingLink || '');
     setIsEditOpen(true);
   };
 
@@ -124,7 +137,10 @@ export const ApplicationDetailsPage: React.FC = () => {
       status,
       dateApplied,
       followUpDate: followUpDate || null,
-      responseDate: responseDate || null
+      responseDate: responseDate || null,
+      oaDateTime: oaDateTime ? new Date(oaDateTime).toISOString() : null,
+      interviewDateTime: interviewDateTime ? new Date(interviewDateTime).toISOString() : null,
+      meetingLink: meetingLink || null
     });
   };
 
@@ -205,14 +221,14 @@ export const ApplicationDetailsPage: React.FC = () => {
         <div className="flex items-center gap-2">
           <button
             onClick={() => { setEventEmailText(''); setIsEventParserOpen(true); }}
-            className="flex items-center justify-center gap-2 px-4 py-2 border border-primary/30 rounded-xl bg-primary/10 hover:bg-primary/20 text-primary text-sm font-semibold transition-all duration-200"
+            className="flex items-center justify-center gap-2 px-4 py-2 border border-primary/30 rounded-md bg-primary/10 hover:bg-primary/20 text-primary text-sm font-semibold transition-all duration-200"
           >
             <Sparkles className="h-4 w-4" />
             AI Parse Invite
           </button>
           <button
             onClick={handleEditClick}
-            className="flex items-center justify-center gap-2 px-4 py-2 border rounded-xl bg-card hover:bg-muted text-foreground text-sm font-semibold transition-all duration-200"
+            className="flex items-center justify-center gap-2 px-4 py-2 border rounded-md bg-card hover:bg-muted text-foreground text-sm font-semibold transition-all duration-200"
           >
             <Edit3 className="h-4 w-4" />
             Edit
@@ -220,7 +236,7 @@ export const ApplicationDetailsPage: React.FC = () => {
           <button
             onClick={handleDelete}
             disabled={deleteMutation.isPending}
-            className="flex items-center justify-center gap-2 px-4 py-2 border border-rose-500/20 rounded-xl bg-rose-500/5 hover:bg-rose-500/10 text-rose-500 text-sm font-semibold transition-all duration-200"
+            className="flex items-center justify-center gap-2 px-4 py-2 border border-destructive/20 rounded-md bg-destructive/5 hover:bg-destructive/10 text-destructive text-sm font-semibold transition-all duration-200"
           >
             <Trash2 className="h-4 w-4" />
             Delete
@@ -232,7 +248,7 @@ export const ApplicationDetailsPage: React.FC = () => {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
         {/* Left pane: Details Card */}
         <div className="col-span-12 lg:col-span-8 space-y-6">
-          <div className="p-6 rounded-2xl border bg-card glass-card relative overflow-hidden">
+          <div className="p-6 rounded-lg border bg-card relative overflow-hidden">
             <div 
               className="absolute top-0 left-0 w-full h-1" 
               style={{ backgroundColor: app.profile.colorCode }} 
@@ -240,67 +256,87 @@ export const ApplicationDetailsPage: React.FC = () => {
 
             <div className="flex items-start justify-between">
               <div>
-                <span className="text-xs font-semibold px-2 py-0.5 rounded" style={{ backgroundColor: `${app.profile.colorCode}20`, color: app.profile.colorCode }}>
-                  {app.profile.title}
+                <span className="text-xs font-mono font-semibold px-2 py-0.5 rounded-md" style={{ backgroundColor: `${app.profile.colorCode}20`, color: app.profile.colorCode }}>
+                  {app.profile.title.toUpperCase()}
                 </span>
-                <h2 className="text-2xl font-display font-extrabold mt-2">{app.companyName}</h2>
+                <h2 className="text-2xl font-display font-extrabold mt-2 tracking-tight uppercase text-foreground">{app.companyName}</h2>
                 <p className="text-lg text-muted-foreground">{app.roleTitle}</p>
               </div>
-              <span className={`px-3 py-1 rounded-full text-xs font-bold border ${
-                app.status === 'APPLIED' ? 'bg-blue-500/10 text-blue-500 border-blue-500/20' :
-                app.status === 'OA' ? 'bg-amber-500/10 text-amber-500 border-amber-500/20' :
-                app.status === 'INTERVIEW' ? 'bg-purple-500/10 text-purple-500 border-purple-500/20' :
-                app.status === 'OFFER' ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' :
-                'bg-rose-500/10 text-rose-500 border-rose-500/20'
+              <span className={`px-2 py-0.5 rounded-md text-xs font-mono uppercase tracking-wide border ${
+                app.status === 'APPLIED' ? 'bg-status-applied-bg text-status-applied-text border-status-applied-border' :
+                app.status === 'OA' ? 'bg-status-oa-bg text-status-oa-text border-status-oa-border' :
+                app.status === 'INTERVIEW' ? 'bg-status-interview-bg text-status-interview-text border-status-interview-border' :
+                app.status === 'OFFER' ? 'bg-status-offer-bg text-status-offer-text border-status-offer-border' :
+                app.status === 'REJECTED' ? 'bg-status-rejected-bg text-status-rejected-text border-status-rejected-border' :
+                app.status === 'GHOSTED' ? 'bg-status-ghosted-bg text-status-ghosted-text border-status-ghosted-border' :
+                'bg-status-withdrawn-bg text-status-withdrawn-text border-status-withdrawn-border'
               }`}>
                 {app.status}
               </span>
             </div>
 
             <div className="grid grid-cols-2 gap-6 mt-8 pt-6 border-t border-border/40">
-              <div className="flex items-center gap-3 text-sm">
-                <MapPin className="h-5 w-5 text-muted-foreground" />
-                <div>
-                  <p className="text-xs text-muted-foreground font-medium">Location</p>
-                  <p className="font-semibold">{app.location || 'Remote / Unspecified'}</p>
-                </div>
+              <div className="space-y-1">
+                <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">Location</span>
+                <p className="text-sm font-medium">{app.location || 'Remote / Unspecified'}</p>
+              </div>
+              <div className="space-y-1">
+                <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">Salary Target</span>
+                <p className="text-sm font-mono">{app.salaryRange || 'Not disclosed'}</p>
+              </div>
+              <div className="space-y-1">
+                <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">Date Logged</span>
+                <p className="text-sm font-mono">{new Date(app.dateApplied).toLocaleDateString()}</p>
+              </div>
+              <div className="space-y-1">
+                <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">Next Follow-Up</span>
+                <p className="text-sm font-mono text-primary font-semibold">{app.followUpDate ? new Date(app.followUpDate).toLocaleDateString() : 'None scheduled'}</p>
               </div>
 
-              <div className="flex items-center gap-3 text-sm">
-                <DollarSign className="h-5 w-5 text-muted-foreground" />
-                <div>
-                  <p className="text-xs text-muted-foreground font-medium">Salary Range</p>
-                  <p className="font-semibold">{app.salaryRange || 'Unspecified'}</p>
+              {(app as any).oaDateTime && (
+                <div className="space-y-1 col-span-2 sm:col-span-1">
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">OA Date & Time</span>
+                  <p className="text-sm font-mono text-teal-600 dark:text-teal-400 font-semibold">
+                    {new Date((app as any).oaDateTime).toLocaleString()}
+                  </p>
                 </div>
-              </div>
-
-              <div className="flex items-center gap-3 text-sm">
-                <Clock className="h-5 w-5 text-muted-foreground" />
-                <div>
-                  <p className="text-xs text-muted-foreground font-medium">Applied Date</p>
-                  <p className="font-semibold">{app.dateApplied}</p>
+              )}
+              {(app as any).interviewDateTime && (
+                <div className="space-y-1 col-span-2 sm:col-span-1">
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">Interview Date & Time</span>
+                  <p className="text-sm font-mono text-teal-600 dark:text-teal-400 font-semibold">
+                    {new Date((app as any).interviewDateTime).toLocaleString()}
+                  </p>
                 </div>
-              </div>
-
-              <div className="flex items-center gap-3 text-sm">
-                <Calendar className="h-5 w-5 text-muted-foreground" />
-                <div>
-                  <p className="text-xs text-muted-foreground font-medium">Next Action Date</p>
-                  <p className="font-semibold">{app.followUpDate || 'None'}</p>
+              )}
+              {(app as any).meetingLink && (
+                <div className="space-y-1 col-span-2">
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">Meeting / Assessment URL</span>
+                  <a 
+                    href={(app as any).meetingLink} 
+                    target="_blank" 
+                    rel="noreferrer" 
+                    className="text-xs font-mono text-teal-700 dark:text-teal-400 hover:underline block truncate"
+                  >
+                    {(app as any).meetingLink}
+                  </a>
                 </div>
-              </div>
+              )}
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6 pt-6 border-t border-border/40">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6 pt-6 border-t border-border/40">
               {app.resumeFileName && (
-                <div className="p-3 rounded-xl border bg-muted/30 flex items-center justify-between">
+                <div className="p-3 rounded-md border bg-muted/20 flex items-center justify-between">
                   <div className="flex items-center gap-2 truncate max-w-[200px]">
                     <FileText className="h-4 w-4 text-primary" />
-                    <span className="text-xs font-semibold truncate">{app.resumeFileName} (v{app.resumeVersion})</span>
+                    <div className="truncate">
+                      <p className="text-xs font-semibold truncate">{app.resumeFileName}</p>
+                      <p className="text-[10px] text-muted-foreground font-mono">VERSION {app.resumeVersion}</p>
+                    </div>
                   </div>
                   <button
                     onClick={() => handleDownloadResume(app.resumeId!)}
-                    className="p-1 px-2 border rounded-lg bg-card hover:bg-muted text-[10px] font-semibold transition-colors"
+                    className="p-1 px-2 border rounded-md bg-card hover:bg-muted text-[10px] font-semibold transition-colors"
                   >
                     Download
                   </button>
@@ -308,7 +344,7 @@ export const ApplicationDetailsPage: React.FC = () => {
               )}
 
               {app.jobDescriptionUrl && (
-                <div className="p-3 rounded-xl border bg-muted/30 flex items-center justify-between">
+                <div className="p-3 rounded-md border bg-muted/20 flex items-center justify-between">
                   <div className="flex items-center gap-2 truncate max-w-[200px]">
                     <LinkIcon className="h-4 w-4 text-primary" />
                     <span className="text-xs font-semibold truncate">Meeting/Listing Link</span>
@@ -317,7 +353,7 @@ export const ApplicationDetailsPage: React.FC = () => {
                     href={app.jobDescriptionUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="p-1 px-2.5 border rounded-lg bg-primary text-primary-foreground hover:bg-primary/95 text-[10px] font-semibold transition-colors flex items-center gap-1"
+                    className="p-1 px-2.5 border rounded-md bg-primary text-primary-foreground hover:bg-[#0C5A62] dark:hover:bg-[#4CB0BA] text-[10px] font-semibold transition-colors flex items-center gap-1"
                   >
                     <Video className="h-3 w-3" />
                     Launch
@@ -329,9 +365,9 @@ export const ApplicationDetailsPage: React.FC = () => {
 
           {/* Job Description raw details preservation */}
           {app.jobDescriptionRaw && (
-            <div className="p-6 rounded-2xl border bg-card glass-card space-y-3">
-              <h3 className="text-base font-display font-bold">Preserved Job Specification</h3>
-              <div className="p-4 rounded-xl bg-slate-950/60 text-xs font-mono text-slate-300 max-h-60 overflow-y-auto whitespace-pre-wrap leading-relaxed border border-slate-800">
+            <div className="p-6 rounded-lg border bg-card space-y-3">
+              <h3 className="text-base font-display font-bold uppercase tracking-tight text-muted-foreground">Preserved Job Specification</h3>
+              <div className="p-4 rounded-md bg-muted/30 text-xs font-mono text-foreground max-h-60 overflow-y-auto whitespace-pre-wrap leading-relaxed border border-border">
                 {app.jobDescriptionRaw}
               </div>
             </div>
@@ -340,35 +376,36 @@ export const ApplicationDetailsPage: React.FC = () => {
 
         {/* Right pane: Chronological status transition timeline */}
         <div className="col-span-12 lg:col-span-4 space-y-6">
-          <div className="p-6 rounded-2xl border bg-card glass-card">
-            <h3 className="text-lg font-display font-bold mb-6">Status Progression</h3>
+          <div className="p-6 rounded-lg border bg-card">
+            <h3 className="text-lg font-display font-bold mb-6 uppercase tracking-tight text-muted-foreground">Status Progression</h3>
 
             {/* Visual steps mapping */}
             <div className="relative pl-6 space-y-6">
-              {/* Vertical line connector */}
-              <div className="absolute left-[7px] top-1 bottom-1 w-[2px] bg-muted" />
+              {/* Vertical line connector (The Trajectory Line) */}
+              <div className="absolute left-[5px] top-1 bottom-1 w-0 border-l-2 border-dashed border-primary/55" />
 
               {history.map((hist, index) => {
+                const isActive = index === history.length - 1;
                 return (
                   <div key={hist.id} className="relative flex gap-4 items-start">
-                    {/* Pulsing indicator for active/latest node */}
-                    <span className={`absolute left-[-23px] rounded-full z-10 ${
-                      index === history.length - 1 
-                        ? 'h-3.5 w-3.5 border-2 border-background ring-4 ring-indigo-500/30 bg-primary'
-                        : 'h-3.5 w-3.5 bg-primary border-2 border-background'
+                    {/* Diamond tick timeline node */}
+                    <span className={`absolute left-[-25px] top-[5px] h-2.5 w-2.5 rotate-45 border border-background z-10 ${
+                      isActive 
+                        ? 'bg-primary ring-2 ring-primary/30 animate-pulse-slow' 
+                        : 'bg-background border-2 border-primary'
                     }`} />
 
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
-                        <span className="text-sm font-bold text-foreground">
+                        <span className="text-sm font-mono font-bold uppercase tracking-wide text-foreground">
                           {hist.status}
                         </span>
-                        <span className="text-[10px] text-muted-foreground">
+                        <span className="text-[10px] font-mono text-muted-foreground bg-muted px-1.5 py-0.5 rounded-sm">
                           {new Date(hist.changedAt).toLocaleDateString()}
                         </span>
                       </div>
                       {hist.notes && (
-                        <p className="text-xs text-muted-foreground leading-relaxed">
+                        <p className="text-xs text-muted-foreground leading-relaxed font-sans">
                           {hist.notes}
                         </p>
                       )}
@@ -384,32 +421,34 @@ export const ApplicationDetailsPage: React.FC = () => {
       {/* AI Schedule Invite Parser Modal */}
       {isEventParserOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl w-full max-w-lg space-y-4 animate-in zoom-in-95 duration-200">
+          <div className="bg-card border border-border p-6 rounded-lg w-full max-w-lg space-y-4 animate-in zoom-in-95 duration-200 shadow-2xl">
             <div>
-              <h3 className="text-lg font-display font-extrabold text-white flex items-center gap-2">
+              <h3 className="text-lg font-display font-extrabold text-foreground flex items-center gap-2 uppercase tracking-tight">
                 <Sparkles className="h-5 w-5 text-primary" />
                 AI Schedule Assistant
               </h3>
-              <p className="text-xs text-slate-400 mt-1">Paste your recruiter invitation or confirmation email text. We will automatically extract dates, times, meeting links, and update your status to OA or Interviewing.</p>
+              <p className="text-xs text-muted-foreground mt-1">Paste your recruiter invitation or confirmation email text. We will automatically extract dates, times, meeting links, and update your status to OA or Interviewing.</p>
             </div>
             <textarea
               placeholder="Paste scheduling email text here..."
               value={eventEmailText}
               onChange={(e) => setEventEmailText(e.target.value)}
               rows={8}
-              className="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+              className="w-full p-3 bg-background border border-border rounded-md text-sm text-foreground placeholder-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
             />
-            <div className="flex items-center justify-end gap-2 pt-2">
+            <div className="flex justify-end gap-2">
               <button
+                type="button"
                 onClick={() => setIsEventParserOpen(false)}
-                className="px-4 py-2 border border-slate-800 hover:bg-slate-800 text-sm font-medium text-slate-300 rounded-xl transition-colors"
+                className="px-4 py-2 border border-border hover:bg-muted text-sm font-medium text-muted-foreground rounded-md transition-colors"
               >
                 Cancel
               </button>
               <button
+                type="button"
                 onClick={handleParseEvent}
-                disabled={parsingEvent || !eventEmailText.trim()}
-                className="flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-primary hover:bg-primary/95 text-white text-sm font-semibold transition-all duration-200"
+                disabled={parsingEvent}
+                className="flex items-center justify-center gap-2 px-4 py-2 rounded-md bg-primary text-primary-foreground hover:bg-[#0C5A62] dark:hover:bg-[#4CB0BA] text-sm font-semibold transition-all duration-200"
               >
                 {parsingEvent ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -430,47 +469,47 @@ export const ApplicationDetailsPage: React.FC = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
           <form 
             onSubmit={handleUpdate}
-            className="bg-slate-900 border border-slate-800 p-6 rounded-2xl w-full max-w-xl max-h-[85vh] overflow-y-auto space-y-4 animate-in zoom-in-95 duration-200"
+            className="bg-card border border-border p-6 rounded-lg w-full max-w-xl max-h-[85vh] overflow-y-auto space-y-4 animate-in zoom-in-95 duration-200 shadow-2xl"
           >
-            <div className="flex items-center justify-between pb-2 border-b border-slate-800">
-              <h3 className="text-lg font-display font-extrabold text-white">Modify Application</h3>
-              <button type="button" onClick={() => setIsEditOpen(false)} className="text-slate-400 hover:text-white">
+            <div className="flex items-center justify-between pb-2 border-b border-border">
+              <h3 className="text-lg font-display font-extrabold text-foreground uppercase tracking-tight">Modify Application</h3>
+              <button type="button" onClick={() => setIsEditOpen(false)} className="text-muted-foreground hover:text-foreground">
                 ✕
               </button>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-slate-300">Company Name *</label>
+                <label className="text-xs font-semibold text-foreground">Company Name *</label>
                 <input
                   type="text"
                   required
                   value={companyName}
                   onChange={(e) => setCompanyName(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                  className="w-full px-3 py-2 bg-background border border-border rounded-md text-sm text-foreground placeholder-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-slate-300">Role Title *</label>
+                <label className="text-xs font-semibold text-foreground">Role Title *</label>
                 <input
                   type="text"
                   required
                   value={roleTitle}
                   onChange={(e) => setRoleTitle(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                  className="w-full px-3 py-2 bg-background border border-border rounded-md text-sm text-foreground placeholder-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-slate-300">Career Persona *</label>
+                <label className="text-xs font-semibold text-foreground">Career Persona *</label>
                 <select
                   required
                   value={profileId}
                   onChange={(e) => setProfileId(e.target.value)}
-                  className="w-full px-3 py-2.5 bg-slate-950 border border-slate-800 rounded-lg text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-3 py-2.5 bg-background border border-border rounded-md text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                 >
                   {profiles.map(p => (
                     <option key={p.id} value={p.id}>{p.title}</option>
@@ -479,11 +518,11 @@ export const ApplicationDetailsPage: React.FC = () => {
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-slate-300">Status *</label>
+                <label className="text-xs font-semibold text-foreground">Status *</label>
                 <select
                   value={status}
                   onChange={(e) => setStatus(e.target.value)}
-                  className="w-full px-3 py-2.5 bg-slate-950 border border-slate-800 rounded-lg text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-3 py-2.5 bg-background border border-border rounded-md text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                 >
                   <option value="APPLIED">Applied</option>
                   <option value="OA">Online Assessment</option>
@@ -496,13 +535,62 @@ export const ApplicationDetailsPage: React.FC = () => {
               </div>
             </div>
 
+            {/* Smart Status Fields */}
+            {status === 'OA' && (
+              <div className="grid grid-cols-2 gap-4 p-4 rounded-md border border-teal-500/20 bg-teal-500/5">
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-foreground">OA Date & Time</label>
+                  <input
+                    type="datetime-local"
+                    value={oaDateTime}
+                    onChange={(e) => setOaDateTime(e.target.value)}
+                    className="w-full px-3 py-2 bg-background border border-border rounded-md text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-foreground">Meeting / Test Link</label>
+                  <input
+                    type="text"
+                    value={meetingLink}
+                    onChange={(e) => setMeetingLink(e.target.value)}
+                    placeholder="e.g. https://hackerrank.com/..."
+                    className="w-full px-3 py-2 bg-background border border-border rounded-md text-sm text-foreground placeholder-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+                  />
+                </div>
+              </div>
+            )}
+
+            {status === 'INTERVIEW' && (
+              <div className="grid grid-cols-2 gap-4 p-4 rounded-md border border-teal-500/20 bg-teal-500/5">
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-foreground">Interview Date & Time</label>
+                  <input
+                    type="datetime-local"
+                    value={interviewDateTime}
+                    onChange={(e) => setInterviewDateTime(e.target.value)}
+                    className="w-full px-3 py-2 bg-background border border-border rounded-md text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-foreground">Meeting Link</label>
+                  <input
+                    type="text"
+                    value={meetingLink}
+                    onChange={(e) => setMeetingLink(e.target.value)}
+                    placeholder="e.g. https://zoom.us/j/..."
+                    className="w-full px-3 py-2 bg-background border border-border rounded-md text-sm text-foreground placeholder-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+                  />
+                </div>
+              </div>
+            )}
+
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-slate-300">Resume Link</label>
+                <label className="text-xs font-semibold text-foreground">Resume Link</label>
                 <select
                   value={resumeId}
                   onChange={(e) => setResumeId(e.target.value)}
-                  className="w-full px-3 py-2.5 bg-slate-950 border border-slate-800 rounded-lg text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-3 py-2.5 bg-background border border-border rounded-md text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                 >
                   <option value="">No Resume Linked</option>
                   {resumes.map(r => (
@@ -512,103 +600,103 @@ export const ApplicationDetailsPage: React.FC = () => {
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-slate-300">Source</label>
+                <label className="text-xs font-semibold text-foreground">Source</label>
                 <input
                   type="text"
                   value={source}
                   onChange={(e) => setSource(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-3 py-2 bg-background border border-border rounded-md text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-slate-300">Location</label>
+                <label className="text-xs font-semibold text-foreground">Location</label>
                 <input
                   type="text"
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-3 py-2 bg-background border border-border rounded-md text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-slate-300">Salary Range</label>
+                <label className="text-xs font-semibold text-foreground">Salary Range</label>
                 <input
                   type="text"
                   value={salaryRange}
                   onChange={(e) => setSalaryRange(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-3 py-2 bg-background border border-border rounded-md text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-3 gap-4">
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-slate-300">Date Applied</label>
+                <label className="text-xs font-semibold text-foreground">Date Applied</label>
                 <input
                   type="date"
                   value={dateApplied}
                   onChange={(e) => setDateApplied(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-xs text-white focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-3 py-2 bg-background border border-border rounded-md text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-slate-300">Next Action Date</label>
+                <label className="text-xs font-semibold text-foreground">Next Action Date</label>
                 <input
                   type="date"
                   value={followUpDate}
                   onChange={(e) => setFollowUpDate(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-xs text-white focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-3 py-2 bg-background border border-border rounded-md text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-slate-300">Response Date</label>
+                <label className="text-xs font-semibold text-foreground">Response Date</label>
                 <input
                   type="date"
                   value={responseDate}
                   onChange={(e) => setResponseDate(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-xs text-white focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-3 py-2 bg-background border border-border rounded-md text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                 />
               </div>
             </div>
 
             <div className="space-y-1">
-              <label className="text-xs font-semibold text-slate-300">Meeting Link / URL</label>
+              <label className="text-xs font-semibold text-foreground">Meeting Link / URL</label>
               <input
                 type="text"
                 value={jobDescriptionUrl}
                 onChange={(e) => setJobDescriptionUrl(e.target.value)}
                 placeholder="Zoom, Google Meet or JD Link..."
-                className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full px-3 py-2 bg-background border border-border rounded-md text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
               />
             </div>
 
             <div className="space-y-1">
-              <label className="text-xs font-semibold text-slate-300">Preserved Description</label>
+              <label className="text-xs font-semibold text-foreground">Preserved Description</label>
               <textarea
                 value={jobDescriptionRaw}
                 onChange={(e) => setJobDescriptionRaw(e.target.value)}
                 rows={4}
-                className="w-full p-2 bg-slate-950 border border-slate-800 rounded-lg text-xs text-white focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full p-2 bg-background border border-border rounded-md text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
               />
             </div>
 
-            <div className="flex items-center justify-end gap-2 pt-4 border-t border-slate-800 mt-6">
+            <div className="flex items-center justify-end gap-2 pt-4 border-t border-border mt-6">
               <button
                 type="button"
                 onClick={() => setIsEditOpen(false)}
-                className="px-4 py-2 border border-slate-800 hover:bg-slate-800 text-sm font-medium text-slate-300 rounded-xl transition-colors"
+                className="px-4 py-2 border border-border hover:bg-muted text-sm font-medium text-muted-foreground rounded-md transition-colors"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={updateMutation.isPending}
-                className="flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-primary hover:bg-primary/95 text-white text-sm font-semibold transition-all duration-200"
+                className="flex items-center justify-center gap-2 px-4 py-2 rounded-md bg-primary text-primary-foreground hover:bg-[#0C5A62] dark:hover:bg-[#4CB0BA] text-sm font-semibold transition-all duration-200"
               >
                 {updateMutation.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
                 Save Changes

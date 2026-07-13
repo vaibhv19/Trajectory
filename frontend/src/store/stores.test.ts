@@ -22,6 +22,7 @@ describe('Zustand State Stores', () => {
     it('should update state and localstorage on setAuth', () => {
       const mockAuth = {
         token: 'mock-jwt-token',
+        refreshToken: 'mock-refresh-token',
         email: 'test@email.com',
         fullName: 'Test User',
         userId: 'uuid-1234',
@@ -31,12 +32,14 @@ describe('Zustand State Stores', () => {
 
       const state = useAuthStore.getState();
       expect(state.token).toBe('mock-jwt-token');
+      expect(state.refreshToken).toBe('mock-refresh-token');
       expect(state.email).toBe('test@email.com');
       expect(state.fullName).toBe('Test User');
       expect(state.userId).toBe('uuid-1234');
       expect(state.isAuthenticated).toBe(true);
 
       expect(localStorage.getItem('token')).toBe('mock-jwt-token');
+      expect(localStorage.getItem('refreshToken')).toBe('mock-refresh-token');
       expect(localStorage.getItem('email')).toBe('test@email.com');
     });
 

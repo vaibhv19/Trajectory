@@ -6,6 +6,8 @@ export interface User {
   authProvider: 'LOCAL' | 'GOOGLE' | 'GITHUB';
   ghostThresholdDays: number;
   autoArchiveEnabled: boolean;
+  browserNotificationsEnabled?: boolean;
+  emailNotificationsEnabled?: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -49,6 +51,7 @@ export interface Application {
   followUpDate: string | null;
   responseDate: string | null;
   lastActivityAt: string;
+  isArchived: boolean;
 }
 
 export interface ApplicationStatusHistory {
@@ -126,6 +129,7 @@ export interface DashboardMetrics {
 
 export interface AuthResponse {
   token: string;
+  refreshToken: string;
   email: string;
   fullName: string;
   userId: string;
@@ -164,4 +168,13 @@ export interface EventExtraction {
   meeting_link: string | null;
   interviewer_names: string[];
   duration_minutes: number;
+}
+
+export interface AppNotification {
+  id: string;
+  title: string;
+  message: string;
+  type: 'INFO' | 'AGENDA' | 'REMINDER';
+  isRead: boolean;
+  createdAt: string;
 }

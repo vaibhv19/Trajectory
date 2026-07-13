@@ -27,43 +27,39 @@ public class ApplicationService {
     private final UserRepository userRepository;
     private final CareerProfileRepository careerProfileRepository;
     private final ResumeRepository resumeRepository;
+    private final NotificationService notificationService;
 
     public ApplicationService(ApplicationRepository applicationRepository,
                               ApplicationStatusHistoryRepository statusHistoryRepository,
                               UserRepository userRepository,
                               CareerProfileRepository careerProfileRepository,
-                              ResumeRepository resumeRepository) {
+                              ResumeRepository resumeRepository,
+                              NotificationService notificationService) {
         this.applicationRepository = applicationRepository;
         this.statusHistoryRepository = statusHistoryRepository;
         this.userRepository = userRepository;
         this.careerProfileRepository = careerProfileRepository;
         this.resumeRepository = resumeRepository;
+        this.notificationService = notificationService;
     }
 
+    @Transactional(readOnly = true)
     public Page<ApplicationResponse> searchApplications(
-            UUID userId, String search, List<ApplicationStatus> statuses, UUID profileId, Pageable pageable) {
+            UUID userId, String search, List<ApplicationStatus> statuses, UUID profileId, boolean isArchived, Pageable pageable) {
         
-        // If no statuses are provided but we want to filter out archived if auto_archive_enabled is true
-        List<ApplicationStatus> activeStatuses = statuses;
-        if (statuses == null || statuses.isEmpty()) {
-            User user = userRepository.findById(userId).orElseThrow();
-            if (user.isAutoArchiveEnabled()) {
-                // Return only active statuses
-                activeStatuses = List.of(ApplicationStatus.APPLIED, ApplicationStatus.OA, ApplicationStatus.INTERVIEW, ApplicationStatus.OFFER);
-            }
-        }
-
         Page<Application> apps = applicationRepository.searchApplications(
                 userId, 
                 search == null || search.trim().isEmpty() ? null : search, 
-                activeStatuses, 
+                statuses, 
                 profileId, 
+                isArchived,
                 pageable
         );
 
         return apps.map(this::mapToResponse);
     }
 
+    @Transactional(readOnly = true)
     public ApplicationResponse getApplication(UUID userId, UUID id) {
         Application app = applicationRepository.findByIdAndUserId(id, userId)
                 .orElseThrow(() -> new RuntimeException("Application not found"));
@@ -74,10 +70,10 @@ public class ApplicationService {
     public ApplicationResponse createApplication(UUID userId, ApplicationRequest request) {
         User user = userRepository.findById(userId).orElseThrow();
 
-        // Duplicate check (Company + Role)
-        if (applicationRepository.existsByUserIdAndCompanyNameIgnoreCaseAndRoleTitleIgnoreCase(
+        // Duplicate check (Company + Role) among active applications
+        if (applicationRepository.existsByUserIdAndCompanyNameIgnoreCaseAndRoleTitleIgnoreCaseAndIsArchivedFalse(
                 userId, request.companyName(), request.roleTitle())) {
-            throw new IllegalArgumentException("You have already added an application for " + request.roleTitle() + " at " + request.companyName());
+            throw new IllegalArgumentException("You have already added an active application for " + request.roleTitle() + " at " + request.companyName());
         }
 
         CareerProfile profile = careerProfileRepository.findById(request.profileId())
@@ -107,6 +103,10 @@ public class ApplicationService {
             }
         }
 
+        // Auto-Archive Logic
+        boolean shouldArchive = (status == ApplicationStatus.REJECTED || status == ApplicationStatus.GHOSTED) && user.isAutoArchiveEnabled();
+        boolean isArchived = request.isArchived() != null ? request.isArchived() : shouldArchive;
+
         Application app = Application.builder()
                 .user(user)
                 .careerProfile(profile)
@@ -122,10 +122,34 @@ public class ApplicationService {
                 .dateApplied(appliedDate)
                 .followUpDate(request.followUpDate())
                 .responseDate(request.responseDate())
+                .isArchived(isArchived)
                 .lastActivityAt(OffsetDateTime.now())
+                .oaDateTime(request.oaDateTime())
+                .interviewDateTime(request.interviewDateTime())
+                .meetingLink(request.meetingLink())
                 .build();
 
         Application saved = applicationRepository.save(app);
+
+        // Auto create reminders if date/time is provided
+        if (saved.getOaDateTime() != null) {
+            String linkStr = saved.getMeetingLink() != null && !saved.getMeetingLink().isEmpty() ? " Link: " + saved.getMeetingLink() : "";
+            notificationService.createNotification(
+                userId, 
+                "OA Scheduled Reminder", 
+                "Online Assessment scheduled for " + saved.getRoleTitle() + " at " + saved.getCompanyName() + " on " + saved.getOaDateTime() + "." + linkStr, 
+                "AGENDA"
+            );
+        }
+        if (saved.getInterviewDateTime() != null) {
+            String linkStr = saved.getMeetingLink() != null && !saved.getMeetingLink().isEmpty() ? " Link: " + saved.getMeetingLink() : "";
+            notificationService.createNotification(
+                userId, 
+                "Interview Scheduled Reminder", 
+                "Interview scheduled for " + saved.getRoleTitle() + " at " + saved.getCompanyName() + " on " + saved.getInterviewDateTime() + "." + linkStr, 
+                "AGENDA"
+            );
+        }
 
         // Add history transition
         ApplicationStatusHistory history = ApplicationStatusHistory.builder()
@@ -170,6 +194,13 @@ public class ApplicationService {
 
         boolean statusChanged = !app.getStatus().equals(nextStatus);
 
+        // Auto-Archive Logic
+        boolean shouldArchive = (nextStatus == ApplicationStatus.REJECTED || nextStatus == ApplicationStatus.GHOSTED) && app.getUser().isAutoArchiveEnabled();
+        boolean isArchived = request.isArchived() != null ? request.isArchived() : (statusChanged ? shouldArchive : app.isArchived());
+
+        boolean oaUpdated = request.oaDateTime() != null && (app.getOaDateTime() == null || !app.getOaDateTime().equals(request.oaDateTime()));
+        boolean interviewUpdated = request.interviewDateTime() != null && (app.getInterviewDateTime() == null || !app.getInterviewDateTime().equals(request.interviewDateTime()));
+
         app.setCareerProfile(profile);
         app.setResume(resume);
         app.setCompanyName(request.companyName());
@@ -183,18 +214,40 @@ public class ApplicationService {
         app.setDateApplied(appliedDate);
         app.setFollowUpDate(request.followUpDate());
         app.setResponseDate(request.responseDate());
+        app.setArchived(isArchived);
+        app.setOaDateTime(request.oaDateTime());
+        app.setInterviewDateTime(request.interviewDateTime());
+        app.setMeetingLink(request.meetingLink());
         app.setLastActivityAt(OffsetDateTime.now());
 
         Application saved = applicationRepository.save(app);
+
+        if (oaUpdated) {
+            String linkStr = saved.getMeetingLink() != null && !saved.getMeetingLink().isEmpty() ? " Link: " + saved.getMeetingLink() : "";
+            notificationService.createNotification(
+                userId, 
+                "OA Scheduled Reminder", 
+                "Online Assessment scheduled for " + saved.getRoleTitle() + " at " + saved.getCompanyName() + " on " + saved.getOaDateTime() + "." + linkStr, 
+                "AGENDA"
+            );
+        }
+        if (interviewUpdated) {
+            String linkStr = saved.getMeetingLink() != null && !saved.getMeetingLink().isEmpty() ? " Link: " + saved.getMeetingLink() : "";
+            notificationService.createNotification(
+                userId, 
+                "Interview Scheduled Reminder", 
+                "Interview scheduled for " + saved.getRoleTitle() + " at " + saved.getCompanyName() + " on " + saved.getInterviewDateTime() + "." + linkStr, 
+                "AGENDA"
+            );
+        }
 
         if (statusChanged) {
             ApplicationStatusHistory history = ApplicationStatusHistory.builder()
                     .application(saved)
                     .status(saved.getStatus())
-                    .notes("Status updated to " + saved.getStatus())
+                    .notes("Status changed via update")
                     .build();
             statusHistoryRepository.save(history);
-            log.info("Status transition logged for application {}: {} -> {}", saved.getId(), app.getStatus(), saved.getStatus());
         }
 
         return mapToResponse(saved);
@@ -208,6 +261,7 @@ public class ApplicationService {
         log.info("Deleted application {}", id);
     }
 
+    @Transactional(readOnly = true)
     public List<ApplicationStatusHistory> getStatusHistory(UUID userId, UUID applicationId) {
         // Validate ownership
         applicationRepository.findByIdAndUserId(applicationId, userId)
@@ -246,7 +300,11 @@ public class ApplicationService {
                 app.getDateApplied(),
                 app.getFollowUpDate(),
                 app.getResponseDate(),
-                app.getLastActivityAt()
+                app.getLastActivityAt(),
+                app.isArchived(),
+                app.getOaDateTime(),
+                app.getInterviewDateTime(),
+                app.getMeetingLink()
         );
     }
 }

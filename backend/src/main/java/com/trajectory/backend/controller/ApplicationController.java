@@ -35,6 +35,7 @@ public class ApplicationController {
             @RequestParam(required = false) String search,
             @RequestParam(required = false) List<ApplicationStatus> status,
             @RequestParam(required = false) UUID profileId,
+            @RequestParam(defaultValue = "false") boolean isArchived,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "dateApplied,desc") String sort) {
@@ -47,7 +48,7 @@ public class ApplicationController {
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortField));
         
         Page<ApplicationResponse> response = applicationService.searchApplications(
-                principal.getId(), search, status, profileId, pageable);
+                principal.getId(), search, status, profileId, isArchived, pageable);
         
         return ResponseEntity.ok(response);
     }

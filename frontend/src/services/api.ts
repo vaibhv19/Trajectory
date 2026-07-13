@@ -3,12 +3,24 @@ import type {
   AuthResponse, LoginRequest, RegisterRequest, User,
   CareerProfile, Application, ApplicationStatusHistory,
   Outreach, CompanyDocument, DashboardMetrics, JobExtraction,
-  OutreachAnalysis, EventExtraction, Resume
+  OutreachAnalysis, EventExtraction, Resume, AppNotification
 } from '../types';
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
 
-async function apiCall(endpoint: string, options: RequestInit = {}) {
+let isRefreshing = false;
+let refreshSubscribers: ((token: string) => void)[] = [];
+
+function subscribeTokenRefresh(cb: (token: string) => void) {
+  refreshSubscribers.push(cb);
+}
+
+function onRefreshed(token: string) {
+  refreshSubscribers.forEach((cb) => cb(token));
+  refreshSubscribers = [];
+}
+
+async function apiCall(endpoint: string, options: RequestInit = {}): Promise<any> {
   const token = useAuthStore.getState().token;
   const headers = new Headers(options.headers || {});
 
@@ -24,6 +36,67 @@ async function apiCall(endpoint: string, options: RequestInit = {}) {
     ...options,
     headers,
   });
+
+  if (response.status === 401 && endpoint !== '/auth/login' && endpoint !== '/auth/register' && endpoint !== '/auth/refresh') {
+    const refreshToken = useAuthStore.getState().refreshToken;
+    if (refreshToken) {
+      if (!isRefreshing) {
+        isRefreshing = true;
+        try {
+          const refreshRes = await fetch(`${BASE_URL}/auth/refresh`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ refreshToken }),
+          });
+
+          if (refreshRes.ok) {
+            const data = await refreshRes.json();
+            const newToken = data.token;
+            useAuthStore.getState().setToken(newToken);
+            isRefreshing = false;
+            onRefreshed(newToken);
+          } else {
+            isRefreshing = false;
+            useAuthStore.getState().logout();
+            throw new Error('Unauthorized');
+          }
+        } catch (err) {
+          isRefreshing = false;
+          useAuthStore.getState().logout();
+          throw err;
+        }
+      }
+
+      return new Promise((resolve, reject) => {
+        subscribeTokenRefresh((newToken) => {
+          const retryHeaders = new Headers(options.headers || {});
+          retryHeaders.set('Authorization', `Bearer ${newToken}`);
+          if (options.body && !(options.body instanceof FormData) && !retryHeaders.has('Content-Type')) {
+            retryHeaders.set('Content-Type', 'application/json');
+          }
+          fetch(`${BASE_URL}${endpoint}`, {
+            ...options,
+            headers: retryHeaders,
+          })
+            .then(res => {
+              if (!res.ok) {
+                res.json().then(err => reject(new Error(err.message || 'API request failed'))).catch(() => reject(new Error('API request failed')));
+              } else if (endpoint.endsWith('/download')) {
+                resolve(res.blob());
+              } else if (res.status === 204) {
+                resolve(null);
+              } else {
+                resolve(res.json());
+              }
+            })
+            .catch(reject);
+        });
+      });
+    } else {
+      useAuthStore.getState().logout();
+      throw new Error('Unauthorized');
+    }
+  }
 
   if (response.status === 401) {
     useAuthStore.getState().logout();
@@ -114,6 +187,7 @@ export const api = {
       search?: string; 
       status?: string[]; 
       profileId?: string; 
+      isArchived?: boolean;
       page?: number; 
       size?: number; 
       sort?: string; 
@@ -122,6 +196,7 @@ export const api = {
       if (params.search) query.append('search', params.search);
       if (params.status) params.status.forEach(s => query.append('status', s));
       if (params.profileId) query.append('profileId', params.profileId);
+      if (params.isArchived !== undefined) query.append('isArchived', String(params.isArchived));
       if (params.page !== undefined) query.append('page', String(params.page));
       if (params.size !== undefined) query.append('size', String(params.size));
       if (params.sort) query.append('sort', params.sort);
@@ -189,6 +264,51 @@ export const api = {
     
     delete: (id: string): Promise<void> => 
       apiCall(`/documents/${id}`, { method: 'DELETE' }),
+  },
+
+  // Users API
+  users: {
+    getProfile: (): Promise<User> => 
+      apiCall('/users/profile'),
+    
+    updateProfile: (fullName: string, avatarUrl?: string): Promise<User> => 
+      apiCall('/users/profile', { method: 'PUT', body: JSON.stringify({ fullName, avatarUrl }) }),
+    
+    updateSettings: (data: { ghostThresholdDays: number; autoArchiveEnabled: boolean; browserNotificationsEnabled: boolean; emailNotificationsEnabled: boolean }): Promise<User> => 
+      apiCall('/users/settings', { method: 'PUT', body: JSON.stringify(data) }),
+    
+    changePassword: (oldPassword: string, newPassword: string): Promise<void> => 
+      apiCall('/users/password', { method: 'PUT', body: JSON.stringify({ oldPassword, newPassword }) }),
+
+    unlinkProvider: (provider: string): Promise<User> =>
+      apiCall(`/users/unlink/${provider}`, { method: 'POST' }),
+
+    exportData: (): Promise<any> =>
+      apiCall('/users/export'),
+
+    importData: (importPayload: any): Promise<void> =>
+      apiCall('/users/import', { method: 'POST', body: JSON.stringify(importPayload) }),
+
+    deleteAccount: (): Promise<void> =>
+      apiCall('/users', { method: 'DELETE' }),
+  },
+
+  // Notifications API
+  notifications: {
+    list: (): Promise<AppNotification[]> => 
+      apiCall('/notifications'),
+    
+    unreadCount: (): Promise<number> => 
+      apiCall('/notifications/unread-count'),
+    
+    read: (id: string): Promise<void> => 
+      apiCall(`/notifications/${id}/read`, { method: 'PUT' }),
+    
+    readAll: (): Promise<void> => 
+      apiCall('/notifications/read-all', { method: 'PUT' }),
+
+    triggerDaily: (): Promise<void> => 
+      apiCall('/notifications/trigger-daily', { method: 'POST' }),
   },
 
   // AI API

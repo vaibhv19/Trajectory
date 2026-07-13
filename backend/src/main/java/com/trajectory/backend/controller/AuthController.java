@@ -19,9 +19,15 @@ import java.util.UUID;
 public class AuthController {
 
     private final UserService userService;
+    private final com.trajectory.backend.service.RefreshTokenService refreshTokenService;
+    private final com.trajectory.backend.security.JwtTokenProvider tokenProvider;
 
-    public AuthController(UserService userService) {
+    public AuthController(UserService userService, 
+                          com.trajectory.backend.service.RefreshTokenService refreshTokenService, 
+                          com.trajectory.backend.security.JwtTokenProvider tokenProvider) {
         this.userService = userService;
+        this.refreshTokenService = refreshTokenService;
+        this.tokenProvider = tokenProvider;
     }
 
     @PostMapping("/register")
@@ -34,6 +40,30 @@ public class AuthController {
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
         AuthResponse response = userService.loginUser(request);
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refresh(@RequestBody Map<String, String> request) {
+        String requestRefreshToken = request.get("refreshToken");
+        if (requestRefreshToken == null) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Refresh token is missing"));
+        }
+
+        try {
+            return refreshTokenService.findByToken(requestRefreshToken)
+                    .map(refreshTokenService::verifyExpiration)
+                    .map(com.trajectory.backend.model.RefreshToken::getUser)
+                    .map(user -> {
+                        String token = tokenProvider.generateTokenForUser(com.trajectory.backend.security.UserPrincipal.create(user));
+                        return ResponseEntity.ok(Map.of(
+                                "token", token,
+                                "refreshToken", requestRefreshToken
+                        ));
+                    })
+                    .orElseGet(() -> ResponseEntity.badRequest().body(Map.of("message", "Refresh token not found")));
+        } catch (Exception e) {
+            return ResponseEntity.status(403).body(Map.of("message", e.getMessage()));
+        }
     }
 
     @GetMapping("/profile")

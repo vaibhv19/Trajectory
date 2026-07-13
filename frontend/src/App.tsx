@@ -7,6 +7,8 @@ import { ApplicationsPage } from './pages/ApplicationsPage';
 import { ApplicationDetailsPage } from './pages/ApplicationDetailsPage';
 import { OutreachPage } from './pages/OutreachPage';
 import { ResumesPage } from './pages/ResumesPage';
+import { ResourcesPage } from './pages/ResourcesPage';
+import { SettingsPage } from './pages/SettingsPage';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { Layout } from './components/Layout';
 import { useThemeStore } from './store/themeStore';
@@ -80,6 +82,28 @@ const App: React.FC = () => {
               <ProtectedRoute>
                 <Layout>
                   <ResumesPage />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/resources"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <ResourcesPage />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/settings"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <SettingsPage />
                 </Layout>
               </ProtectedRoute>
             }

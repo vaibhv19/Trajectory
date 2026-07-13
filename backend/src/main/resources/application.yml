@@ -97,3 +97,8 @@ spring:
     enabled: false
   autoconfigure:
     exclude: org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
+
+security:
+  oauth2:
+    mock:
+      enabled: false

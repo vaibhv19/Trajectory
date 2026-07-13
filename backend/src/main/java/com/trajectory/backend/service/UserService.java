@@ -29,17 +29,20 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider tokenProvider;
+    private final RefreshTokenService refreshTokenService;
 
     public UserService(UserRepository userRepository, 
                        CareerProfileRepository careerProfileRepository,
                        PasswordEncoder passwordEncoder, 
                        AuthenticationManager authenticationManager, 
-                       JwtTokenProvider tokenProvider) {
+                       JwtTokenProvider tokenProvider,
+                       RefreshTokenService refreshTokenService) {
         this.userRepository = userRepository;
         this.careerProfileRepository = careerProfileRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.tokenProvider = tokenProvider;
+        this.refreshTokenService = refreshTokenService;
     }
 
     @Transactional
@@ -74,7 +77,8 @@ public class UserService {
         // Authenticate new user automatically
         UserPrincipal principal = UserPrincipal.create(savedUser);
         String token = tokenProvider.generateTokenForUser(principal);
-        return new AuthResponse(token, savedUser.getEmail(), savedUser.getFullName(), savedUser.getId());
+        String refreshToken = refreshTokenService.createRefreshToken(savedUser.getId()).getToken();
+        return new AuthResponse(token, refreshToken, savedUser.getEmail(), savedUser.getFullName(), savedUser.getId());
     }
 
     public AuthResponse loginUser(LoginRequest request) {
@@ -85,13 +89,15 @@ public class UserService {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
         String token = tokenProvider.generateToken(authentication);
+        String refreshToken = refreshTokenService.createRefreshToken(principal.getId()).getToken();
 
         User user = userRepository.findById(principal.getId()).orElseThrow();
 
         log.info("User logged in: {}", user.getEmail());
-        return new AuthResponse(token, user.getEmail(), user.getFullName(), user.getId());
+        return new AuthResponse(token, refreshToken, user.getEmail(), user.getFullName(), user.getId());
     }
 
+    @Transactional(readOnly = true)
     public User getUserProfile(UUID userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -116,10 +122,36 @@ public class UserService {
     }
 
     @Transactional
+    public User updateSettings(UUID userId, int ghostThresholdDays, boolean autoArchiveEnabled, boolean browserNotificationsEnabled, boolean emailNotificationsEnabled) {
+        User user = getUserProfile(userId);
+        user.setGhostThresholdDays(ghostThresholdDays);
+        user.setAutoArchiveEnabled(autoArchiveEnabled);
+        user.setBrowserNotificationsEnabled(browserNotificationsEnabled);
+        user.setEmailNotificationsEnabled(emailNotificationsEnabled);
+        return userRepository.save(user);
+    }
+
+    @Transactional
     public User updateSettings(UUID userId, int ghostThresholdDays, boolean autoArchiveEnabled) {
         User user = getUserProfile(userId);
         user.setGhostThresholdDays(ghostThresholdDays);
         user.setAutoArchiveEnabled(autoArchiveEnabled);
+        return userRepository.save(user);
+    }
+
+    @Transactional
+    public void deleteUser(UUID userId) {
+        User user = getUserProfile(userId);
+        userRepository.delete(user);
+        log.info("Permanently deleted user account: {}", user.getEmail());
+    }
+
+    @Transactional
+    public User unlinkProvider(UUID userId, String provider) {
+        User user = getUserProfile(userId);
+        // Clean provider flag. Since the user may not have a local password, we preserve email but clear provider back to LOCAL.
+        // In a real OAuth system, they might need to set a password first, but PRD allows simple unlinking.
+        user.setAuthProvider("LOCAL");
         return userRepository.save(user);
     }
 }

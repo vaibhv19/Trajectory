@@ -9,14 +9,17 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
+import com.trajectory.backend.service.RefreshTokenService;
 
 @Component
 public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     private final JwtTokenProvider tokenProvider;
+    private final RefreshTokenService refreshTokenService;
 
-    public OAuth2AuthenticationSuccessHandler(JwtTokenProvider tokenProvider) {
+    public OAuth2AuthenticationSuccessHandler(JwtTokenProvider tokenProvider, RefreshTokenService refreshTokenService) {
         this.tokenProvider = tokenProvider;
+        this.refreshTokenService = refreshTokenService;
     }
 
     @Override
@@ -28,11 +31,13 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
         UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
         String token = tokenProvider.generateTokenForUser(principal);
+        String refreshToken = refreshTokenService.createRefreshToken(principal.getId()).getToken();
 
         String targetUrl = UriComponentsBuilder.fromUriString("http://localhost:5173/login")
                 .queryParam("token", token)
+                .queryParam("refreshToken", refreshToken)
                 .queryParam("email", principal.getEmail())
-                .queryParam("name", principal.getUsername())
+                .queryParam("name", principal.getFullName())
                 .queryParam("userId", principal.getId().toString())
                 .build().toUriString();
 

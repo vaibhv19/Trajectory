@@ -1,4 +1,4 @@
-# Design System: Trajectory 🚀
+# Design System: Trajectory
 
 This document defines the type-safe visual design system, UI guidelines, and token structures for **Trajectory — Your Career Operating System**. It maps the features in the [Docs/PRD.md](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/Docs/PRD.md) and the user journeys in [Docs/App Flow.md](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/Docs/App%20Flow.md) into a high-fidelity visual design. 
 
@@ -6,45 +6,65 @@ The specs are optimized for **Tailwind CSS** utility classes and **Shadcn UI** (
 
 ---
 
+## 🧭 0. Design Direction
+
+**The problem with the previous pass:** Indigo-600 primary on a Slate/Zinc neutral scale is the unmodified shadcn/ui default theme. The status badges (`blue-100`/`blue-700`, `amber-100`/`amber-700`, `purple-100`/`purple-700`...) are literal, un-tinted entries straight out of the Tailwind palette. Outfit + Inter is one of the most common AI-generated font pairings in existence. Rounded-xl cards, a glassmorphic blurred sidebar, and a 4-metric-card-plus-two-charts dashboard grid is the default answer to "make me a SaaS dashboard" — it appears regardless of what the product actually does. None of this is *wrong*, it's just unowned.
+
+**The concept:** Trajectory tracks a job application's path from submission to outcome — literally a trajectory. The design leans into that: data reads like entries in a **flight log / instrument ledger**, not a consumer app. Numbers, dates, and statuses are set in a monospaced data face so they align like a logbook. Status transitions are plotted as an actual traced line rather than implied through a bar chart. Corners are mostly square — this is a precision tool, not a lifestyle app.
+
+**Signature element:** the **trajectory line** — a thin, deliberate stroke that runs through the status timeline (as a ruled connector between ticks, not a generic vertical bar) and reappears as the literal shape of the funnel chart (an arc plotting applications lost at each stage, instead of a bar-per-stage chart). It's the one recurring visual idea the whole system hangs off.
+
+**Palette logic:** brand accent is a deep petrol teal — reserved for primary actions and the trajectory line itself, never used for status. The seven status colors are custom-mixed hues (steel, ochre, plum, moss, brick, stone, taupe) rather than stock Tailwind swatches, so two apps built from this system will never look identical by accident.
+
+**Dark mode discipline:** a fully-saturated accent fill reads as "brand color" on a white background and as "neon/cartoon" on a near-black one — the same hex behaves differently depending on what's around it. Dark mode is not just "invert the tokens," it needs its own restraint:
+*   **No solid saturated fills above icon-scale.** `primary` and the status hues are for text, thin lines (1–2px), and small icon strokes only. Never fill a chip, tile, tag background, or nav item with a fully-saturated color in dark mode — use a low-opacity tint of that color instead (`bg-primary/10`, `bg-[status]/15`), so the hue is present without glowing.
+*   **Icon containers are neutral, not colored.** An icon next to "TOTAL" or "REJECTED" does not need a colored box behind it. Use bare icons in `text-muted-foreground`, or if a container is required, `bg-muted border border-border` — never `bg-primary` or a status fill. Color belongs on the badge/status text itself, not on decorative icon chrome.
+*   **Active nav state is a tint + rule, not a block.** `bg-primary/10 border-l-2 border-primary text-foreground` — a subtle left rule and background wash, not a solid filled pill. A fully-filled nav item is the fastest way to make a dark UI look like a mobile game button.
+*   **Borders need more contrast in dark mode than the light-mode ratio would suggest.** If cards disappear into the background, the colored elements become the only visible structure and everything reads as floating badges. Use `border-[#363B42]` (lighter than the token default) specifically where card boundaries must stay legible on `#14171A`.
+*   **Verify the font is actually loading.** If headings render as a default serif instead of IBM Plex Sans, the font import silently failed — check the `@font-face`/`next/font` setup before adjusting anything else, since a fallback serif will always feel more "premium template" than intended.
+
+---
+
 ## 🎨 1. Global Style Tokens
 
 ### Color Palette (Theme Config)
-Trajectory uses a modern, high-contrast palette built on slate and zinc neutrals. The primary accent is a vibrant digital indigo, while specialized states correspond directly to application statuses.
+Trajectory uses a custom-mixed ledger palette: a graphite-and-paper neutral scale (not stock Slate/Zinc), a single reserved petrol-teal accent, and seven hand-tinted status hues that don't correspond 1:1 to any default Tailwind swatch.
 
 #### Base Theme Colors
 | Token Name | Light Mode Hex | Dark Mode Hex | Usage |
 | :--- | :--- | :--- | :--- |
-| **`background`** | `#ffffff` | `#020617` (Slate 950) | Main app viewport background |
-| **`foreground`** | `#0f172a` (Slate 900) | `#f8fafc` (Slate 50) | Primary text and high-contrast content |
-| **`card`** | `#ffffff` | `#0f172a` (Slate 900) | Metric cards, lists, dialog panels |
-| **`card-foreground`**| `#0f172a` | `#f8fafc` | Text within cards |
-| **`muted`** | `#f1f5f9` (Slate 100) | `#1e293b` (Slate 800) | Secondary content blocks, dividers |
-| **`muted-foreground`**| `#64748b` (Slate 500) | `#94a3b8` (Slate 400) | Helper text, secondary text, metadata labels |
-| **`primary`** | `#4f46e5` (Indigo 600) | `#6366f1` (Indigo 500) | Call-to-actions, brand accents, primary buttons |
-| **`border`** | `#e2e8f0` (Slate 200) | `#1e293b` (Slate 800) | Interactive borders, layout lines |
-| **`ring`** | `#6366f1` | `#818cf8` | Keyboard focus ring indicators |
+| **`background`** | `#F7F6F3` (Paper) | `#14171A` (Graphite 950) | Main app viewport background |
+| **`foreground`** | `#1B1D21` (Graphite 900) | `#EDEBE6` (Paper 100) | Primary text and high-contrast content |
+| **`card`** | `#FFFFFF` | `#1B1E22` (Graphite 900) | Metric cards, lists, dialog panels |
+| **`card-foreground`**| `#1B1D21` | `#EDEBE6` | Text within cards |
+| **`muted`** | `#ECE9E2` (Paper 200) | `#22262B` (Graphite 800) | Secondary content blocks, dividers |
+| **`muted-foreground`**| `#6B6862` (Stone 500) | `#9A968D` (Stone 300) | Helper text, secondary text, metadata labels |
+| **`primary`** | `#0F6E78` (Petrol 600) | `#3FA0AA` (Petrol 400) | Call-to-actions, brand accents, the trajectory line — used sparingly, never for status |
+| **`border`** | `#E2DFD6` (Paper 300) | `#363B42` (Graphite 600) | Interactive borders, layout lines — kept lighter than a strict inversion would suggest, so cards stay legible against `#14171A` without relying on colored chips for structure |
+| **`ring`** | `#0F6E78` | `#3FA0AA` | Keyboard focus ring indicators |
 
 #### Application Status Colors (Type-Safe Enums)
-Each status enum has a corresponding semantic state token to ensure instant readability in dashboard lists, Kanban boards, and tracking badges:
+Each status enum has a corresponding semantic state token to ensure instant readability in dashboard lists, Kanban boards, and tracking badges. These are custom mixes, deliberately offset from stock Tailwind hues so the badge rail doesn't read as a default color picker:
 
 | Enum Status | Light Mode Theme | Dark Mode Theme | Semantic Meaning |
 | :--- | :--- | :--- | :--- |
-| **`APPLIED`** | Text: `#1d4ed8` (Blue 700)<br>Bg: `#dbeafe` (Blue 100)<br>Border: `#bfdbfe` | Text: `#60a5fa` (Blue 400)<br>Bg: `#1e3a8a/30`<br>Border: `#1d4ed8/50` | Standard job submission |
-| **`OA`** | Text: `#b45309` (Amber 700)<br>Bg: `#fef3c7` (Amber 100)<br>Border: `#fde68a` | Text: `#fbbf24` (Amber 400)<br>Bg: `#78350f/30`<br>Border: `#b45309/50` | Online Assessment pending |
-| **`INTERVIEW`**| Text: `#7c3aed` (Violet 600)<br>Bg: `#ede9fe` (Violet 100)<br>Border: `#ddd6fe` | Text: `#a78bfa` (Violet 400)<br>Bg: `#4c1d95/30`<br>Border: `#7c3aed/50` | Active interview stages |
-| **`OFFER`** | Text: `#047857` (Emerald 700)<br>Bg: `#d1fae5` (Emerald 100)<br>Border: `#a7f3d0` | Text: `#34d399` (Emerald 400)<br>Bg: `#064e3b/30`<br>Border: `#047857/50` | Success milestone reached |
-| **`REJECTED`** | Text: `#be123c` (Rose 700)<br>Bg: `#ffe4e6` (Rose 100)<br>Border: `#fecdd3` | Text: `#f43f5e` (Rose 400)<br>Bg: `#881337/30`<br>Border: `#be123c/50` | Unsuccessful pipeline exit |
-| **`GHOSTED`** | Text: `#475569` (Slate 600)<br>Bg: `#f1f5f9` (Slate 100)<br>Border: `#e2e8f0` | Text: `#94a3b8` (Slate 400)<br>Bg: `#1e293b/30`<br>Border: `#334155/50` | Inactive (exceeding threshold) |
-| **`WITHDRAWN`**| Text: `#71717a` (Zinc 600)<br>Bg: `#f4f4f5` (Zinc 100)<br>Border: `#e4e4e7` | Text: `#a1a1aa` (Zinc 400)<br>Bg: `#27272a/30`<br>Border: `#3f3f46/50` | User cancelled application |
+| **`APPLIED`** | Text: `#3F587A` (Steel)<br>Bg: `#E7ECF2`<br>Border: `#C4CEDA` | Text: `#8FA6C4` (Steel 300)<br>Bg: `#293646/50`<br>Border: `#3F587A/60` | Standard job submission |
+| **`OA`** | Text: `#8A5E14` (Ochre)<br>Bg: `#F3E9D3`<br>Border: `#E1CB9E` | Text: `#D9AE5F` (Ochre 300)<br>Bg: `#3D2F14/50`<br>Border: `#8A5E14/60` | Online Assessment pending |
+| **`INTERVIEW`**| Text: `#6B4079` (Plum)<br>Bg: `#EFE5F1`<br>Border: `#D6BEDC` | Text: `#B98FC6` (Plum 300)<br>Bg: `#332538/50`<br>Border: `#6B4079/60` | Active interview stages |
+| **`OFFER`** | Text: `#2F6E45` (Moss)<br>Bg: `#E4EFE7`<br>Border: `#BBD9C4` | Text: `#74B389` (Moss 300)<br>Bg: `#1C2E22/50`<br>Border: `#2F6E45/60` | Success milestone reached |
+| **`REJECTED`** | Text: `#8C3A34` (Brick)<br>Bg: `#F2E3E1`<br>Border: `#DFBAB5` | Text: `#CB8580` (Brick 300)<br>Bg: `#3A2320/50`<br>Border: `#8C3A34/60` | Unsuccessful pipeline exit |
+| **`GHOSTED`** | Text: `#5C5850` (Stone)<br>Bg: `#ECE9E2`<br>Border: `#D2CDC1` | Text: `#A6A196` (Stone 300)<br>Bg: `#2B2925/50`<br>Border: `#5C5850/60` | Inactive (exceeding threshold) |
+| **`WITHDRAWN`**| Text: `#6E6558` (Taupe)<br>Bg: `#EFEBE3`<br>Border: `#D6CDBB` | Text: `#AB9F8A` (Taupe 300)<br>Bg: `#2E2A22/50`<br>Border: `#6E6558/60` | User cancelled application |
 
 ---
 
 ### Typography Scale
-Use Google Fonts **Outfit** for headings to give a sleek digital dashboard feel, paired with **Inter** for readability in body copy and data tables.
+Trajectory uses three roles, not two, because the mono face is doing real signature work, not just decoration for code blocks.
 
 *   **Font Families:**
-    *   `font-sans`: `Inter, system-ui, sans-serif`
-    *   `font-display`: `Outfit, system-ui, sans-serif`
+    *   `font-display`: `"IBM Plex Sans", system-ui, sans-serif` — headings, page titles, nav labels. Set slightly condensed with tightened letter-spacing (`tracking-tight`) so it reads as an instrument label, not a marketing headline.
+    *   `font-sans`: `"Public Sans", system-ui, sans-serif` — body copy, form labels, descriptions. Chosen over Inter specifically because it's less ubiquitous in AI-generated UI while remaining just as legible.
+    *   `font-mono`: `"IBM Plex Mono", ui-monospace, monospace` — **every number, date, timestamp, status code, and ID.** Metric counters, table figures, timeline dates, and badge text all use tabular mono figures. This is the signature typographic move: it makes the app read like a flight log rather than a landing page, and it has the practical benefit of aligning columns of numbers.
 *   **Scale Limits:**
     *   `text-xs`: `0.75rem` (12px) — Helper tags, timeline timestamps, metadata.
     *   `text-sm`: `0.875rem` (14px) — Body text, table rows, button labels.
@@ -58,11 +78,11 @@ Use Google Fonts **Outfit** for headings to give a sleek digital dashboard feel,
 ---
 
 ### Radii & Borders
-Trajectory features a premium, polished card layout with soft rounded corners.
-*   **Small (`radius-sm`):** `4px` (`rounded-sm`) — Checkboxes, sub-status tags.
-*   **Medium (`radius-md`):** `8px` (`rounded-md`) — Buttons, input fields, badges.
-*   **Large (`radius-lg`):** `12px` (`rounded-lg`) — Modals, primary cards, popovers.
-*   **Extra Large (`radius-xl`):** `16px` (`rounded-xl`) — Dashboard widgets, floating navigation bars.
+Trajectory is a precision instrument, not a lifestyle app — corners stay close to square. Nothing in the system uses the 12–16px "floating card" radius that makes AI-generated dashboards look interchangeable.
+*   **Small (`radius-sm`):** `2px` (`rounded-sm`) — Checkboxes, sub-status tags.
+*   **Medium (`radius-md`):** `3px` (`rounded-md`) — Buttons, input fields, badges.
+*   **Large (`radius-lg`):** `4px` (`rounded-lg`) — Modals, primary cards, popovers.
+*   **Extra Large (`radius-xl`):** `6px` (`rounded-xl`) — Reserved for the rare large panel; never used on the sidebar or nav.
 
 ---
 
@@ -82,7 +102,9 @@ The workspace follows a responsive split layout consisting of a left-aligned nav
 
 *   **Desktop Structure:**
     *   Sidebar width: `w-64` (fixed, collapsing to `w-16` on demand).
-    *   Sidebar backdrop: Glassmorphic blur (`backdrop-blur-md bg-background/80 border-r border-border`).
+    *   Sidebar backdrop: **Flat, not glass.** `bg-card border-r border-border` — no `backdrop-blur`. Glassmorphic sidebars are a strong AI-generated tell; a solid panel with a hairline border reads as an actual control panel instead.
+    *   Nav item, idle: `text-muted-foreground hover:bg-muted rounded-md px-3 py-2`.
+    *   Nav item, active: `bg-primary/10 border-l-2 border-primary text-foreground font-medium` — a tint and a rule, **not** a solid filled block. A fully-saturated fill on the active item is the single biggest dark-mode "cartoon" tell in this system; the wash keeps the accent present without it glowing.
     *   Viewport container: Scrollable page content wrapper (`flex-1 h-screen overflow-y-auto px-6 py-8 md:px-8 bg-background`).
 
 ---
@@ -110,8 +132,8 @@ The main dashboard distributes metrics, agenda lists, and visual charts responsi
 
 #### Tailwind Classes for Grid A
 *   **Parent Page Layout:** `grid grid-cols-12 gap-6`
-*   **Metric Row (4 Cards):** `col-span-12 sm:col-span-6 lg:col-span-3`
-*   **Funnel Chart:** `col-span-12 lg:col-span-8 p-6 rounded-xl border bg-card`
+*   **Metric Row (4 Cards):** `col-span-12 sm:col-span-6 lg:col-span-3`. Label each card as a small-caps mono eyebrow (`font-mono text-xs uppercase tracking-wider text-muted-foreground`, e.g. `TOTAL`, `ACTIVE`, `REJECTED`, `GHOSTED`) above a large `font-mono` figure. Do not number these 01–04 — they're independent counters, not a sequence, and numbering them would be decoration without meaning.
+*   **Funnel Chart:** `col-span-12 lg:col-span-8 p-6 rounded-lg border bg-card`. Render as a single traced **arc line** (Recharts `AreaChart` with one line, no bar-per-stage) plotting applications remaining at each stage — the literal "trajectory" the product is named after, not a generic multi-color bar chart. Stroke in `primary` (petrol), fill as a soft gradient of `primary` at low opacity.
 *   **Agenda Sidebar Widget:** `col-span-12 lg:col-span-4 p-6 rounded-xl border bg-card`
 *   **Resume Hits Comparator:** `col-span-12 md:col-span-6 p-6 rounded-xl border bg-card`
 *   **Source Allocation:** `col-span-12 md:col-span-6 p-6 rounded-xl border bg-card`
@@ -141,13 +163,13 @@ All primary action elements use standard focus styles to facilitate navigation a
 
 *   **Primary Action Button (`/src/components/ui/button.tsx`)**:
     *   *Idle:* `bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm`
-    *   *Hover:* `bg-indigo-700 dark:bg-indigo-600 transition-colors duration-200`
+    *   *Hover:* `bg-[#0C5A62] dark:bg-[#4CB0BA] transition-colors duration-200` (one step darker/lighter than `primary`, not a swap to a different hue family)
     *   *Focus:* `ring-2 ring-ring ring-offset-2 outline-none`
     *   *Disabled:* `opacity-50 pointer-events-none cursor-not-allowed`
     *   *Loading (Spinner state):* Inserts a Lucide `Loader2` rotating icon (`animate-spin mr-2 h-4 w-4`).
 *   **Secondary Ghost Button (e.g. Cancel)**:
     *   *Idle:* `border border-border bg-transparent text-foreground hover:bg-muted`
-    *   *Hover:* `bg-slate-100 dark:bg-slate-800`
+    *   *Hover:* `bg-muted` (already token-driven — no separate Slate reference needed)
 
 ---
 
@@ -160,8 +182,8 @@ Text fields enforce data cleanliness and precise error feedback during LLM edits
     *   *Placeholder:* `text-muted-foreground`
     *   *Disabled:* `opacity-50 cursor-not-allowed bg-muted`
 *   **Validation Error State**:
-    *   *Classes:* `border-rose-500 text-rose-900 placeholder-rose-300 focus:ring-rose-500 focus:border-rose-500`
-    *   *Error Message:* Follows the input immediately as `text-xs text-rose-500 mt-1 font-medium`.
+    *   *Classes:* `border-[#8C3A34] text-[#8C3A34] placeholder-[#8C3A34]/40 focus:ring-[#8C3A34] focus:border-[#8C3A34]` (reuses the `REJECTED` status hue — errors and rejections share a semantic register)
+    *   *Error Message:* Follows the input immediately as `text-xs text-[#8C3A34] mt-1 font-mono`.
 
 ---
 
@@ -177,37 +199,37 @@ Overlay panels trigger when users upload resumes, edit timelines, or prompt AI i
 ---
 
 ### Status Timeline Component
-Used inside application detail pages to display chronological status transitions.
+Used inside application detail pages to display chronological status transitions. This is where the **trajectory line** signature element lives: nodes are square ticks on a ruled line, like waypoints on a flight log, not the generic circle-and-checkmark pattern.
 
 *   **Timeline Node (Completed):**
-    *   *Indicator:* Circle with filled background (`bg-primary`) and checkmark SVG.
-    *   *Timeline Bar:* Vertical/horizontal linking line (`bg-primary w-[2px] md:h-[2px]`).
+    *   *Indicator:* Small filled square (`bg-primary h-3 w-3 rotate-45` — a diamond tick, not a circle) with the date set in `font-mono text-xs` beside it.
+    *   *Timeline Bar:* The trajectory line itself — `bg-primary w-[2px] md:h-[2px]`.
 *   **Timeline Node (Active / Current State):**
-    *   *Indicator:* Pulsing glowing ring (`ring-4 ring-indigo-500/30 bg-primary h-4 w-4 border-2 border-background`).
+    *   *Indicator:* Same diamond tick, with a subtle pulse restricted to opacity only (`animate-pulse-slow`) — no glowing ring. Glow rings read as decorative; a calm opacity pulse reads as "still in progress."
 *   **Timeline Node (Pending):**
-    *   *Indicator:* Empty bordered circle (`border-2 border-muted bg-background h-4 w-4`).
-    *   *Timeline Bar:* Faded linking line (`bg-muted w-[2px] md:h-[2px]`).
+    *   *Indicator:* Empty bordered diamond (`border-2 border-muted bg-background h-3 w-3 rotate-45`).
+    *   *Timeline Bar:* Faded linking line (`bg-muted w-[2px] md:h-[2px]`), dashed (`border-dashed`) to distinguish "not yet traveled" from "traveled."
 
 ---
 
 ### Status Badges (Enums Mapping)
-Status labels are created using the [Shadcn UI Badge](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/README.md) schema.
+Status labels are created using the [Shadcn UI Badge](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/README.md) schema. Badges use `font-mono` (they're status *codes*, not prose) and pull from the `status.*` color tokens wired into `tailwind.config.js` (section 4) — never raw Tailwind palette classes. Radius is `rounded-md` (this system's small radius), not `rounded-full`: a pill shape is the single most common "AI badge" tell, a slightly-rounded rectangle reads as a data tag instead.
 
 ```tsx
 import { cva, type VariantProps } from "class-variance-authority"
 
 export const badgeVariants = cva(
-  "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+  "inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-mono uppercase tracking-wide transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
   {
     variants: {
       status: {
-        APPLIED: "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-950/30 dark:text-blue-400 dark:border-blue-800/50",
-        OA: "bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-950/30 dark:text-amber-400 dark:border-amber-800/50",
-        INTERVIEW: "bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-950/30 dark:text-purple-400 dark:border-purple-800/50",
-        OFFER: "bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-800/50",
-        REJECTED: "bg-rose-100 text-rose-800 border-rose-200 dark:bg-rose-950/30 dark:text-rose-400 dark:border-rose-800/50",
-        GHOSTED: "bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-900/30 dark:text-slate-400 dark:border-slate-800/50",
-        WITHDRAWN: "bg-zinc-100 text-zinc-700 border-zinc-200 dark:bg-zinc-900/30 dark:text-zinc-400 dark:border-zinc-800/50",
+        APPLIED: "bg-status-applied-bg text-status-applied-text border-status-applied-border",
+        OA: "bg-status-oa-bg text-status-oa-text border-status-oa-border",
+        INTERVIEW: "bg-status-interview-bg text-status-interview-text border-status-interview-border",
+        OFFER: "bg-status-offer-bg text-status-offer-text border-status-offer-border",
+        REJECTED: "bg-status-rejected-bg text-status-rejected-text border-status-rejected-border",
+        GHOSTED: "bg-status-ghosted-bg text-status-ghosted-text border-status-ghosted-border",
+        WITHDRAWN: "bg-status-withdrawn-bg text-status-withdrawn-text border-status-withdrawn-border",
       },
     },
     defaultVariants: {
@@ -216,6 +238,14 @@ export const badgeVariants = cva(
   }
 )
 ```
+
+---
+
+### Iconography & Count Tags
+*   **Icons beside metric labels (TOTAL, ACTIVE, REJECTED, GHOSTED, etc.):** plain stroke icon in `text-muted-foreground`, no background container. If visual weight is needed, `bg-muted border border-border` — never a status- or brand-colored fill. The icon is chrome, not data; only the number and label carry meaning.
+*   **Small count tags (e.g. "1 TASKS" on a widget header):** `bg-muted text-muted-foreground border border-border rounded-md px-2 py-0.5 font-mono text-xs` — a muted, square-cornered tag. Do not fill these with `primary` or any status color; a solid-colored tag on every widget header is the same "everything is a pill" pattern that makes dashboards look interchangeable.
+
+---
 
 ---
 
@@ -274,43 +304,29 @@ module.exports = {
           foreground: "hsl(var(--card-foreground))",
         },
         // Semantic Application Status Color Configurations
-        status: {
-          applied: {
-            bg: "rgba(30, 58, 138, var(--status-opacity, 0.1))",
-            text: "#60a5fa",
-            border: "#1d4ed8",
-          },
-          oa: {
-            bg: "rgba(120, 53, 15, var(--status-opacity, 0.1))",
-            text: "#fbbf24",
-            border: "#b45309",
-          },
-          interview: {
-            bg: "rgba(76, 29, 149, var(--status-opacity, 0.1))",
-            text: "#a78bfa",
-            border: "#7c3aed",
-          },
-          offer: {
-            bg: "rgba(6, 78, 59, var(--status-opacity, 0.1))",
-            text: "#34d399",
-            border: "#047857",
-          },
-          rejected: {
-            bg: "rgba(136, 19, 55, var(--status-opacity, 0.1))",
-            text: "#f43f5e",
-            border: "#be123c",
-          },
-          ghosted: {
-            bg: "rgba(30, 41, 59, var(--status-opacity, 0.1))",
-            text: "#94a3b8",
-            border: "#334155",
-          },
-          withdrawn: {
-            bg: "rgba(39, 39, 42, var(--status-opacity, 0.1))",
-            text: "#a1a1aa",
-            border: "#3f3f46",
-          },
-        },
+        // Flat keys with hyphens (status-applied-bg, etc.) so `bg-status-applied-bg`
+        // resolves correctly — Tailwind won't reach three levels deep into a nested object.
+        "status-applied-bg": { DEFAULT: "#E7ECF2", dark: "#293646" },
+        "status-applied-text": { DEFAULT: "#3F587A", dark: "#8FA6C4" },
+        "status-applied-border": { DEFAULT: "#C4CEDA", dark: "#3F587A" },
+        "status-oa-bg": { DEFAULT: "#F3E9D3", dark: "#3D2F14" },
+        "status-oa-text": { DEFAULT: "#8A5E14", dark: "#D9AE5F" },
+        "status-oa-border": { DEFAULT: "#E1CB9E", dark: "#8A5E14" },
+        "status-interview-bg": { DEFAULT: "#EFE5F1", dark: "#332538" },
+        "status-interview-text": { DEFAULT: "#6B4079", dark: "#B98FC6" },
+        "status-interview-border": { DEFAULT: "#D6BEDC", dark: "#6B4079" },
+        "status-offer-bg": { DEFAULT: "#E4EFE7", dark: "#1C2E22" },
+        "status-offer-text": { DEFAULT: "#2F6E45", dark: "#74B389" },
+        "status-offer-border": { DEFAULT: "#BBD9C4", dark: "#2F6E45" },
+        "status-rejected-bg": { DEFAULT: "#F2E3E1", dark: "#3A2320" },
+        "status-rejected-text": { DEFAULT: "#8C3A34", dark: "#CB8580" },
+        "status-rejected-border": { DEFAULT: "#DFBAB5", dark: "#8C3A34" },
+        "status-ghosted-bg": { DEFAULT: "#ECE9E2", dark: "#2B2925" },
+        "status-ghosted-text": { DEFAULT: "#5C5850", dark: "#A6A196" },
+        "status-ghosted-border": { DEFAULT: "#D2CDC1", dark: "#5C5850" },
+        "status-withdrawn-bg": { DEFAULT: "#EFEBE3", dark: "#2E2A22" },
+        "status-withdrawn-text": { DEFAULT: "#6E6558", dark: "#AB9F8A" },
+        "status-withdrawn-border": { DEFAULT: "#D6CDBB", dark: "#6E6558" },
       },
       borderRadius: {
         lg: "var(--radius-lg)",
@@ -321,6 +337,7 @@ module.exports = {
       fontFamily: {
         sans: ["var(--font-sans)", ...fontFamily.sans],
         display: ["var(--font-display)", ...fontFamily.sans],
+        mono: ["var(--font-mono)", ...fontFamily.mono],
       },
       keyframes: {
         "status-pulse": {
