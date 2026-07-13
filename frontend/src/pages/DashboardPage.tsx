@@ -142,8 +142,11 @@ export const DashboardPage: React.FC = () => {
                 <XAxis dataKey="status" stroke="hsl(var(--muted-foreground))" />
                 <YAxis allowDecimals={false} stroke="hsl(var(--muted-foreground))" />
                 <Tooltip 
-                  contentStyle={{ backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))' }}
+                  contentStyle={{ backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))', borderRadius: 'var(--radius-md)' }}
                   labelStyle={{ color: 'hsl(var(--foreground))' }}
+                  cursor={{ fill: 'rgba(255,255,255,0.05)' }}
+                  position={{ y: -40 }} 
+                  offset={10}
                 />
                 <Bar dataKey="value" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
               </BarChart>
@@ -227,12 +230,11 @@ export const DashboardPage: React.FC = () => {
                   <XAxis dataKey="name" stroke="currentColor" className="text-muted-foreground font-mono" fontSize={11} tickLine={false} />
                   <YAxis stroke="currentColor" className="text-muted-foreground font-mono" fontSize={11} tickLine={false} />
                   <Tooltip 
-                    contentStyle={{ 
-                      background: 'hsl(var(--card))', 
-                      border: '1px solid hsl(var(--border))', 
-                      borderRadius: '4px',
-                      color: 'hsl(var(--foreground))'
-                    }} 
+                    contentStyle={{ backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))', borderRadius: 'var(--radius-md)' }}
+                    labelStyle={{ color: 'hsl(var(--foreground))' }}
+                    cursor={{ fill: 'rgba(255,255,255,0.05)' }}
+                    position={{ y: -40 }} 
+                    offset={10}
                   />
                   <Legend />
                   <Bar dataKey="Response Rate (%)" fill="hsl(var(--primary))" radius={[2, 2, 0, 0]} />
