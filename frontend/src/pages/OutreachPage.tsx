@@ -175,12 +175,21 @@ export const OutreachPage: React.FC = () => {
     setNotes('');
   };
 
-  const statusColors: Record<string, string> = {
-    PENDING: 'bg-blue-500/10 text-blue-500 border-blue-500/20',
-    CONTACTED: 'bg-amber-500/10 text-amber-500 border-amber-500/20',
-    REPLIED: 'bg-indigo-500/10 text-indigo-500 border-indigo-500/20',
-    INTERVIEW_SECURED: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20',
-    NO_RESPONSE: 'bg-slate-500/10 text-slate-500 border-slate-500/20',
+  const getOutreachStatusColors = (status: string) => {
+    switch (status) {
+      case 'PENDING':
+        return { border: 'var(--status-applied-border)', text: 'var(--status-applied-text)' };
+      case 'CONTACTED':
+        return { border: 'var(--status-applied-border)', text: 'var(--status-applied-text)' };
+      case 'REPLIED':
+        return { border: 'var(--status-oa-border)', text: 'var(--status-oa-text)' };
+      case 'INTERVIEW_SECURED':
+        return { border: 'var(--status-interview-border)', text: 'var(--status-interview-text)' };
+      case 'NO_RESPONSE':
+        return { border: 'var(--status-ghosted-border)', text: 'var(--status-ghosted-text)' };
+      default:
+        return { border: 'var(--status-applied-border)', text: 'var(--status-applied-text)' };
+    }
   };
 
   const isOverdue = (dateStr: string | null) => {
@@ -195,7 +204,7 @@ export const OutreachPage: React.FC = () => {
       {/* Header and top commands */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-2xl font-display font-extrabold">Networking CRM</h2>
+          <h2 className="text-2xl font-display font-extrabold uppercase tracking-tight text-foreground">Networking CRM</h2>
           <p className="text-sm text-muted-foreground">Track recruiter contact histories, sent messages, and upcoming follow-ups.</p>
         </div>
         <button
@@ -208,7 +217,7 @@ export const OutreachPage: React.FC = () => {
       </div>
 
       {/* Filter Section */}
-      <div className="p-4 rounded-lg border bg-card flex flex-col sm:flex-row gap-4">
+      <div className="p-4 rounded-md border bg-card flex flex-col sm:flex-row gap-4">
         <div className="relative flex-1">
           <Search className="absolute inset-y-0 left-0 pl-3 h-full w-4 text-muted-foreground flex items-center" />
           <input
@@ -239,98 +248,105 @@ export const OutreachPage: React.FC = () => {
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
       ) : contacts.length === 0 ? (
-        <div className="flex h-[40vh] flex-col items-center justify-center text-center border border-dashed border-border rounded-lg p-12">
+        <div className="flex h-[40vh] flex-col items-center justify-center text-center border border-dashed border-border rounded-md p-12">
           <Users className="h-10 w-10 text-muted-foreground/30 mb-2" />
           <h4 className="text-sm font-semibold">No outreach logs found</h4>
           <p className="text-xs text-muted-foreground mt-0.5">Start networking with recruiter outreach contacts today.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {contacts.map((contact) => (
-            <div 
-              key={contact.id}
-              className="p-6 rounded-lg border bg-card hover:border-primary/45 transition-all duration-200 flex flex-col justify-between h-[230px]"
-            >
-              <div className="space-y-2">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <h4 className="text-base font-semibold truncate max-w-[170px] text-foreground">{contact.contactName}</h4>
-                    <p className="text-[10px] text-muted-foreground font-mono uppercase tracking-wide truncate max-w-[170px]">{contact.positionDiscussed}</p>
-                  </div>
-                  <span className={`px-2 py-0.5 rounded-md text-[10px] font-mono uppercase tracking-wide border ${statusColors[contact.status]}`}>
-                    {contact.status.replace('_', ' ')}
-                  </span>
-                </div>
-
-                <div className="flex flex-col gap-1.5 pt-2">
-                  <p className="text-xs font-semibold text-foreground truncate">{contact.companyName}</p>
-                  
-                  {/* Action alert banner for overdue follow-up */}
-                  {contact.followUpDate && (
-                    <div className={`flex items-center gap-1 text-[11px] font-mono ${
-                      isOverdue(contact.followUpDate) && contact.status !== 'INTERVIEW_SECURED' && contact.status !== 'NO_RESPONSE'
-                        ? 'text-destructive animate-pulse font-semibold' 
-                        : 'text-muted-foreground'
-                    }`}>
-                      <Clock className="h-3.5 w-3.5" />
-                      Follow-up: {contact.followUpDate} 
-                      {isOverdue(contact.followUpDate) && contact.status !== 'INTERVIEW_SECURED' && contact.status !== 'NO_RESPONSE' && ' (OVERDUE)'}
+          {contacts.map((contact) => {
+            const colors = getOutreachStatusColors(contact.status);
+            return (
+              <div 
+                key={contact.id}
+                style={{ borderLeftColor: colors.border }}
+                className="p-6 rounded-[4px] border-y border-r border-l-[3px] bg-card hover:border-r-primary/40 hover:border-y-primary/40 transition-all duration-200 flex flex-col justify-between h-[230px] shadow-sm"
+              >
+                <div className="space-y-2">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h4 className="text-base font-semibold truncate max-w-[170px] text-foreground">{contact.contactName}</h4>
+                      <p className="text-[10px] text-muted-foreground font-mono uppercase tracking-wide truncate max-w-[170px]">{contact.positionDiscussed}</p>
                     </div>
-                  )}
-                </div>
-              </div>
+                    <span 
+                      className="px-2 py-0.5 rounded-[4px] text-[10px] font-mono uppercase tracking-wide border bg-transparent"
+                      style={{ borderColor: colors.border, color: colors.text }}
+                    >
+                      {contact.status.replace('_', ' ')}
+                    </span>
+                  </div>
 
-              {/* CRM footer actions */}
-              <div className="border-t border-border/40 pt-4 flex items-center justify-between mt-4">
-                <div className="flex items-center gap-2">
-                  {contact.linkedinUrl && (
-                    <a 
-                      href={contact.linkedinUrl} 
-                      target="_blank" 
-                      rel="noreferrer"
-                      className="p-1.5 rounded-md border border-border bg-card hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-                    >
-                      <svg className="h-4 w-4 text-[#0077b5] fill-current" viewBox="0 0 24 24">
-                        <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
-                      </svg>
-                    </a>
-                  )}
-                  {contact.email && (
-                    <a 
-                      href={`mailto:${contact.email}`} 
-                      className="p-1.5 rounded-md border border-border bg-card hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-                    >
-                      <Mail className="h-4 w-4" />
-                    </a>
-                  )}
+                  <div className="flex flex-col gap-1.5 pt-2">
+                    <p className="text-xs font-semibold text-foreground truncate">{contact.companyName}</p>
+                    
+                    {/* Action alert banner for overdue follow-up */}
+                    {contact.followUpDate && (
+                      <div className={`flex items-center gap-1 text-[11px] font-mono ${
+                        isOverdue(contact.followUpDate) && contact.status !== 'INTERVIEW_SECURED' && contact.status !== 'NO_RESPONSE'
+                          ? 'text-destructive animate-pulse font-semibold' 
+                          : 'text-muted-foreground'
+                      }`}>
+                        <Clock className="h-3.5 w-3.5" />
+                        Follow-up: {contact.followUpDate} 
+                        {isOverdue(contact.followUpDate) && contact.status !== 'INTERVIEW_SECURED' && contact.status !== 'NO_RESPONSE' && ' (OVERDUE)'}
+                      </div>
+                    )}
+                  </div>
                 </div>
 
-                <div className="flex items-center gap-1.5">
-                  <button
-                    onClick={() => handleEditClick(contact)}
-                    className="p-1.5 border border-border rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    <Edit3 className="h-3.5 w-3.5" />
-                  </button>
-                  <button
-                    onClick={() => handleDelete(contact.id)}
-                    className="p-1.5 border border-destructive/20 bg-destructive/5 hover:bg-destructive/10 text-destructive rounded-md transition-colors"
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </button>
-                  {contact.status !== 'INTERVIEW_SECURED' && (
+                {/* CRM footer actions */}
+                <div className="border-t border-border/40 pt-4 flex items-center justify-between mt-4">
+                  <div className="flex items-center gap-2">
+                    {contact.linkedinUrl && (
+                      <a 
+                        href={contact.linkedinUrl} 
+                        target="_blank" 
+                        rel="noreferrer"
+                        className="p-1.5 rounded-md border border-border bg-card hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        <svg className="h-4 w-4 text-[#0077b5] fill-current" viewBox="0 0 24 24">
+                          <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
+                        </svg>
+                      </a>
+                    )}
+                    {contact.email && (
+                      <a 
+                        href={`mailto:${contact.email}`} 
+                        className="p-1.5 rounded-md border border-border bg-card hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        <Mail className="h-4 w-4" />
+                      </a>
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-1.5">
                     <button
-                      onClick={() => { setSelectedId(contact.id); setProfileId(profiles[0]?.id || ''); setIsConvertOpen(true); }}
-                      className="flex items-center gap-1 py-1.5 px-3 rounded-md bg-primary hover:bg-[#0C5A62] dark:hover:bg-[#4CB0BA] text-primary-foreground text-[10px] font-mono font-bold uppercase tracking-wide transition-colors"
+                      onClick={() => handleEditClick(contact)}
+                      className="p-1.5 border border-border rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
                     >
-                      <Briefcase className="h-3 w-3" />
-                      Convert
+                      <Edit3 className="h-3.5 w-3.5" />
                     </button>
-                  )}
+                    <button
+                      onClick={() => handleDelete(contact.id)}
+                      className="p-1.5 border border-destructive/20 bg-destructive/5 hover:bg-destructive/10 text-destructive rounded-md transition-colors"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                    {contact.status !== 'INTERVIEW_SECURED' && (
+                      <button
+                        onClick={() => { setSelectedId(contact.id); setProfileId(profiles[0]?.id || ''); setIsConvertOpen(true); }}
+                        className="flex items-center gap-1 py-1.5 px-3 rounded-md bg-primary hover:bg-[#0C5A62] dark:hover:bg-[#4CB0BA] text-primary-foreground text-[10px] font-mono font-bold uppercase tracking-wide transition-colors"
+                      >
+                        <Briefcase className="h-3 w-3" />
+                        Convert
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 

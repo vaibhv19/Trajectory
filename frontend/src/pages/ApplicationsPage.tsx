@@ -10,10 +10,7 @@ import {
   Upload, 
   FileText, 
   Loader2, 
-  Briefcase,
-  ArrowUpDown,
-  ArrowUp,
-  ArrowDown
+  Briefcase
 } from 'lucide-react';
 
 export const ApplicationsPage: React.FC = () => {
@@ -42,12 +39,12 @@ export const ApplicationsPage: React.FC = () => {
   };
 
   const renderSortIcon = (field: 'companyName' | 'roleTitle' | 'status' | 'dateApplied' | 'followUpDate') => {
-    if (sortField !== field) {
-      return <ArrowUpDown className="ml-1.5 h-3.5 w-3.5 text-muted-foreground/40 shrink-0" />;
-    }
-    return sortDirection === 'asc' 
-      ? <ArrowUp className="ml-1.5 h-3.5 w-3.5 text-primary shrink-0" />
-      : <ArrowDown className="ml-1.5 h-3.5 w-3.5 text-primary shrink-0" />;
+    if (sortField !== field) return null;
+    return (
+      <span className="ml-1 font-mono text-xs text-primary font-bold">
+        {sortDirection === 'asc' ? '↑' : '↓'}
+      </span>
+    );
   };
 
   // Form State
@@ -298,7 +295,7 @@ export const ApplicationsPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Status badges row */}
+        {/* Status filter chips row */}
         <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-border/40">
           <span className="text-xs font-mono uppercase tracking-wider text-muted-foreground mr-2">Filter Status:</span>
           {Object.keys(statusColors).map((statusKey) => {
@@ -307,10 +304,10 @@ export const ApplicationsPage: React.FC = () => {
               <button
                 key={statusKey}
                 onClick={() => toggleStatusFilter(statusKey)}
-                className={`px-2.5 py-0.5 rounded-md text-xs font-mono border transition-all ${
+                className={`px-2.5 py-0.5 rounded-md text-xs font-mono border transition-all duration-100 ${
                   isSelected
-                    ? statusColors[statusKey] + ' font-bold ring-1 ring-ring'
-                    : 'bg-card text-muted-foreground border-border hover:bg-muted'
+                    ? 'bg-primary text-background border-primary font-bold'
+                    : 'bg-transparent text-muted-foreground border-border hover:border-muted-foreground/60'
                 }`}
               >
                 {statusKey}
@@ -320,7 +317,7 @@ export const ApplicationsPage: React.FC = () => {
           {statusFilters.length > 0 && (
             <button
               onClick={() => { setStatusFilters([]); setPage(0); }}
-              className="text-xs font-mono text-destructive hover:underline ml-2"
+              className="text-xs font-mono text-destructive hover:underline ml-2 font-bold"
             >
               CLEAR ALL
             </button>
@@ -333,19 +330,15 @@ export const ApplicationsPage: React.FC = () => {
         <div className="flex h-[40vh] items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
-      ) : !data || data.content.length === 0 ? (
-        <div className="flex h-[40vh] flex-col items-center justify-center text-center border border-dashed rounded-lg p-12">
-          <Briefcase className="h-10 w-10 text-muted-foreground/30 mb-2" />
-          <h4 className="text-sm font-semibold">No applications found</h4>
-          <p className="text-xs text-muted-foreground mt-0.5">Try adjusting your search filters or add a new application.</p>
-        </div>
       ) : (
-        <div className="space-y-6">
-          <div className="bg-card border border-border rounded-lg overflow-hidden shadow-sm">
+        <div className="space-y-6 animate-in fade-in duration-300">
+          <div className="bg-card border border-border rounded-md overflow-hidden shadow-sm">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse text-sm">
                 <thead>
                   <tr className="border-b border-border bg-muted">
+                    {/* Width 2px placeholder for status line in header */}
+                    <th className="w-[2px] p-0" />
                     <th className="px-6 py-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider font-mono">
                       <button 
                         type="button"
@@ -392,54 +385,76 @@ export const ApplicationsPage: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
-                  {(data?.content || []).map((app) => (
-                    <tr 
-                      key={app.id} 
-                      onClick={() => navigate(`/applications/${app.id}`)}
-                      className="cursor-pointer border-b border-border hover:bg-muted/50 transition-colors relative"
-                    >
-                      <td className="px-6 py-4 font-sans text-sm text-foreground">
-                        <div className="flex items-center gap-3">
-                          <span 
-                            className="w-1.5 h-6 rounded-full shrink-0" 
-                            style={{ backgroundColor: app.profile.colorCode }} 
-                          />
-                          <div>
-                            <span className="font-semibold block text-foreground">{app.companyName}</span>
-                            <span className="text-xs text-muted-foreground block">{app.roleTitle}</span>
-                          </div>
+                  {!data || data.content.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} className="px-6 py-8 text-left text-sm text-muted-foreground font-sans">
+                        <div className="flex items-center gap-2">
+                          <Briefcase className="h-4 w-4 text-muted-foreground/50 shrink-0" />
+                          <span>No applications match these filters.</span>
+                          {(search || profileFilter || statusFilters.length > 0) && (
+                            <button 
+                              onClick={() => { setSearch(''); setProfileFilter(''); setStatusFilters([]); setPage(0); }}
+                              className="text-xs font-semibold text-primary hover:underline ml-2"
+                            >
+                              Clear filters
+                            </button>
+                          )}
                         </div>
                       </td>
-                      <td className="px-6 py-4">
-                        <span className={`inline-block px-2.5 py-0.5 rounded-md text-[10px] font-mono uppercase tracking-wide border ${statusColors[app.status]}`}>
-                          {app.status}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4">
-                        {app.resumeFileName ? (
-                          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-muted border border-border text-muted-foreground text-xs rounded-md truncate max-w-[200px] hover:bg-muted/80" title={app.resumeFileName}>
-                            <FileText className="h-3.5 w-3.5" />
-                            <span className="truncate">Version {app.resumeVersion}</span>
-                          </div>
-                        ) : (
-                          <span className="text-xs text-muted-foreground font-sans">No Resume</span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 text-xs font-mono text-muted-foreground">
-                        {new Date(app.dateApplied).toLocaleDateString()}
-                      </td>
-                      <td className="px-6 py-4 text-xs font-mono text-primary font-semibold">
-                        {app.followUpDate ? new Date(app.followUpDate).toLocaleDateString() : '-'}
-                      </td>
                     </tr>
-                  ))}
+                  ) : (
+                    data.content.map((app) => (
+                      <tr 
+                        key={app.id} 
+                        onClick={() => navigate(`/applications/${app.id}`)}
+                        className="cursor-pointer border-b border-border hover:bg-muted/30 transition-all duration-150 relative group"
+                      >
+                        {/* 2px left border strip for status */}
+                        <td 
+                          className="w-[2px] p-0 transition-colors"
+                          style={{ backgroundColor: `var(--status-${app.status.toLowerCase()}-border)` }}
+                        />
+                        <td className="px-6 py-4 font-sans text-sm text-foreground">
+                          <div>
+                            <span className="font-semibold block text-foreground group-hover:text-primary transition-colors">{app.companyName}</span>
+                            <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground font-sans">
+                              <span>{app.roleTitle}</span>
+                              <span>•</span>
+                              <div className="flex items-center gap-1">
+                                <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: app.profile.colorCode }} />
+                                <span>{app.profile.title}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 font-mono text-xs uppercase text-foreground">
+                          {app.status}
+                        </td>
+                        <td className="px-6 py-4">
+                          {app.resumeFileName ? (
+                            <div className="inline-flex items-center px-1.5 py-0.5 border border-border text-muted-foreground text-xs font-mono rounded-[4px] bg-transparent" title={app.resumeFileName}>
+                              <span>v{app.resumeVersion}</span>
+                            </div>
+                          ) : (
+                            <span className="text-xs text-muted-foreground font-sans">No Resume</span>
+                          )}
+                        </td>
+                        <td className="px-6 py-4 text-xs font-mono text-muted-foreground">
+                          {new Date(app.dateApplied).toLocaleDateString()}
+                        </td>
+                        <td className="px-6 py-4 text-xs font-mono text-primary font-semibold">
+                          {app.followUpDate ? new Date(app.followUpDate).toLocaleDateString() : '-'}
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
           </div>
 
           {/* Pagination */}
-          {data.totalPages > 1 && (
+          {data && data.totalPages > 1 && (
             <div className="flex items-center justify-between border-t border-border/40 pt-4 font-mono">
               <span className="text-xs text-muted-foreground">
                 Page {page + 1} of {data.totalPages}
