@@ -267,7 +267,7 @@ export const ApplicationsPage: React.FC = () => {
       </div>
 
       {/* Filters Section */}
-      <div className="p-4 rounded-lg border bg-card flex flex-col gap-4">
+      <div className="py-2 flex flex-col gap-4 border-b border-border/30 pb-6">
         {/* Search & Profile select */}
         <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
           <div className="relative flex-1 w-full">
@@ -341,11 +341,11 @@ export const ApplicationsPage: React.FC = () => {
         </div>
       ) : (
         <div className="space-y-6 animate-in fade-in duration-300">
-          <div className="bg-card border border-border rounded-md overflow-hidden shadow-sm">
+          <div className="overflow-hidden border-t border-border/30">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse text-sm">
                 <thead>
-                  <tr className="border-b border-border bg-muted">
+                  <tr className="border-b border-border/30 bg-transparent">
                     {/* Width 2px placeholder for status line in header */}
                     <th className="w-[2px] p-0" />
                     <th className="px-6 py-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider font-mono">
