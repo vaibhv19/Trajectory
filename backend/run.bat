@@ -22,5 +22,5 @@ if exist "%ENV_FILE%" (
     echo No .env file found at root. Using default application.yml configurations.
 )
 
-echo Launching Spring Boot backend with local profile...
-mvn spring-boot:run "-Dspring-boot.run.profiles=local"
+echo Launching Spring Boot backend...
+mvn spring-boot:run
