@@ -273,6 +273,15 @@ export const api = {
     
     updateProfile: (fullName: string, avatarUrl?: string): Promise<User> => 
       apiCall('/users/profile', { method: 'PUT', body: JSON.stringify({ fullName, avatarUrl }) }),
+
+    uploadAvatar: (file: File): Promise<User> => {
+      const formData = new FormData();
+      formData.append('file', file);
+      return apiCall('/users/profile/avatar', { method: 'POST', body: formData });
+    },
+
+    deleteAvatar: (): Promise<User> =>
+      apiCall('/users/profile/avatar', { method: 'DELETE' }),
     
     updateSettings: (data: { ghostThresholdDays: number; autoArchiveEnabled: boolean; browserNotificationsEnabled: boolean; emailNotificationsEnabled: boolean }): Promise<User> => 
       apiCall('/users/settings', { method: 'PUT', body: JSON.stringify(data) }),
