@@ -20,5 +20,5 @@ if (Test-Path $envFile) {
     Write-Host "No .env file found at root. Using default application.yml configurations." -ForegroundColor Yellow
 }
 
-Write-Host "Launching Spring Boot backend with local profile..." -ForegroundColor Green
-mvn spring-boot:run "-Dspring-boot.run.profiles=local"
+Write-Host "Launching Spring Boot backend..." -ForegroundColor Green
+mvn spring-boot:run
