@@ -126,7 +126,7 @@ graph TD
 
 ## 🎨 Visual Design & Routing System
 
-Trajectory features a type-safe, high-contrast visual design system optimized for Tailwind CSS and Shadcn UI primitives. For full details on tokens, components, and Tailwind configurations, refer to the [Visual Design System (DESIGN.md)](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/DESIGN.md).
+Trajectory features a type-safe, high-contrast visual design system optimized for Tailwind CSS and Shadcn UI primitives. For full details on tokens, components, and Tailwind configurations, refer to the [Visual Design System (DESIGN.md)](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/Docs/DESIGN.md).
 
 ### 🚦 React Router Directory
 The React frontend uses client-side routing to separate core career management domains into separate URL paths:
@@ -273,7 +273,9 @@ Refer to the [CLAUDE.md](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Res
 *   [Product Requirements Document (PRD)](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/Docs/PRD.md) — Comprehensive functional specifications.
 *   [Application Flow](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/Docs/App%20Flow.md) — Detailed user journeys and state flows.
 *   [Tech Stack Decisions](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/Docs/Tech%20Stack.md) — Rationale behind architectural choices.
-*   [Visual Design System (DESIGN.md)](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/DESIGN.md) — UI theme configuration, status colors, component states, and Tailwind mapping keys.
+*   [Visual Design System (DESIGN.md)](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/Docs/DESIGN.md) — UI theme configuration, status colors, component states, and Tailwind mapping keys.
+*   [Backend Developer Guide](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/backend/README.md) — Detailed backend APIs, architecture, environment settings, and build guide.
+*   [Frontend Developer Guide](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/frontend/README.md) — React client page layout, state management, routes mapping, and build guide.
 *   [Database Schema](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/Schema.sql) — Raw PostgreSQL DDL configurations.
 *   [Docker Infrastructure](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/docker-compose.yml) — Local environment docker services.
 *   [Claude Developer Guide](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/CLAUDE.md) — Coding conventions, guidelines, and commands.
