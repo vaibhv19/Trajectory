@@ -7,3 +7,51 @@
 # OS Files
 .DS_Store
 Thumbs.db
+desktop.ini
+
+# Dependency Directories
+node_modules/
+jspm_packages/
+web_modules/
+.venv/
+venv/
+ENV/
+
+# Build & Compilation Artifacts
+target/
+dist/
+dist-ssr/
+build/
+bin/
+out/
+*.jar
+*.war
+*.zip
+*.tar.gz
+
+# IDE and Editor Configurations
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+!.vscode/extensions.json
+.project
+.classpath
+.settings/
+*.suo
+*.sln
+
+# Local Databases, Temp Storage & Logs
+*.db
+*.sqlite
+*.sqlite3
+*.mv.db
+*.trace.db
+local-storage/
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
