@@ -223,22 +223,7 @@ export const ApplicationsPage: React.FC = () => {
     setMeetingLink('');
   };
 
-  const toggleStatusFilter = (status: string) => {
-    setStatusFilters(prev => 
-      prev.includes(status) ? prev.filter(s => s !== status) : [...prev, status]
-    );
-    setPage(0);
-  };
 
-  const statusColors: Record<string, string> = {
-    APPLIED: 'bg-status-applied-bg text-status-applied-text border-status-applied-border',
-    OA: 'bg-status-oa-bg text-status-oa-text border-status-oa-border',
-    INTERVIEW: 'bg-status-interview-bg text-status-interview-text border-status-interview-border',
-    OFFER: 'bg-status-offer-bg text-status-offer-text border-status-offer-border',
-    REJECTED: 'bg-status-rejected-bg text-status-rejected-text border-status-rejected-border',
-    GHOSTED: 'bg-status-ghosted-bg text-status-ghosted-text border-status-ghosted-border',
-    WITHDRAWN: 'bg-status-withdrawn-bg text-status-withdrawn-text border-status-withdrawn-border',
-  };
 
   return (
     <div className="space-y-6">
@@ -264,6 +249,33 @@ export const ApplicationsPage: React.FC = () => {
             Add Application
           </button>
         </div>
+      </div>
+
+      {/* Contextual Secondary Navigation */}
+      <div className="flex border-b border-border/30 gap-1 overflow-x-auto pb-px">
+        {[
+          { name: 'All', active: statusFilters.length === 0 && !showArchived, onClick: () => { setStatusFilters([]); setShowArchived(false); setPage(0); } },
+          { name: 'Applied', active: statusFilters.length === 1 && statusFilters[0] === 'APPLIED' && !showArchived, onClick: () => { setStatusFilters(['APPLIED']); setShowArchived(false); setPage(0); } },
+          { name: 'OA', active: statusFilters.length === 1 && statusFilters[0] === 'OA' && !showArchived, onClick: () => { setStatusFilters(['OA']); setShowArchived(false); setPage(0); } },
+          { name: 'Interviews', active: statusFilters.length === 1 && statusFilters[0] === 'INTERVIEW' && !showArchived, onClick: () => { setStatusFilters(['INTERVIEW']); setShowArchived(false); setPage(0); } },
+          { name: 'Offers', active: statusFilters.length === 1 && statusFilters[0] === 'OFFER' && !showArchived, onClick: () => { setStatusFilters(['OFFER']); setShowArchived(false); setPage(0); } },
+          { name: 'Rejected', active: statusFilters.length === 1 && statusFilters[0] === 'REJECTED' && !showArchived, onClick: () => { setStatusFilters(['REJECTED']); setShowArchived(false); setPage(0); } },
+          { name: 'Ghosted', active: statusFilters.length === 1 && statusFilters[0] === 'GHOSTED' && !showArchived, onClick: () => { setStatusFilters(['GHOSTED']); setShowArchived(false); setPage(0); } },
+          { name: 'Archived', active: showArchived, onClick: () => { setStatusFilters([]); setShowArchived(true); setPage(0); } }
+        ].map((tab) => (
+          <button
+            key={tab.name}
+            type="button"
+            onClick={tab.onClick}
+            className={`px-4 py-2 text-xs font-mono uppercase tracking-wider border-b-2 -mb-px transition-colors ${
+              tab.active
+                ? 'border-primary text-foreground font-bold'
+                : 'border-transparent text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            {tab.name}
+          </button>
+        ))}
       </div>
 
       {/* Filters Section */}
@@ -302,35 +314,6 @@ export const ApplicationsPage: React.FC = () => {
               Show Archived
             </label>
           </div>
-        </div>
-
-        {/* Status filter chips row */}
-        <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-border/40">
-          <span className="text-xs font-mono uppercase tracking-wider text-muted-foreground mr-2">Filter Status:</span>
-          {Object.keys(statusColors).map((statusKey) => {
-            const isSelected = statusFilters.includes(statusKey);
-            return (
-              <button
-                key={statusKey}
-                onClick={() => toggleStatusFilter(statusKey)}
-                className={`px-2.5 py-0.5 rounded-md text-xs font-mono border transition-all duration-100 ${
-                  isSelected
-                    ? 'bg-primary text-background border-primary font-bold'
-                    : 'bg-transparent text-muted-foreground border-border hover:border-muted-foreground/60'
-                }`}
-              >
-                {statusKey}
-              </button>
-            );
-          })}
-          {statusFilters.length > 0 && (
-            <button
-              onClick={() => { setStatusFilters([]); setPage(0); }}
-              className="text-xs font-mono text-destructive hover:underline ml-2 font-bold"
-            >
-              CLEAR ALL
-            </button>
-          )}
         </div>
       </div>
 
