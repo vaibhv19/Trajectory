@@ -226,7 +226,7 @@ export const OutreachPage: React.FC = () => {
       </div>
 
       {/* Filter Section */}
-      <div className="p-4 rounded-md border bg-card flex flex-col sm:flex-row gap-4">
+      <div className="py-2 flex flex-col sm:flex-row gap-4 border-b border-border/30 pb-6">
         <div className="relative flex-1">
           <Search className="absolute inset-y-0 left-0 pl-3 h-full w-4 text-muted-foreground flex items-center" />
           <input
@@ -270,7 +270,7 @@ export const OutreachPage: React.FC = () => {
               <div 
                 key={contact.id}
                 style={{ borderLeftColor: colors.border }}
-                className="p-6 rounded-[4px] border-y border-r border-l-[3px] bg-card hover:border-r-primary/40 hover:border-y-primary/40 transition-all duration-200 flex flex-col justify-between h-[230px] shadow-sm"
+                className="p-6 rounded-[4px] border-y border-r border-l-[3px] bg-card hover:border-r-primary/40 hover:border-y-primary/40 transition-all duration-200 flex flex-col justify-between h-[230px]"
               >
                 <div className="space-y-2">
                   <div className="flex items-start justify-between">
