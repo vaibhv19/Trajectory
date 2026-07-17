@@ -195,12 +195,12 @@ export const ResumesPage: React.FC = () => {
       {/* Header and top commands */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-2xl font-display font-extrabold">Resumes & Profiles</h2>
-          <p className="text-sm text-muted-foreground">Manage your targeted career personas and upload versioned resume PDFs.</p>
+          <h2 className="text-2xl font-display font-extrabold tracking-tight uppercase text-foreground">Resumes & Profiles</h2>
+          <p className="text-sm text-muted-foreground font-sans">Manage your targeted career personas and upload versioned resume PDFs.</p>
         </div>
         <button
           onClick={() => { resetProfileForm(); setIsProfileModalOpen(true); }}
-          className="flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground text-sm font-semibold transition-all duration-200 shadow-md shadow-primary/10 self-start sm:self-center"
+          className="flex items-center justify-center gap-2 px-4 py-2 rounded-[4px] bg-primary hover:bg-[#0C5A62] dark:hover:bg-[#4CB0BA] text-primary-foreground text-sm font-semibold transition-all duration-200 self-start sm:self-center"
         >
           <Plus className="h-4 w-4" />
           Create Career Persona
@@ -210,7 +210,7 @@ export const ResumesPage: React.FC = () => {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
         {/* Left column: Profiles List */}
         <div className="col-span-12 lg:col-span-4 space-y-4">
-          <div className="p-5 rounded-2xl border bg-card glass-card">
+          <div className="p-5 rounded-[4px] border border-border/40 bg-card">
             <h3 className="text-base font-display font-bold mb-4 flex items-center gap-2">
               <Layers className="h-4.5 w-4.5 text-primary" />
               Targeted Personas
@@ -285,7 +285,7 @@ export const ResumesPage: React.FC = () => {
           {selectedProfileId && activeProfile ? (
             <>
               {/* Resume Version Uploader */}
-              <div className="p-6 rounded-lg border bg-card space-y-4">
+              <div className="p-6 rounded-[4px] border border-border/40 bg-card space-y-4">
                 <h3 className="text-base font-display font-bold flex items-center gap-2 uppercase tracking-tight text-muted-foreground">
                   <Upload className="h-4.5 w-4.5 text-primary" />
                   Upload New Resume Version
@@ -334,7 +334,7 @@ export const ResumesPage: React.FC = () => {
               </div>
 
               {/* Resumes Versions Table */}
-              <div className="p-6 rounded-lg border bg-card">
+              <div className="p-6 rounded-[4px] border border-border/40 bg-card">
                 <h3 className="text-base font-display font-bold mb-4 uppercase tracking-tight text-muted-foreground">Resume Version Matrix</h3>
 
                 {resumesLoading ? (
