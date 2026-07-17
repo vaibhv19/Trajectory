@@ -95,6 +95,15 @@ export const ApplicationsPage: React.FC = () => {
     }
   }, [resumes]);
 
+  // Listen for quick-add query parameter
+  React.useEffect(() => {
+    if (window.location.search.includes('add=true')) {
+      setIsModalOpen(true);
+      // Clean up parameter
+      navigate('/applications', { replace: true });
+    }
+  }, [navigate]);
+
   // Fetch applications
   const { data, isLoading } = useQuery({
     queryKey: ['applications', search, statusFilters, profileFilter, showArchived, page, sortField, sortDirection],
