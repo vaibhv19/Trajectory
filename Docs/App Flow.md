@@ -20,19 +20,23 @@ This document outlines the user journey and data flow within the Trajectory plat
 
 ### 2.1 Creation Flow (AI-Powered)
 1.  **Input:** User clicks "Add Application" and selects **AI Import**.
-2.  **Processing:** User pastes a Job Description or an Interview Invite email into the text area.
+2.  **Processing:** User pastes a Job Description into the text area.
 3.  **Spring AI Integration:** 
-    *   Frontend sends text to `/api/ai/extract`.
+    *   Frontend sends text to `/api/ai/parse-jd`.
     *   Backend sends a prompt to **Groq (Llama 3)** via **Spring AI**.
-    *   LLM returns a structured JSON (Company, Role, Location, Salary, Deadlines).
+    *   LLM returns a structured JSON (Company, Role, Location, Salary, suggested career profile).
 4.  **Review:** React frontend populates the "Add Application" modal with the extracted data.
 5.  **Save:** User confirms/edits data. The application is saved to PostgreSQL.
 
 ### 2.2 Application Management Flow
-1.  **Status Update:** User moves an application from `Applied` to `OA` (Online Assessment).
-2.  **Trigger:** System prompts for "Assessment Date" and "Link."
-3.  **Timeline Logging:** Backend automatically creates an entry in `ApplicationStatusHistory` to track the duration in the `Applied` stage.
-4.  **Notification:** System schedules a **Web Push** reminder for the assessment time.
+1.  **Status Update:** User moves an application from `Applied` to `OA` (Online Assessment) or `Interview`.
+2.  **AI Scheduling Assistance (Optional):** User can paste the invitation or details email from the company.
+    *   Frontend sends text to `/api/ai/parse-schedule`.
+    *   Spring AI parses the content and returns structured event data (Date, Time, Meeting Link, Interviewer names).
+    *   The frontend auto-populates the schedule form fields for the user.
+3.  **Trigger:** System prompts for "Assessment/Interview Date" and "Link" (manually entered or AI-populated).
+4.  **Timeline Logging:** Backend automatically creates an entry in `ApplicationStatusHistory` to track the duration in the previous stage.
+5.  **Notification:** System schedules a **Web Push** reminder for the assessment/interview time.
 
 ---
 
@@ -47,11 +51,14 @@ This document outlines the user journey and data flow within the Trajectory plat
 
 ## 4. Networking (CRM) Flow
 1.  **Entry:** User logs a cold outreach to a recruiter.
-2.  **Tracking:** Sets a "Follow-up Date" (e.g., 5 days from today).
-3.  **Monitoring:** 
+2.  **Outreach Analysis (Optional):** When receiving a response from a recruiter, the user can paste the text into the outreach analysis tool.
+    *   Frontend sends text to `/api/ai/analyze-outreach`.
+    *   Spring AI analyzes recruiter sentiment and intent, recommending a new status (e.g. `REPLIED`, `INTERVIEW_SECURED`) and summarizing next actions and key points.
+3.  **Tracking:** Sets a "Follow-up Date" (e.g., 5 days from today).
+4.  **Monitoring:** 
     *   The **Dashboard Agenda** widget shows the pending follow-up on the target date.
     *   Spring Scheduler checks for "Reached" follow-up dates and sends a nudge.
-4.  **Conversion:** If the recruiter responds with an interview, the user clicks "Convert to Application," transferring recruiter notes and company data to the main Application Tracker.
+5.  **Conversion:** If the outreach succeeds (e.g., status is `INTERVIEW_SECURED` or interview is scheduled), the user clicks "Convert to Application," transferring recruiter notes, contact info, and company data to the main Application Tracker in one click.
 
 ---
 
