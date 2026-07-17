@@ -62,7 +62,7 @@ A dedicated CRM for non-portal applications and direct networking[cite: 1, 4].
 *   **Position:** A mandatory text field to specify the exact role being discussed (e.g., "Senior Backend Engineer")[cite: 4].
 *   **Date Sent:** A date-picker field to log exactly when the initial contact was made[cite: 4]. This date serves as the baseline for calculating the follow-up reminder[cite: 4].
 *   **Follow-ups:** Set reminders for follow-up emails[cite: 1].
-*   **Conversion:** (Future) One-click button to convert a successful outreach thread into a formal "Application" entry[cite: 1].
+*   **Conversion:** One-click button to convert a successful outreach thread into a formal "Application" entry, transferring recruiter notes, contact history, and company details.
 
 ### 3.5 AI Features (Workflow Automation)
 Leveraging LLMs to reduce manual data entry and expedite form completion[cite: 1, 3].

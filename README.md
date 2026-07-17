@@ -44,6 +44,14 @@ This project is structured as a decoupled full-stack application (React Frontend
 *   **Web Push Notifications:** Real-time push alerts via Web Push API for OA/Interview times and outreach follow-ups.
 *   **Daily Digest:** A consolidated overview of the daily agenda displayed in the dashboard widget.
 
+### 📁 7. Company Resources & Placement Sheets
+*   **Integrated Placement Sheets:** Built-in repository covering recruitment criteria for 100+ top technology companies, listing salary packages (CTC), eligibility thresholds (CGPA, high school grades), and common interview topics.
+*   **Private S3 Document Storage:** Dedicated document vault to upload and manage company-specific PDFs, offer details, and benefit guidelines stored securely in S3/MinIO.
+
+### ⚙️ 8. User Preferences & Settings
+*   **Pipeline Fine-Tuning:** Define custom thresholds for the automatic "Ghosted" detection cron job.
+*   **Automated Lifecycle Actions:** Toggle preferences like auto-archiving rejected roles and managing notification alerts.
+
 ---
 
 ## 🔄 Application Flow & User Journey
@@ -118,17 +126,19 @@ graph TD
 
 ## 🎨 Visual Design & Routing System
 
-Trajectory features a type-safe, high-contrast visual design system optimized for Tailwind CSS and Shadcn UI primitives. For full details on tokens, components, and Tailwind configurations, refer to the [Visual Design System (DESIGN.md)](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/DESIGN.md).
+Trajectory features a type-safe, high-contrast visual design system optimized for Tailwind CSS and Shadcn UI primitives. For full details on tokens, components, and Tailwind configurations, refer to the [Visual Design System (DESIGN.md)](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/Docs/DESIGN.md).
 
 ### 🚦 React Router Directory
 The React frontend uses client-side routing to separate core career management domains into separate URL paths:
 
 *   **`/login`** — Authentication Canvas: Single container with toggle tabs for credentials login and social authentication buttons (Google/GitHub).
 *   **`/dashboard`** — The Command Center: Displays rollups for active pipelines, Recharts funnel rates, and the Daily Agenda widget.
-*   **`/applications`** — Application Matrix: Searchable and paginated grid layout of all job applications with triggers for Quick Resume Upload and AI Import.
+*   **`/applications`** — Application Matrix: Searchable and paginated data table of all job applications featuring database-driven sorting, pagination, and multi-select filtering with triggers for Quick Resume Upload and AI Import.
 *   **`/applications/:id`** — Application Inspector: Detailed page displaying the status change history on a chronological timeline with pulsing indicators.
 *   **`/outreach`** — Networking CRM: Recruiter grid view showing contact details, LinkedIn links, and follow-up warnings.
 *   **`/resumes`** — Career Profile Matrix: Displays custom color-coded career personas, resume file version tables (e.g. `v1`, `v2`), and logs.
+*   **`/resources`** — Placement Sheets & Company Documents: Dashboard displaying integrated placement data for 100+ top tech companies (CTC, CGPA/12th marks criteria, prep topics) and private S3-backed document storage.
+*   **`/settings`** — User Profile & Settings: Configurations for display name, custom inactivity thresholds for automatic "Ghosted" detection, and lifecycle automation (auto-archive toggles).
 
 ---
 
@@ -263,7 +273,9 @@ Refer to the [CLAUDE.md](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Res
 *   [Product Requirements Document (PRD)](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/Docs/PRD.md) — Comprehensive functional specifications.
 *   [Application Flow](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/Docs/App%20Flow.md) — Detailed user journeys and state flows.
 *   [Tech Stack Decisions](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/Docs/Tech%20Stack.md) — Rationale behind architectural choices.
-*   [Visual Design System (DESIGN.md)](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/DESIGN.md) — UI theme configuration, status colors, component states, and Tailwind mapping keys.
+*   [Visual Design System (DESIGN.md)](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/Docs/DESIGN.md) — UI theme configuration, status colors, component states, and Tailwind mapping keys.
+*   [Backend Developer Guide](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/backend/README.md) — Detailed backend APIs, architecture, environment settings, and build guide.
+*   [Frontend Developer Guide](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/frontend/README.md) — React client page layout, state management, routes mapping, and build guide.
 *   [Database Schema](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/Schema.sql) — Raw PostgreSQL DDL configurations.
 *   [Docker Infrastructure](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/docker-compose.yml) — Local environment docker services.
 *   [Claude Developer Guide](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/CLAUDE.md) — Coding conventions, guidelines, and commands.

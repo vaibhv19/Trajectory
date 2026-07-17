@@ -99,6 +99,16 @@ public record JobExtraction(
     String suggested_profile_title
 ) {}
 
+// Synchronized with Section 3
+public record EventExtraction(
+    String event_type,
+    String event_date,
+    String event_time,
+    String meeting_link,
+    List<String> interviewer_names,
+    int duration_minutes
+) {}
+
 // Synchronized with Section 4
 public record OutreachAnalysis(
     String suggested_status, // Maps to OutreachStatus Enum
