@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import type { CareerProfile, Resume } from '../types';
 import { 
@@ -16,6 +17,7 @@ import {
 
 export const ResumesPage: React.FC = () => {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [selectedProfileId, setSelectedProfileId] = useState<string | null>(null);
   
   // Profile Form State
@@ -45,6 +47,18 @@ export const ResumesPage: React.FC = () => {
       setSelectedProfileId(defaultProf.id);
     }
   }, [profiles, selectedProfileId]);
+
+  // Listen for quick-add query parameter to upload a new resume
+  React.useEffect(() => {
+    if (window.location.search.includes('add=true')) {
+      const fileInput = document.getElementById('resume-file-input') as HTMLInputElement;
+      if (fileInput) {
+        fileInput.click();
+      }
+      // Clean up parameter
+      navigate('/resumes', { replace: true });
+    }
+  }, [navigate]);
 
   // Fetch Resumes for selected profile
   const { data: resumesData, isLoading: resumesLoading } = useQuery<Resume[]>({

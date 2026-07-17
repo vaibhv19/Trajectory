@@ -46,6 +46,15 @@ export const OutreachPage: React.FC = () => {
   const [recruiterMsg, setRecruiterMsg] = useState('');
   const [analyzingMsg, setAnalyzingMsg] = useState(false);
 
+  // Listen for quick-add query parameter
+  React.useEffect(() => {
+    if (window.location.search.includes('add=true')) {
+      setIsModalOpen(true);
+      // Clean up parameter
+      navigate('/outreach', { replace: true });
+    }
+  }, [navigate]);
+
   // Fetch Outreach Contacts
   const { data: contacts = [], isLoading } = useQuery<Outreach[]>({
     queryKey: ['outreach', search, statusFilter],
