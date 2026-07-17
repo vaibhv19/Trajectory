@@ -5,7 +5,6 @@ import { api } from '../services/api';
 import { useAuthStore } from '../store/authStore';
 import { useThemeStore } from '../store/themeStore';
 import { 
-  LayoutDashboard, 
   Briefcase, 
   Users, 
   FileText, 
@@ -14,11 +13,12 @@ import {
   Moon,
   Menu,
   X,
-  Folder,
   Settings,
   Bell,
   Check,
-  CheckCheck
+  CheckCheck,
+  Plus,
+  Search
 } from 'lucide-react';
 
 interface LayoutProps {
@@ -32,15 +32,17 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
   const [notificationsOpen, setNotificationsOpen] = React.useState(false);
+  const [quickAddOpen, setQuickAddOpen] = React.useState(false);
+  const [userDropdownOpen, setUserDropdownOpen] = React.useState(false);
   const queryClient = useQueryClient();
 
   const navigation = [
-    { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-    { name: 'Applications', href: '/applications', icon: Briefcase },
-    { name: 'Outreach CRM', href: '/outreach', icon: Users },
-    { name: 'Resumes & Profiles', href: '/resumes', icon: FileText },
-    { name: 'Company Resources', href: '/resources', icon: Folder },
-    { name: 'Settings', href: '/settings', icon: Settings },
+    { name: 'Home', href: '/dashboard' },
+    { name: 'Applications', href: '/applications' },
+    { name: 'Outreach', href: '/outreach' },
+    { name: 'Resumes', href: '/resumes' },
+    { name: 'Analytics', href: '/dashboard' },
+    { name: 'Resources', href: '/resources' },
   ];
 
   // Fetch user profile settings
@@ -111,221 +113,263 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-background text-foreground transition-colors duration-200">
-      {/* Desktop Sidebar */}
-      <aside className="hidden md:flex md:w-64 md:flex-col bg-card border-r border-border">
-        <div className="flex h-16 items-center px-6 border-b border-border">
-          <Link to="/dashboard" className="flex items-center gap-2">
-            <span className="text-2xl font-display font-extrabold text-primary tracking-tight uppercase">Trajectory</span>
-          </Link>
-        </div>
-
-        <nav className="flex-1 space-y-1 px-4 py-6 overflow-y-auto">
-          {navigation.map((item) => {
-            const isActive = location.pathname.startsWith(item.href);
-            const Icon = item.icon;
-            return (
-              <Link
-                key={item.name}
-                to={item.href}
-                className={`group flex items-center px-4 py-3 text-sm font-medium rounded-md transition-all duration-200 border-l-2 ${
-                  isActive
-                    ? 'bg-primary/10 border-primary text-foreground font-semibold rounded-r-md pl-3.5'
-                    : 'text-muted-foreground hover:bg-muted hover:text-foreground border-transparent'
-                }`}
-              >
-                <Icon className="mr-3 h-5 w-5 flex-shrink-0" />
-                {item.name}
-              </Link>
-            );
-          })}
-        </nav>
-
-        {/* User Info & Footer */}
-        <div className="p-4 border-t border-border">
-          <div className="flex items-center gap-3 px-2 py-2 mb-2">
-            <div className="h-9 w-9 rounded-md bg-primary/20 text-primary flex items-center justify-center font-display font-semibold uppercase">
-              {displayName?.substring(0, 2) || 'US'}
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium truncate">{displayName}</p>
-              <p className="text-xs text-muted-foreground truncate">{displayEmail}</p>
-            </div>
-          </div>
+    <div className="flex h-screen flex-col overflow-hidden bg-background text-foreground transition-colors duration-200">
+      {/* Top Navbar */}
+      <header className="flex h-14 items-center justify-between px-6 border-b border-border bg-card z-10">
+        <div className="flex items-center gap-6">
           <button
-            onClick={handleLogout}
-            className="w-full flex items-center px-4 py-2 text-sm font-medium text-rose-500 rounded-md hover:bg-rose-500/10 transition-colors"
+            onClick={() => setMobileMenuOpen(true)}
+            className="md:hidden text-muted-foreground hover:text-foreground"
+            aria-label="Open mobile menu"
           >
-            <LogOut className="mr-3 h-5 w-5 flex-shrink-0" />
-            Logout
+            <Menu className="h-5 w-5" />
           </button>
-        </div>
-      </aside>
+          
+          <Link to="/dashboard" className="flex items-center gap-2">
+            <span className="text-lg font-display font-extrabold text-primary tracking-tight uppercase">Trajectory</span>
+          </Link>
 
-      {/* Mobile Sidebar Overlay */}
+          <nav className="hidden md:flex items-center gap-1.5">
+            {navigation.map((item) => {
+              const isActive = location.pathname.startsWith(item.href);
+              return (
+                <Link
+                  key={item.name}
+                  to={item.href}
+                  className={`px-3 py-1.5 text-xs font-mono uppercase tracking-wider rounded-md transition-colors ${
+                    isActive
+                      ? 'bg-primary/10 text-foreground font-bold'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/40'
+                  }`}
+                >
+                  {item.name}
+                </Link>
+              );
+            })}
+          </nav>
+        </div>
+
+        {/* Global Search and Quick Actions */}
+        <div className="flex items-center gap-4">
+          {/* Global Search Bar Button */}
+          <div className="relative hidden sm:block w-64">
+            <button 
+              onClick={() => {
+                // Trigger Command Palette via Ctrl+K keyboard event dispatch
+                const event = new KeyboardEvent('keydown', { key: 'k', ctrlKey: true });
+                document.dispatchEvent(event);
+              }}
+              className="w-full flex items-center justify-between px-3 py-1.5 border border-border bg-background/50 hover:bg-muted text-muted-foreground text-xs rounded-md transition-colors"
+            >
+              <span className="flex items-center gap-2">
+                <Search className="h-3.5 w-3.5" />
+                Search...
+              </span>
+              <kbd className="pointer-events-none inline-flex h-4.5 select-none items-center gap-0.5 rounded border border-border bg-muted px-1.5 font-mono text-[9px] font-medium text-muted-foreground opacity-100">
+                <span>Ctrl</span>K
+              </kbd>
+            </button>
+          </div>
+
+          {/* Quick Add Dropdown */}
+          <div className="relative">
+            <button 
+              onClick={() => setQuickAddOpen(!quickAddOpen)}
+              className="flex items-center justify-center gap-1 h-8 px-3 rounded-[4px] bg-primary hover:bg-[#0C5A62] dark:hover:bg-[#4CB0BA] text-primary-foreground text-xs font-semibold transition-all duration-200"
+            >
+              <Plus className="h-3.5 w-3.5" />
+              Add
+            </button>
+            {quickAddOpen && (
+              <>
+                <div className="fixed inset-0 z-30" onClick={() => setQuickAddOpen(false)} />
+                <div className="absolute right-0 mt-2 w-48 bg-card border border-border shadow-lg rounded-[4px] overflow-hidden z-40 animate-in fade-in slide-in-from-top-2 duration-150 py-1">
+                  <button 
+                    onClick={() => { setQuickAddOpen(false); navigate('/applications?add=true'); }}
+                    className="w-full text-left px-3 py-2 text-xs hover:bg-muted transition-colors flex items-center gap-2"
+                  >
+                    <Briefcase className="h-3.5 w-3.5 text-muted-foreground" />
+                    New Application
+                  </button>
+                  <button 
+                    onClick={() => { setQuickAddOpen(false); navigate('/outreach?add=true'); }}
+                    className="w-full text-left px-3 py-2 text-xs hover:bg-muted transition-colors flex items-center gap-2"
+                  >
+                    <Users className="h-3.5 w-3.5 text-muted-foreground" />
+                    New Outreach Contact
+                  </button>
+                  <button 
+                    onClick={() => { setQuickAddOpen(false); navigate('/resumes?add=true'); }}
+                    className="w-full text-left px-3 py-2 text-xs hover:bg-muted transition-colors flex items-center gap-2"
+                  >
+                    <FileText className="h-3.5 w-3.5 text-muted-foreground" />
+                    Upload Resume Version
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+
+          {/* Notifications Dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => setNotificationsOpen(!notificationsOpen)}
+              className="p-2 rounded-md border border-border bg-card hover:bg-muted text-muted-foreground hover:text-foreground transition-colors relative"
+              aria-label="Toggle notifications"
+            >
+              <Bell className="h-4 w-4" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 h-5 w-5 rounded-md bg-teal-600 border border-card text-[10px] font-mono font-bold text-white flex items-center justify-center">
+                  {unreadCount}
+                </span>
+              )}
+            </button>
+
+            {notificationsOpen && (
+              <>
+                <div 
+                  className="fixed inset-0 z-30" 
+                  onClick={() => setNotificationsOpen(false)} 
+                />
+                <div className="absolute right-0 mt-2 w-80 bg-card border border-border shadow-lg rounded-md overflow-hidden z-40 animate-in fade-in slide-in-from-top-2 duration-150">
+                  <div className="flex items-center justify-between px-4 py-2.5 border-b border-border bg-muted/30">
+                    <span className="text-xs font-mono font-bold uppercase tracking-wider text-muted-foreground">
+                      Notifications ({unreadCount})
+                    </span>
+                    {unreadCount > 0 && (
+                      <button
+                        onClick={() => readAllMutation.mutate()}
+                        className="text-[10px] font-semibold text-teal-600 dark:text-teal-400 hover:underline flex items-center gap-1 font-sans"
+                      >
+                        <CheckCheck className="w-3.5 h-3.5" />
+                        Mark all read
+                      </button>
+                    )}
+                  </div>
+                  <div className="divide-y divide-border max-h-72 overflow-y-auto">
+                    {notifications.length === 0 ? (
+                      <div className="p-8 text-center text-xs text-muted-foreground font-sans">
+                        No notifications found.
+                      </div>
+                    ) : (
+                      notifications.map((n) => (
+                        <div 
+                          key={n.id} 
+                          className={`p-3 text-left transition-colors flex gap-2 items-start ${n.isRead ? 'opacity-60' : 'bg-muted/10'}`}
+                        >
+                          <div className="flex-1 min-w-0">
+                            <h4 className="text-xs font-semibold text-foreground font-sans">{n.title}</h4>
+                            <p className="text-[11px] text-muted-foreground font-sans mt-0.5 leading-relaxed">{n.message}</p>
+                            <span className="text-[9px] text-muted-foreground/60 font-sans block mt-1">
+                              {new Date(n.createdAt).toLocaleTimeString()}
+                            </span>
+                          </div>
+                          {!n.isRead && (
+                            <button
+                              onClick={() => readMutation.mutate(n.id)}
+                              className="p-1 hover:bg-muted text-teal-600 rounded-md transition-colors"
+                              title="Mark read"
+                            >
+                              <Check className="w-3 h-3" />
+                            </button>
+                          )}
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+
+          {/* Theme Toggle Button */}
+          <button
+            onClick={toggleTheme}
+            className="p-2 rounded-md border border-border bg-card hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+            aria-label="Toggle theme"
+          >
+            {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+          </button>
+
+          {/* User Settings Dropdown */}
+          <div className="relative">
+            <button 
+              onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+              className="h-8 w-8 rounded-md bg-primary/20 hover:bg-primary/30 text-primary flex items-center justify-center font-display font-semibold uppercase text-xs transition-colors"
+            >
+              {displayName?.substring(0, 2) || 'US'}
+            </button>
+            {userDropdownOpen && (
+              <>
+                <div className="fixed inset-0 z-30" onClick={() => setUserDropdownOpen(false)} />
+                <div className="absolute right-0 mt-2 w-56 bg-card border border-border shadow-lg rounded-[4px] overflow-hidden z-40 animate-in fade-in slide-in-from-top-2 duration-150 py-1">
+                  <div className="px-3 py-2 border-b border-border/60">
+                    <p className="text-xs font-semibold truncate text-foreground">{displayName}</p>
+                    <p className="text-[10px] text-muted-foreground truncate font-mono">{displayEmail}</p>
+                  </div>
+                  <button 
+                    onClick={() => { setUserDropdownOpen(false); navigate('/settings'); }}
+                    className="w-full text-left px-3 py-2 text-xs hover:bg-muted transition-colors flex items-center gap-2 text-foreground"
+                  >
+                    <Settings className="h-3.5 w-3.5 text-muted-foreground" />
+                    Settings
+                  </button>
+                  <button 
+                    onClick={() => { setUserDropdownOpen(false); handleLogout(); }}
+                    className="w-full text-left px-3 py-2 text-xs hover:bg-rose-500/10 text-rose-500 transition-colors flex items-center gap-2"
+                  >
+                    <LogOut className="h-3.5 w-3.5" />
+                    Logout
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      </header>
+
+      {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
         <div className="fixed inset-0 z-40 flex md:hidden">
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setMobileMenuOpen(false)} />
           
           <aside className="relative flex w-64 max-w-xs flex-col bg-background border-r border-border p-5 animate-in slide-in-from-left duration-200">
             <div className="flex items-center justify-between pb-6 border-b border-border">
-              <span className="text-xl font-display font-extrabold text-primary tracking-tight uppercase">Trajectory</span>
+              <span className="text-lg font-display font-extrabold text-primary tracking-tight uppercase">Trajectory</span>
               <button onClick={() => setMobileMenuOpen(false)} className="text-muted-foreground hover:text-foreground">
-                <X className="h-6 w-6" />
+                <X className="h-5 w-5" />
               </button>
             </div>
 
             <nav className="flex-1 space-y-1 py-6 overflow-y-auto">
               {navigation.map((item) => {
                 const isActive = location.pathname.startsWith(item.href);
-                const Icon = item.icon;
                 return (
                   <Link
                     key={item.name}
                     to={item.href}
                     onClick={() => setMobileMenuOpen(false)}
-                    className={`group flex items-center px-4 py-3 text-sm font-medium rounded-md transition-all duration-200 border-l-2 ${
+                    className={`group flex items-center px-4 py-3 text-xs font-mono uppercase tracking-wider rounded-md transition-colors ${
                       isActive
-                        ? 'bg-primary/10 border-primary text-foreground font-semibold rounded-r-md pl-3.5'
-                        : 'text-muted-foreground hover:bg-muted hover:text-foreground border-transparent'
+                        ? 'bg-primary/10 text-foreground font-bold'
+                        : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                     }`}
                   >
-                    <Icon className="mr-3 h-5 w-5 flex-shrink-0" />
                     {item.name}
                   </Link>
                 );
               })}
             </nav>
-
-            <div className="border-t border-border pt-4">
-              <div className="flex items-center gap-3 px-2 py-2 mb-4">
-                <div className="h-9 w-9 rounded-md bg-primary/20 text-primary flex items-center justify-center font-display font-semibold uppercase">
-                  {displayName?.substring(0, 2) || 'US'}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">{displayName}</p>
-                  <p className="text-xs text-muted-foreground truncate">{displayEmail}</p>
-                </div>
-              </div>
-              <button
-                onClick={handleLogout}
-                className="w-full flex items-center px-4 py-2 text-sm font-medium text-rose-500 rounded-md hover:bg-rose-500/10 transition-colors"
-              >
-                <LogOut className="mr-3 h-5 w-5 flex-shrink-0" />
-                Logout
-              </button>
-            </div>
           </aside>
         </div>
       )}
 
-      {/* Main Workspace View */}
-      <div className="flex flex-1 flex-col overflow-hidden">
-        {/* Top Header */}
-        <header className="flex h-16 items-center justify-between px-6 border-b border-border bg-card z-10">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => setMobileMenuOpen(true)}
-              className="md:hidden text-muted-foreground hover:text-foreground"
-            >
-              <Menu className="h-6 w-6" />
-            </button>
-            <h1 className="text-xl font-display font-semibold tracking-tight uppercase text-muted-foreground">
-              {navigation.find(nav => location.pathname.startsWith(nav.href))?.name || 'Trajectory'}
-            </h1>
-          </div>
-
-          <div className="flex items-center gap-4">
-            {/* Notifications Dropdown */}
-            <div className="relative">
-              <button
-                onClick={() => setNotificationsOpen(!notificationsOpen)}
-                className="p-2 rounded-md border border-border bg-card hover:bg-muted text-muted-foreground hover:text-foreground transition-colors relative"
-                aria-label="Toggle notifications"
-              >
-                <Bell className="h-5 w-5" />
-                {unreadCount > 0 && (
-                  <span className="absolute -top-1.5 -right-1.5 h-5 w-5 rounded-md bg-teal-600 border border-card text-[10px] font-mono font-bold text-white flex items-center justify-center">
-                    {unreadCount}
-                  </span>
-                )}
-              </button>
-
-              {notificationsOpen && (
-                <>
-                  <div 
-                    className="fixed inset-0 z-30" 
-                    onClick={() => setNotificationsOpen(false)} 
-                  />
-                  <div className="absolute right-0 mt-2 w-80 bg-card border border-border shadow-lg rounded-md overflow-hidden z-40 animate-in fade-in slide-in-from-top-2 duration-150">
-                    <div className="flex items-center justify-between px-4 py-2.5 border-b border-border bg-muted/30">
-                      <span className="text-xs font-mono font-bold uppercase tracking-wider text-muted-foreground">
-                        Notifications ({unreadCount})
-                      </span>
-                      {unreadCount > 0 && (
-                        <button
-                          onClick={() => readAllMutation.mutate()}
-                          className="text-[10px] font-semibold text-teal-600 dark:text-teal-400 hover:underline flex items-center gap-1 font-sans"
-                        >
-                          <CheckCheck className="w-3.5 h-3.5" />
-                          Mark all read
-                        </button>
-                      )}
-                    </div>
-                    <div className="divide-y divide-border max-h-72 overflow-y-auto">
-                      {notifications.length === 0 ? (
-                        <div className="p-8 text-center text-xs text-muted-foreground font-sans">
-                          No notifications found.
-                        </div>
-                      ) : (
-                        notifications.map((n) => (
-                          <div 
-                            key={n.id} 
-                            className={`p-3 text-left transition-colors flex gap-2 items-start ${n.isRead ? 'opacity-60' : 'bg-muted/10'}`}
-                          >
-                            <div className="flex-1 min-w-0">
-                              <h4 className="text-xs font-semibold text-foreground font-sans">{n.title}</h4>
-                              <p className="text-[11px] text-muted-foreground font-sans mt-0.5 leading-relaxed">{n.message}</p>
-                              <span className="text-[9px] text-muted-foreground/60 font-sans block mt-1">
-                                {new Date(n.createdAt).toLocaleTimeString()}
-                              </span>
-                            </div>
-                            {!n.isRead && (
-                              <button
-                                onClick={() => readMutation.mutate(n.id)}
-                                className="p-1 hover:bg-muted text-teal-600 rounded-md transition-colors"
-                                title="Mark read"
-                              >
-                                <Check className="w-3 h-3" />
-                              </button>
-                            )}
-                          </div>
-                        ))
-                      )}
-                    </div>
-                  </div>
-                </>
-              )}
-            </div>
-
-            {/* Theme Toggle Button */}
-            <button
-              onClick={toggleTheme}
-              className="p-2 rounded-md border border-border bg-card hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-              aria-label="Toggle theme"
-            >
-              {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-            </button>
-          </div>
-        </header>
-
-        {/* Content Pane */}
-        <main className="flex-1 overflow-y-auto px-6 py-8 md:px-8 bg-background relative">
-          <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in duration-300">
-            {children}
-          </div>
-        </main>
-      </div>
+      {/* Content Pane */}
+      <main className="flex-1 overflow-y-auto px-6 py-8 md:px-8 bg-background relative">
+        <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in duration-300">
+          {children}
+        </div>
+      </main>
     </div>
   );
 };
