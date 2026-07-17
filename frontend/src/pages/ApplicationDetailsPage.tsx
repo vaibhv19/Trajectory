@@ -262,15 +262,13 @@ export const ApplicationDetailsPage: React.FC = () => {
                 <h2 className="text-2xl font-display font-extrabold mt-2 tracking-tight uppercase text-foreground">{app.companyName}</h2>
                 <p className="text-lg text-muted-foreground">{app.roleTitle}</p>
               </div>
-              <span className={`px-2 py-0.5 rounded-md text-xs font-mono uppercase tracking-wide border ${
-                app.status === 'APPLIED' ? 'bg-status-applied-bg text-status-applied-text border-status-applied-border' :
-                app.status === 'OA' ? 'bg-status-oa-bg text-status-oa-text border-status-oa-border' :
-                app.status === 'INTERVIEW' ? 'bg-status-interview-bg text-status-interview-text border-status-interview-border' :
-                app.status === 'OFFER' ? 'bg-status-offer-bg text-status-offer-text border-status-offer-border' :
-                app.status === 'REJECTED' ? 'bg-status-rejected-bg text-status-rejected-text border-status-rejected-border' :
-                app.status === 'GHOSTED' ? 'bg-status-ghosted-bg text-status-ghosted-text border-status-ghosted-border' :
-                'bg-status-withdrawn-bg text-status-withdrawn-text border-status-withdrawn-border'
-              }`}>
+              <span 
+                className="px-2.5 py-0.5 rounded-md text-xs font-mono uppercase tracking-wide border bg-transparent"
+                style={{ 
+                  borderColor: `var(--status-${app.status.toLowerCase()}-border)`, 
+                  color: `var(--status-${app.status.toLowerCase()}-text)` 
+                }}
+              >
                 {app.status}
               </span>
             </div>
@@ -331,7 +329,11 @@ export const ApplicationDetailsPage: React.FC = () => {
                     <FileText className="h-4 w-4 text-primary" />
                     <div className="truncate">
                       <p className="text-xs font-semibold truncate">{app.resumeFileName}</p>
-                      <p className="text-[10px] text-muted-foreground font-mono">VERSION {app.resumeVersion}</p>
+                      <div className="flex items-center gap-1.5 mt-1">
+                        <span className="inline-block border border-border px-1.5 py-0.5 rounded-[4px] text-[10px] font-mono text-muted-foreground bg-transparent">
+                          v{app.resumeVersion}
+                        </span>
+                      </div>
                     </div>
                   </div>
                   <button
