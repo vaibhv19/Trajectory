@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../services/api';
 import { useAuthStore } from '../store/authStore';
 import { useThemeStore } from '../store/themeStore';
+import { CommandPalette } from './CommandPalette';
 import { 
   Briefcase, 
   Users, 
@@ -34,6 +35,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [notificationsOpen, setNotificationsOpen] = React.useState(false);
   const [quickAddOpen, setQuickAddOpen] = React.useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = React.useState(false);
+  const [commandPaletteOpen, setCommandPaletteOpen] = React.useState(false);
   const queryClient = useQueryClient();
 
   const navigation = [
@@ -44,6 +46,18 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     { name: 'Analytics', href: '/dashboard' },
     { name: 'Resources', href: '/resources' },
   ];
+
+  // Listen for Ctrl+K global keyboard shortcut
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setCommandPaletteOpen(prev => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   // Fetch user profile settings
   const { data: userProfile } = useQuery({
@@ -370,6 +384,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           {children}
         </div>
       </main>
+
+      <CommandPalette isOpen={commandPaletteOpen} onClose={() => setCommandPaletteOpen(false)} />
     </div>
   );
 };
