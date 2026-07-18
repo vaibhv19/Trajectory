@@ -138,8 +138,8 @@ export const HomePage: React.FC = () => {
             </div>
           )}
           <div>
-            <h2 className="text-2xl font-display font-extrabold tracking-tight uppercase text-foreground">
-              {getGreeting()}, {userProfile?.fullName || 'User'}
+            <h2 className="text-2xl font-display font-bold tracking-tight text-foreground">
+              {getGreeting()}, {userProfile?.fullName ? userProfile.fullName.split(' ')[0] : 'User'}.
             </h2>
             <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider mt-1 flex items-center gap-1.5">
               <Compass className="h-3.5 w-3.5 text-primary" />

@@ -121,7 +121,7 @@ const COMPANIES_DATA: PlacementCompany[] = [
   { name: "Hexaware", ctc: "4.0 - 6.0", cgpa: "6.0", marks12th: "60%", topics: "Aptitude, Basic Coding (Java/Python)", link: "https://jobs.hexaware.com" }
 ];
 
-export const ResourcesPage: React.FC = () => {
+export const CompaniesPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [minCtc, setMinCtc] = useState('');
   const [minCgpa, setMinCgpa] = useState('');
@@ -132,7 +132,6 @@ export const ResourcesPage: React.FC = () => {
         comp.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         comp.topics.toLowerCase().includes(searchQuery.toLowerCase());
 
-      // Parse average or lower-bound CTC for filtering
       let matchesCtc = true;
       if (minCtc) {
         const ctcNum = parseFloat(comp.ctc.split('-')[0].trim());
@@ -141,7 +140,6 @@ export const ResourcesPage: React.FC = () => {
         }
       }
 
-      // Parse CGPA cutoff
       let matchesCgpa = true;
       if (minCgpa && comp.cgpa !== 'None') {
         const cgpaNum = parseFloat(comp.cgpa);
@@ -155,21 +153,21 @@ export const ResourcesPage: React.FC = () => {
   }, [searchQuery, minCtc, minCgpa]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-in fade-in duration-300">
       {/* Title */}
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground font-display">
-          Tech Placement Resources
-        </h1>
+        <h2 className="text-2xl font-display font-extrabold tracking-tight uppercase text-foreground">
+          Company intelligence hub
+        </h2>
         <p className="text-sm text-muted-foreground font-sans mt-1">
-          Explore CTC estimates, CGPA criteria, and key technical preparation topics for 100 top tech employers.
+          Explore eligibility cutoffs, compensation packages, required technical competencies, and official hiring resources.
         </p>
       </div>
 
       {/* Filter panel */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-card border border-border p-4 rounded-lg shadow-sm">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 border-b border-border/30 pb-6 mb-2">
         <div className="relative">
-          <label className="block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+          <label className="block text-[9px] font-mono font-bold uppercase tracking-wider text-muted-foreground mb-1.5">
             Search Company or Prep Topic
           </label>
           <div className="relative">
@@ -179,13 +177,13 @@ export const ResourcesPage: React.FC = () => {
               placeholder="e.g. Google, Trees, SQL..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-background border border-border text-foreground pl-10 pr-4 py-2 text-sm rounded-md placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+              className="w-full bg-background border border-border text-foreground pl-10 pr-4 py-2 text-sm rounded-[4px] placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
             />
           </div>
         </div>
 
         <div>
-          <label className="block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+          <label className="block text-[9px] font-mono font-bold uppercase tracking-wider text-muted-foreground mb-1.5">
             Minimum CTC (LPA)
           </label>
           <input
@@ -193,12 +191,12 @@ export const ResourcesPage: React.FC = () => {
             placeholder="e.g. 10"
             value={minCtc}
             onChange={(e) => setMinCtc(e.target.value)}
-            className="w-full px-3 py-2 bg-background border border-border rounded-md text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+            className="w-full px-3 py-2 bg-background border border-border rounded-[4px] text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
           />
         </div>
 
         <div>
-          <label className="block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+          <label className="block text-[9px] font-mono font-bold uppercase tracking-wider text-muted-foreground mb-1.5">
             Maximum CGPA Cutoff
           </label>
           <input
@@ -207,17 +205,17 @@ export const ResourcesPage: React.FC = () => {
             placeholder="e.g. 7.0"
             value={minCgpa}
             onChange={(e) => setMinCgpa(e.target.value)}
-            className="w-full px-3 py-2 bg-background border border-border rounded-md text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+            className="w-full px-3 py-2 bg-background border border-border rounded-[4px] text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
           />
         </div>
       </div>
 
       {/* Placement List Container */}
-      <div className="bg-card border border-border rounded-lg overflow-hidden shadow-sm">
+      <div className="border-t border-border/30 overflow-hidden">
         {filteredCompanies.length === 0 ? (
           <div className="py-20 flex flex-col items-center justify-center text-muted-foreground">
             <Building2 className="w-12 h-12 text-muted-foreground/30 mb-3" />
-            <h3 className="text-base font-semibold text-foreground font-sans font-display">
+            <h3 className="text-base font-semibold text-foreground font-sans">
               No Companies Match Criteria
             </h3>
             <p className="text-xs text-muted-foreground font-sans mt-1">
@@ -228,36 +226,36 @@ export const ResourcesPage: React.FC = () => {
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-border bg-muted">
-                  <th className="px-6 py-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider font-mono">
+                <tr className="border-b border-border bg-muted/40">
+                  <th className="px-4 py-3 text-[9px] font-mono font-bold text-muted-foreground uppercase tracking-wider">
                     Company Name
                   </th>
-                  <th className="px-6 py-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider font-mono">
+                  <th className="px-4 py-3 text-[9px] font-mono font-bold text-muted-foreground uppercase tracking-wider">
                     CTC Range
                   </th>
-                  <th className="px-6 py-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider font-mono">
+                  <th className="px-4 py-3 text-[9px] font-mono font-bold text-muted-foreground uppercase tracking-wider">
                     CGPA Cutoff
                   </th>
-                  <th className="px-6 py-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider font-mono">
+                  <th className="px-4 py-3 text-[9px] font-mono font-bold text-muted-foreground uppercase tracking-wider">
                     12th Cutoff
                   </th>
-                  <th className="px-6 py-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider font-mono">
+                  <th className="px-4 py-3 text-[9px] font-mono font-bold text-muted-foreground uppercase tracking-wider">
                     Important Preparation Topics
                   </th>
-                  <th className="px-6 py-4 text-right text-xs font-semibold text-muted-foreground uppercase tracking-wider font-mono">
+                  <th className="px-4 py-3 text-right text-[9px] font-mono font-bold text-muted-foreground uppercase tracking-wider">
                     Career Link
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border">
+              <tbody className="divide-y divide-border/60">
                 {filteredCompanies.map((comp, idx) => (
                   <tr 
                     key={idx}
                     className="hover:bg-muted/30 transition-colors"
                   >
-                    <td className="px-6 py-4">
+                    <td className="px-4 py-3">
                       <div className="flex items-center gap-2.5">
-                        <div className="p-1.5 rounded-md bg-muted border border-border text-muted-foreground">
+                        <div className="p-1.5 rounded-[4px] bg-muted border border-border/60 text-muted-foreground">
                           <Building2 className="w-4 h-4" />
                         </div>
                         <span className="font-semibold text-sm text-foreground font-sans block">
@@ -265,7 +263,7 @@ export const ResourcesPage: React.FC = () => {
                         </span>
                       </div>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-4 py-3">
                       <div className="flex items-center gap-1 text-foreground">
                         <DollarSign className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
                         <span className="text-xs font-mono font-semibold">
@@ -273,7 +271,7 @@ export const ResourcesPage: React.FC = () => {
                         </span>
                       </div>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-4 py-3">
                       <div className="flex items-center gap-1 text-foreground">
                         <GraduationCap className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
                         <span className="text-xs font-mono font-medium">
@@ -281,7 +279,7 @@ export const ResourcesPage: React.FC = () => {
                         </span>
                       </div>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-4 py-3">
                       <div className="flex items-center gap-1 text-foreground">
                         <Award className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
                         <span className="text-xs font-mono">
@@ -289,7 +287,7 @@ export const ResourcesPage: React.FC = () => {
                         </span>
                       </div>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-4 py-3">
                       <div className="flex items-center gap-1.5">
                         <BookOpen className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
                         <span className="text-xs text-muted-foreground font-sans line-clamp-2" title={comp.topics}>
@@ -297,12 +295,12 @@ export const ResourcesPage: React.FC = () => {
                         </span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-right">
+                    <td className="px-4 py-3 text-right">
                       <a
                         href={comp.link}
                         target="_blank"
                         rel="noreferrer"
-                        className="inline-flex items-center gap-1 px-3 py-1.5 border border-border hover:bg-muted text-foreground text-xs font-semibold rounded-md transition-colors font-sans"
+                        className="inline-flex items-center gap-1 px-3 py-1.5 border border-border hover:bg-muted text-foreground text-xs font-semibold rounded-[4px] transition-colors font-sans"
                       >
                         Careers
                         <ExternalLink className="w-3 h-3" />

@@ -8,7 +8,7 @@ import { ApplicationsPage } from './pages/ApplicationsPage';
 import { ApplicationDetailsPage } from './pages/ApplicationDetailsPage';
 import { OutreachPage } from './pages/OutreachPage';
 import { ResumesPage } from './pages/ResumesPage';
-import { ResourcesPage } from './pages/ResourcesPage';
+import { CompaniesPage } from './pages/CompaniesPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { PrivacyPage } from './pages/PrivacyPage';
 import { TermsPage } from './pages/TermsPage';
@@ -103,11 +103,11 @@ const App: React.FC = () => {
           />
 
           <Route
-            path="/resources"
+            path="/companies"
             element={
               <ProtectedRoute>
                 <Layout>
-                  <ResourcesPage />
+                  <CompaniesPage />
                 </Layout>
               </ProtectedRoute>
             }

@@ -21,7 +21,14 @@ import {
   Plus,
   Search,
   Shield,
-  Scale
+  Scale,
+  Home,
+  TrendingUp,
+  Building2,
+  HelpCircle,
+  Keyboard,
+  Database,
+  Compass
 } from 'lucide-react';
 import { Footer } from './Footer';
 
@@ -42,20 +49,23 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const queryClient = useQueryClient();
 
   const navigation = [
-    { name: 'Home', href: '/dashboard' },
-    { name: 'Applications', href: '/applications' },
-    { name: 'Outreach', href: '/outreach' },
-    { name: 'Resumes', href: '/resumes' },
-    { name: 'Analytics', href: '/analytics' },
-    { name: 'Resources', href: '/resources' },
+    { name: 'Home', href: '/dashboard', icon: Home },
+    { name: 'Applications', href: '/applications', icon: Briefcase },
+    { name: 'Outreach', href: '/outreach', icon: Users },
+    { name: 'Resumes', href: '/resumes', icon: FileText },
+    { name: 'Analytics', href: '/analytics', icon: TrendingUp },
+    { name: 'Companies', href: '/companies', icon: Building2 },
   ];
 
-  // Listen for Ctrl+K global keyboard shortcut
+  // Listen for Ctrl+K and Escape keyboard shortcuts
   React.useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
         setCommandPaletteOpen(prev => !prev);
+      }
+      if (e.key === 'Escape') {
+        setMobileMenuOpen(false);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -146,20 +156,21 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             <span className="text-lg font-display font-extrabold text-primary tracking-tight uppercase">Trajectory</span>
           </Link>
 
-          <nav className="hidden md:flex items-center gap-1.5">
+          <nav className="hidden md:flex items-stretch h-14 gap-1 font-sans">
             {navigation.map((item) => {
               const isActive = location.pathname.startsWith(item.href);
               return (
                 <Link
                   key={item.name}
                   to={item.href}
-                  className={`px-3 py-1.5 text-xs font-mono uppercase tracking-wider rounded-md transition-colors ${
+                  className={`flex items-center gap-1.5 px-3 border-b-2 text-xs transition-colors ${
                     isActive
-                      ? 'bg-primary/10 text-foreground font-bold'
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/40'
+                      ? 'border-primary text-foreground font-semibold bg-primary/[2%]'
+                      : 'border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/30'
                   }`}
                 >
-                  {item.name}
+                  <item.icon className="h-3.5 w-3.5 shrink-0 opacity-70" />
+                  <span>{item.name}</span>
                 </Link>
               );
             })}
@@ -374,38 +385,104 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         </div>
       </header>
 
-      {/* Mobile Drawer Menu */}
+      {/* Mobile Drawer Menu (Productivity Utility Drawer) */}
       {mobileMenuOpen && (
-        <div className="fixed inset-0 z-40 flex md:hidden">
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setMobileMenuOpen(false)} />
+        <div className="fixed inset-0 z-40 flex">
+          <div 
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300" 
+            onClick={() => setMobileMenuOpen(false)} 
+          />
           
-          <aside className="relative flex w-64 max-w-xs flex-col bg-background border-r border-border p-5 animate-in slide-in-from-left duration-200">
-            <div className="flex items-center justify-between pb-6 border-b border-border">
-              <span className="text-lg font-display font-extrabold text-primary tracking-tight uppercase">Trajectory</span>
-              <button onClick={() => setMobileMenuOpen(false)} className="text-muted-foreground hover:text-foreground">
-                <X className="h-5 w-5" />
+          <aside className="relative flex w-80 max-w-xs flex-col bg-background border-r border-border p-5 animate-in slide-in-from-left duration-200 z-50">
+            <div className="flex items-center justify-between pb-4 border-b border-border">
+              <div className="flex items-center gap-2">
+                <Compass className="h-4 w-4 text-primary" />
+                <span className="text-sm font-display font-extrabold text-foreground uppercase tracking-tight">Workspace Drawer</span>
+              </div>
+              <button onClick={() => setMobileMenuOpen(false)} className="text-muted-foreground hover:text-foreground p-1 hover:bg-muted rounded-[4px] transition-colors">
+                <X className="h-4 w-4" />
               </button>
             </div>
 
-            <nav className="flex-1 space-y-1 py-6 overflow-y-auto">
-              {navigation.map((item) => {
-                const isActive = location.pathname.startsWith(item.href);
-                return (
-                  <Link
-                    key={item.name}
-                    to={item.href}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className={`group flex items-center px-4 py-3 text-xs font-mono uppercase tracking-wider rounded-md transition-colors ${
-                      isActive
-                        ? 'bg-primary/10 text-foreground font-bold'
-                        : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-                    }`}
+            <div className="flex-1 py-4 overflow-y-auto space-y-6 font-sans">
+              {/* Pinned shortcuts */}
+              <div className="space-y-2">
+                <h4 className="text-[10px] font-mono font-bold tracking-wider text-muted-foreground uppercase">Pinned Items</h4>
+                <div className="space-y-1.5">
+                  <button 
+                    onClick={() => { setMobileMenuOpen(false); navigate('/dashboard'); }}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 text-xs rounded-[4px] hover:bg-muted text-foreground/80 hover:text-foreground text-left transition-colors"
                   >
-                    {item.name}
-                  </Link>
-                );
-              })}
-            </nav>
+                    <Home className="h-3.5 w-3.5 text-primary" />
+                    Home Workspace
+                  </button>
+                  <button 
+                    onClick={() => { setMobileMenuOpen(false); navigate('/applications?add=true'); }}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 text-xs rounded-[4px] hover:bg-muted text-foreground/80 hover:text-foreground text-left transition-colors"
+                  >
+                    <Plus className="h-3.5 w-3.5 text-primary" />
+                    Log Application
+                  </button>
+                  <button 
+                    onClick={() => { setMobileMenuOpen(false); navigate('/outreach?add=true'); }}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 text-xs rounded-[4px] hover:bg-muted text-foreground/80 hover:text-foreground text-left transition-colors"
+                  >
+                    <Users className="h-3.5 w-3.5 text-primary" />
+                    Log Recruiter contact
+                  </button>
+                </div>
+              </div>
+
+              {/* Activity / Info summary */}
+              <div className="space-y-2 pt-2 border-t border-border/30">
+                <h4 className="text-[10px] font-mono font-bold tracking-wider text-muted-foreground uppercase">Recent Activity</h4>
+                <div className="px-3 py-2 bg-muted/20 border border-border/40 rounded-[4px] text-[11px] text-muted-foreground space-y-1 font-sans leading-relaxed">
+                  <p>Database synchronization connected.</p>
+                  <p>Active profile avatar upload enabled.</p>
+                </div>
+              </div>
+
+              {/* Workspace Utilities */}
+              <div className="space-y-2 pt-2 border-t border-border/30">
+                <h4 className="text-[10px] font-mono font-bold tracking-wider text-muted-foreground uppercase">Workspace Utilities</h4>
+                <div className="space-y-1.5">
+                  <button 
+                    onClick={() => { 
+                      setMobileMenuOpen(false); 
+                      const event = new KeyboardEvent('keydown', { key: 'k', ctrlKey: true });
+                      document.dispatchEvent(event);
+                    }}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 text-xs rounded-[4px] hover:bg-muted text-foreground/80 hover:text-foreground text-left transition-colors"
+                  >
+                    <Keyboard className="h-3.5 w-3.5 text-muted-foreground" />
+                    Keyboard Shortcuts
+                  </button>
+                  <button 
+                    onClick={() => { setMobileMenuOpen(false); navigate('/settings'); }}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 text-xs rounded-[4px] hover:bg-muted text-foreground/80 hover:text-foreground text-left transition-colors"
+                  >
+                    <Settings className="h-3.5 w-3.5 text-muted-foreground" />
+                    Workspace Settings
+                  </button>
+                  <button 
+                    onClick={() => { setMobileMenuOpen(false); navigate('/changelog'); }}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 text-xs rounded-[4px] hover:bg-muted text-foreground/80 hover:text-foreground text-left transition-colors"
+                  >
+                    <Database className="h-3.5 w-3.5 text-muted-foreground" />
+                    Changelog History
+                  </button>
+                  <a 
+                    href="https://github.com/vaibhv19/Trajectory/issues"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="w-full flex items-center gap-2.5 px-3 py-2 text-xs rounded-[4px] hover:bg-muted text-foreground/80 hover:text-foreground text-left transition-colors block"
+                  >
+                    <HelpCircle className="h-3.5 w-3.5 text-muted-foreground" />
+                    Submit Feedback
+                  </a>
+                </div>
+              </div>
+            </div>
           </aside>
         </div>
       )}
