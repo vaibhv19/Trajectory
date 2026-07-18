@@ -73,6 +73,18 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
+  // Lock background scroll when mobile drawer is open to prevent page scrolling behind drawer overlays
+  React.useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.classList.add('overflow-hidden');
+    } else {
+      document.body.classList.remove('overflow-hidden');
+    }
+    return () => {
+      document.body.classList.remove('overflow-hidden');
+    };
+  }, [mobileMenuOpen]);
+
   // Fetch user profile settings
   const { data: userProfile } = useQuery({
     queryKey: ['user-settings-profile'],
@@ -152,6 +164,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             onClick={() => setMobileMenuOpen(true)}
             className="md:hidden text-muted-foreground hover:text-foreground"
             aria-label="Open mobile menu"
+            aria-expanded={mobileMenuOpen}
+            aria-controls="mobile-nav-drawer"
           >
             <Menu className="h-5 w-5" />
           </button>
@@ -401,7 +415,10 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             onClick={() => setMobileMenuOpen(false)} 
           />
           
-          <aside className="relative flex w-80 max-w-xs flex-col bg-background border-r border-border p-5 animate-in slide-in-from-left duration-200 z-50">
+          <aside 
+            id="mobile-nav-drawer"
+            className="relative flex w-80 max-w-xs flex-col bg-background border-r border-border p-5 animate-in slide-in-from-left duration-200 z-50"
+          >
             {/* Header branding */}
             <div className="flex items-center justify-between pb-4 border-b border-border">
               <Link to="/dashboard" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2">
@@ -410,7 +427,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
               <button 
                 onClick={() => setMobileMenuOpen(false)} 
                 className="text-muted-foreground hover:text-foreground p-1 hover:bg-muted rounded-[4px] transition-colors"
-                aria-label="Close menu"
+                aria-label="Close mobile menu"
               >
                 <X className="h-4 w-4" />
               </button>
