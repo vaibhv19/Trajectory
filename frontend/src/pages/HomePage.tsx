@@ -13,7 +13,6 @@ import {
   Users,
   Compass,
   Link as LinkIcon,
-  Loader2,
   Moon,
   Sun
 } from 'lucide-react';
@@ -23,6 +22,8 @@ interface ChecklistItem {
   text: string;
   completed: boolean;
 }
+
+import { Skeleton, SkeletonTable } from '../components/Skeleton';
 
 export const HomePage: React.FC = () => {
   const navigate = useNavigate();
@@ -106,8 +107,49 @@ export const HomePage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="flex h-[60vh] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="space-y-12 animate-in fade-in duration-300 font-sans">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-border/30 pb-8">
+          <div className="flex items-center gap-4">
+            <Skeleton className="w-16 h-16 rounded-full" />
+            <div className="space-y-2">
+              <Skeleton className="h-6 w-48" />
+              <Skeleton className="h-4 w-32" />
+            </div>
+          </div>
+          <div className="flex-1 max-w-md space-y-2.5">
+            <Skeleton className="h-3 w-full" />
+            <Skeleton className="h-3 w-full" />
+          </div>
+        </div>
+        <div className="grid grid-cols-1 gap-12 lg:grid-cols-12">
+          <div className="lg:col-span-8 space-y-12">
+            <div className="space-y-4">
+              <Skeleton className="h-5 w-48" />
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <div key={i} className="p-4 border border-border/20 space-y-3 rounded-[4px] bg-card">
+                    <Skeleton className="h-3.5 w-1/3" />
+                    <Skeleton className="h-5 w-1/2" />
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="space-y-4">
+              <Skeleton className="h-5 w-32" />
+              <SkeletonTable rows={3} cols={4} />
+            </div>
+          </div>
+          <div className="lg:col-span-4 space-y-12">
+            <div className="space-y-4">
+              <Skeleton className="h-5 w-32" />
+              <div className="border border-border/20 rounded-[4px] p-4 space-y-3 bg-card">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <Skeleton key={i} className="h-8 w-full" />
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }

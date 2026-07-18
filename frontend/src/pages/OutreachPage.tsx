@@ -15,6 +15,8 @@ import {
   Loader2,
   Users
 } from 'lucide-react';
+import { Skeleton } from '../components/Skeleton';
+import { ConfirmModal } from '../components/ConfirmModal';
 
 export const OutreachPage: React.FC = () => {
   const navigate = useNavigate();
@@ -27,6 +29,7 @@ export const OutreachPage: React.FC = () => {
   
   // Selected outreach contact details
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
 
   // Form state
   const [contactName, setContactName] = useState('');
@@ -166,9 +169,7 @@ export const OutreachPage: React.FC = () => {
   };
 
   const handleDelete = (id: string) => {
-    if (window.confirm('Delete this outreach contact?')) {
-      deleteMutation.mutate(id);
-    }
+    setDeleteTargetId(id);
   };
 
   const resetForm = () => {
@@ -253,8 +254,23 @@ export const OutreachPage: React.FC = () => {
 
       {/* Grid of contacts */}
       {isLoading ? (
-        <div className="flex h-[40vh] items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="p-6 rounded-[4px] border border-border/30 bg-card h-[230px] space-y-4">
+              <div className="flex justify-between items-start">
+                <div className="space-y-2 w-2/3">
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-3 w-2/3" />
+                </div>
+                <Skeleton className="h-5 w-1/4" />
+              </div>
+              <Skeleton className="h-4 w-1/2" />
+              <div className="space-y-3">
+                <Skeleton className="h-3.5 w-full" />
+                <Skeleton className="h-3.5 w-5/6" />
+              </div>
+            </div>
+          ))}
         </div>
       ) : contacts.length === 0 ? (
         <div className="flex h-[40vh] flex-col items-center justify-center text-center border border-dashed border-border rounded-md p-12">
@@ -614,6 +630,20 @@ export const OutreachPage: React.FC = () => {
             </div>
           </div>
         </div>
+      )}
+      {deleteTargetId && (
+        <ConfirmModal
+          isOpen={!!deleteTargetId}
+          onClose={() => setDeleteTargetId(null)}
+          onConfirm={() => {
+            if (deleteTargetId) {
+              deleteMutation.mutate(deleteTargetId);
+            }
+          }}
+          title="Delete Outreach Record"
+          description="Are you sure you want to permanently delete this recruiter outreach contact from your history? This will delete all notes and position discussion logs."
+          confirmText="Delete Outreach Record"
+        />
       )}
     </div>
   );

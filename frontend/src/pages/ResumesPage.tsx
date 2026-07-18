@@ -14,6 +14,8 @@ import {
   Layers,
   Pencil
 } from 'lucide-react';
+import { Skeleton, SkeletonTable } from '../components/Skeleton';
+import { ConfirmModal } from '../components/ConfirmModal';
 
 export const ResumesPage: React.FC = () => {
   const queryClient = useQueryClient();
@@ -28,6 +30,8 @@ export const ResumesPage: React.FC = () => {
   const [profileColor, setProfileColor] = useState('#3b82f6');
   const [profileIcon, setProfileIcon] = useState('Briefcase');
   const [profileIsDefault, setProfileIsDefault] = useState(false);
+  const [deleteProfileTarget, setDeleteProfileTarget] = useState<string | null>(null);
+  const [deleteResumeTarget, setDeleteResumeTarget] = useState<string | null>(null);
 
   // Resume Upload State
   const [resumeFile, setResumeFile] = useState<File | null>(null);
@@ -161,15 +165,11 @@ export const ResumesPage: React.FC = () => {
       alert('Cannot delete the default career profile.');
       return;
     }
-    if (window.confirm('Are you sure you want to delete this career profile and all associated resumes?')) {
-      deleteProfileMutation.mutate(id);
-    }
+    setDeleteProfileTarget(id);
   };
 
   const handleDeleteResume = (id: string) => {
-    if (window.confirm('Delete this resume version?')) {
-      deleteResumeMutation.mutate(id);
-    }
+    setDeleteResumeTarget(id);
   };
 
   const resetProfileForm = () => {
@@ -240,8 +240,9 @@ export const ResumesPage: React.FC = () => {
               </h3>
               
               {profilesLoading ? (
-                <div className="flex justify-center py-6">
-                  <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                <div className="space-y-2">
+                  <Skeleton className="h-10 w-full" />
+                  <Skeleton className="h-10 w-full" />
                 </div>
               ) : profiles.length === 0 ? (
                 <p className="text-xs text-muted-foreground text-center py-4">No personas created.</p>
@@ -363,9 +364,7 @@ export const ResumesPage: React.FC = () => {
                   <h3 className="text-base font-display font-bold mb-4 uppercase tracking-tight text-muted-foreground">Resume Version Matrix</h3>
 
                   {resumesLoading ? (
-                    <div className="flex justify-center py-10">
-                      <Loader2 className="h-6 w-6 animate-spin text-primary" />
-                    </div>
+                    <SkeletonTable rows={3} cols={5} />
                   ) : resumes.length === 0 ? (
                     <div className="flex flex-col items-center justify-center text-center py-12 border border-dashed border-border rounded-md">
                       <FileText className="h-8 w-8 text-muted-foreground/30 mb-2" />
@@ -518,6 +517,35 @@ export const ResumesPage: React.FC = () => {
             </div>
           </form>
         </div>
+      )}
+      {deleteProfileTarget && (
+        <ConfirmModal
+          isOpen={!!deleteProfileTarget}
+          onClose={() => setDeleteProfileTarget(null)}
+          onConfirm={() => {
+            if (deleteProfileTarget) {
+              deleteProfileMutation.mutate(deleteProfileTarget);
+            }
+          }}
+          title="Delete Career Persona"
+          description="Are you sure you want to permanently delete this career profile and all associated uploaded resume versions? This action is irreversible."
+          confirmText="Delete Career Persona"
+        />
+      )}
+
+      {deleteResumeTarget && (
+        <ConfirmModal
+          isOpen={!!deleteResumeTarget}
+          onClose={() => setDeleteResumeTarget(null)}
+          onConfirm={() => {
+            if (deleteResumeTarget) {
+              deleteResumeMutation.mutate(deleteResumeTarget);
+            }
+          }}
+          title="Delete Resume Version"
+          description="Are you sure you want to permanently delete this resume version? You will no longer be able to reference or download this file."
+          confirmText="Delete Resume Version"
+        />
       )}
     </div>
   );
