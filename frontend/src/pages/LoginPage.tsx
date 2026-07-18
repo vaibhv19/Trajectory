@@ -78,7 +78,7 @@ export const LoginPage: React.FC = () => {
         </div>
 
         {/* Form panel */}
-        <div className="bg-card p-8 rounded-lg border border-border">
+        <div className="bg-card p-8 rounded-[4px] border border-border/40">
           {/* Tabs */}
           <div className="flex border-b border-border mb-6">
             <button
@@ -119,7 +119,7 @@ export const LoginPage: React.FC = () => {
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     placeholder="John Doe"
-                    className="w-full pl-10 pr-3 py-2.5 bg-card border border-border rounded-md text-sm text-foreground placeholder-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+                    className="w-full pl-10 pr-3 py-2.5 bg-card border border-border rounded-[4px] text-sm text-foreground placeholder-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
                   />
                 </div>
               </div>
@@ -137,7 +137,7 @@ export const LoginPage: React.FC = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="name@company.com"
-                  className="w-full pl-10 pr-3 py-2.5 bg-card border border-border rounded-md text-sm text-foreground placeholder-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+                  className="w-full pl-10 pr-3 py-2.5 bg-card border border-border rounded-[4px] text-sm text-foreground placeholder-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
                 />
               </div>
             </div>
@@ -154,7 +154,7 @@ export const LoginPage: React.FC = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full pl-10 pr-3 py-2.5 bg-card border border-border rounded-md text-sm text-foreground placeholder-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+                  className="w-full pl-10 pr-3 py-2.5 bg-card border border-border rounded-[4px] text-sm text-foreground placeholder-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
                 />
               </div>
             </div>
@@ -162,7 +162,7 @@ export const LoginPage: React.FC = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex items-center justify-center py-2.5 px-4 border border-transparent rounded-md bg-primary text-primary-foreground text-sm font-semibold hover:bg-[#0C5A62] dark:hover:bg-[#4CB0BA] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ring disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 mt-6"
+              className="w-full flex items-center justify-center py-2.5 px-4 border border-transparent rounded-[4px] bg-primary text-primary-foreground text-sm font-semibold hover:bg-[#0C5A62] dark:hover:bg-[#4CB0BA] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ring disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 mt-6"
             >
               {loading ? (
                 <Loader2 className="h-5 w-5 animate-spin" />
@@ -186,7 +186,7 @@ export const LoginPage: React.FC = () => {
           <div className="grid grid-cols-2 gap-3">
             <button
               onClick={() => handleOAuth('google')}
-              className="flex items-center justify-center py-2.5 border border-border rounded-md bg-card hover:bg-muted text-sm font-medium text-foreground transition-colors"
+              className="flex items-center justify-center py-2.5 border border-border rounded-[4px] bg-card hover:bg-muted text-sm font-medium text-foreground transition-colors"
             >
               <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24">
                 <path
@@ -210,7 +210,7 @@ export const LoginPage: React.FC = () => {
             </button>
             <button
               onClick={() => handleOAuth('github')}
-              className="flex items-center justify-center py-2.5 border border-border rounded-md bg-card hover:bg-muted text-sm font-medium text-foreground transition-colors"
+              className="flex items-center justify-center py-2.5 border border-border rounded-[4px] bg-card hover:bg-muted text-sm font-medium text-foreground transition-colors"
             >
               <svg className="h-5 w-5 mr-2 text-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" />
