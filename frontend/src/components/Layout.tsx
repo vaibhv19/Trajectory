@@ -19,8 +19,11 @@ import {
   Check,
   CheckCheck,
   Plus,
-  Search
+  Search,
+  Shield,
+  Scale
 } from 'lucide-react';
+import { Footer } from './Footer';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -344,6 +347,20 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                     Settings
                   </button>
                   <button 
+                    onClick={() => { setUserDropdownOpen(false); navigate('/privacy'); }}
+                    className="w-full text-left px-3 py-2 text-xs hover:bg-muted transition-colors flex items-center gap-2 text-foreground"
+                  >
+                    <Shield className="h-3.5 w-3.5 text-muted-foreground" />
+                    Privacy Policy
+                  </button>
+                  <button 
+                    onClick={() => { setUserDropdownOpen(false); navigate('/terms'); }}
+                    className="w-full text-left px-3 py-2 text-xs hover:bg-muted transition-colors flex items-center gap-2 text-foreground"
+                  >
+                    <Scale className="h-3.5 w-3.5 text-muted-foreground" />
+                    Terms of Service
+                  </button>
+                  <button 
                     onClick={() => { setUserDropdownOpen(false); handleLogout(); }}
                     className="w-full text-left px-3 py-2 text-xs hover:bg-rose-500/10 text-rose-500 transition-colors flex items-center gap-2"
                   >
@@ -395,8 +412,11 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
       {/* Content Pane */}
       <main className="flex-1 overflow-y-auto px-6 py-8 md:px-8 bg-background relative">
-        <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in duration-300">
-          {children}
+        <div className="max-w-7xl mx-auto min-h-[calc(100vh-80px)] flex flex-col justify-between space-y-8 animate-in fade-in duration-300">
+          <div className="flex-1">
+            {children}
+          </div>
+          <Footer />
         </div>
       </main>
 
