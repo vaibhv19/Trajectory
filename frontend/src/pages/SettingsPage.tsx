@@ -28,6 +28,7 @@ export const SettingsPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'profile' | 'security' | 'toggles' | 'data'>('profile');
   const [fullName, setFullName] = useState('');
   const [avatarUrl, setAvatarUrl] = useState('');
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -169,6 +170,36 @@ export const SettingsPage: React.FC = () => {
     reader.readAsText(file);
   };
 
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+    const file = e.target.files[0];
+    try {
+      setUploadingAvatar(true);
+      const updatedUser = await api.users.uploadAvatar(file);
+      queryClient.setQueryData(['user-settings-profile'], updatedUser);
+      setAvatarUrl(updatedUser.avatarUrl || '');
+      showSuccess('Profile picture updated successfully.');
+    } catch (err: any) {
+      showTransientError('Failed to upload picture: ' + err.message);
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
+
+  const handleAvatarDelete = async () => {
+    try {
+      setUploadingAvatar(true);
+      const updatedUser = await api.users.deleteAvatar();
+      queryClient.setQueryData(['user-settings-profile'], updatedUser);
+      setAvatarUrl('');
+      showSuccess('Profile picture removed successfully.');
+    } catch (err: any) {
+      showTransientError('Failed to remove picture: ' + err.message);
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
+
   const handleProfileSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!fullName.trim()) return;
@@ -280,12 +311,12 @@ export const SettingsPage: React.FC = () => {
         </div>
 
         {/* Tab Content Panel */}
-        <div className="bg-card border border-border rounded-lg p-6 shadow-sm flex-1">
+        <div className="flex-1 md:pl-6 border-t md:border-t-0 md:border-l border-border/30">
           
           {/* Profile details */}
           {activeTab === 'profile' && (
             <form onSubmit={handleProfileSubmit} className="space-y-4">
-              <h3 className="text-lg font-semibold text-foreground mb-4 pb-2 border-b border-border font-display">
+              <h3 className="text-lg font-semibold text-foreground mb-4 pb-2 border-b border-border/30 font-display">
                 Identity Profile
               </h3>
               
@@ -315,17 +346,58 @@ export const SettingsPage: React.FC = () => {
                 />
               </div>
 
-              <div>
-                <label className="block text-xs font-semibold tracking-wider text-muted-foreground mb-2">
-                  Avatar / Profile Pic URL
+              <div className="space-y-2">
+                <label className="block text-xs font-semibold tracking-wider text-muted-foreground">
+                  Profile Picture
                 </label>
-                <input
-                  type="text"
-                  placeholder="https://example.com/avatar.png"
-                  value={avatarUrl}
-                  onChange={(e) => setAvatarUrl(e.target.value)}
-                  className="w-full px-3 py-2 bg-background border border-border rounded-md text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                />
+                <div className="flex items-center gap-4">
+                  {avatarUrl ? (
+                    <img
+                      src={avatarUrl}
+                      alt="Avatar Preview"
+                      className="w-16 h-16 rounded-full object-cover border border-border"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = `https://api.dicebear.com/7.x/initials/svg?seed=${fullName || 'U'}`;
+                      }}
+                    />
+                  ) : (
+                    <div className="w-16 h-16 rounded-full bg-primary/10 text-primary flex items-center justify-center font-mono font-bold text-lg border border-primary/20">
+                      {(fullName || 'U').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
+                    </div>
+                  )}
+                  
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="file"
+                        id="avatar-upload-input"
+                        accept="image/*"
+                        onChange={handleAvatarUpload}
+                        className="hidden"
+                        disabled={uploadingAvatar}
+                      />
+                      <label
+                        htmlFor="avatar-upload-input"
+                        className="px-3 py-1.5 border border-border hover:bg-muted text-xs font-semibold rounded-[4px] cursor-pointer transition-colors inline-block"
+                      >
+                        {uploadingAvatar ? 'Uploading...' : avatarUrl ? 'Replace Picture' : 'Upload Picture'}
+                      </label>
+                      {avatarUrl && (
+                        <button
+                          type="button"
+                          onClick={handleAvatarDelete}
+                          disabled={uploadingAvatar}
+                          className="px-3 py-1.5 border border-destructive/20 bg-destructive/5 hover:bg-destructive/10 text-destructive text-xs font-semibold rounded-[4px] transition-colors"
+                        >
+                          Remove
+                        </button>
+                      )}
+                    </div>
+                    <span className="text-[10px] text-muted-foreground font-sans">
+                      Recommended square format. Supports PNG, JPG, or GIF.
+                    </span>
+                  </div>
+                </div>
               </div>
 
               <div className="pt-2 border-t border-border flex justify-end">

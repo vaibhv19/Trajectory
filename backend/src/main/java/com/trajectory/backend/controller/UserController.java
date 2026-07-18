@@ -6,9 +6,12 @@ import com.trajectory.backend.security.UserPrincipal;
 import com.trajectory.backend.service.DataMigrationService;
 import com.trajectory.backend.service.UserService;
 import jakarta.validation.Valid;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/api/users")
@@ -84,6 +87,23 @@ public class UserController {
     public ResponseEntity<Void> deleteAccount(@AuthenticationPrincipal UserPrincipal principal) {
         userService.deleteUser(principal.getId());
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping(value = "/profile/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<UserResponse> uploadAvatar(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @RequestParam("file") MultipartFile file) throws IOException {
+        if (file.isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+        User user = userService.uploadAvatar(principal.getId(), file.getOriginalFilename(), file.getBytes());
+        return ResponseEntity.ok(mapToResponse(user));
+    }
+
+    @DeleteMapping("/profile/avatar")
+    public ResponseEntity<UserResponse> deleteAvatar(@AuthenticationPrincipal UserPrincipal principal) {
+        User user = userService.deleteAvatar(principal.getId());
+        return ResponseEntity.ok(mapToResponse(user));
     }
 
     private UserResponse mapToResponse(User user) {

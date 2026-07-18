@@ -30,19 +30,23 @@ public class UserService {
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider tokenProvider;
     private final RefreshTokenService refreshTokenService;
+    private final StorageService storageService;
+    private final String avatarsBucket = "avatars";
 
     public UserService(UserRepository userRepository, 
                        CareerProfileRepository careerProfileRepository,
                        PasswordEncoder passwordEncoder, 
                        AuthenticationManager authenticationManager, 
                        JwtTokenProvider tokenProvider,
-                       RefreshTokenService refreshTokenService) {
+                       RefreshTokenService refreshTokenService,
+                       StorageService storageService) {
         this.userRepository = userRepository;
         this.careerProfileRepository = careerProfileRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.tokenProvider = tokenProvider;
         this.refreshTokenService = refreshTokenService;
+        this.storageService = storageService;
     }
 
     @Transactional
@@ -153,5 +157,46 @@ public class UserService {
         // In a real OAuth system, they might need to set a password first, but PRD allows simple unlinking.
         user.setAuthProvider("LOCAL");
         return userRepository.save(user);
+    }
+
+    @Transactional
+    public User uploadAvatar(UUID userId, String originalFilename, byte[] bytes) {
+        User user = getUserProfile(userId);
+        
+        String contentType = "image/png";
+        if (originalFilename.toLowerCase().endsWith(".jpg") || originalFilename.toLowerCase().endsWith(".jpeg")) {
+            contentType = "image/jpeg";
+        } else if (originalFilename.toLowerCase().endsWith(".gif")) {
+            contentType = "image/gif";
+        }
+        
+        String s3Key = userId.toString() + "/avatar.png";
+        storageService.uploadFile(avatarsBucket, s3Key, bytes, contentType);
+        
+        user.setAvatarUrl("/api/auth/users/" + userId + "/avatar");
+        return userRepository.save(user);
+    }
+
+    @Transactional(readOnly = true)
+    public byte[] downloadAvatar(UUID userId) {
+        User user = getUserProfile(userId);
+        if (user.getAvatarUrl() == null) {
+            throw new RuntimeException("No avatar uploaded");
+        }
+        
+        String s3Key = userId.toString() + "/avatar.png";
+        return storageService.downloadFile(avatarsBucket, s3Key);
+    }
+
+    @Transactional
+    public User deleteAvatar(UUID userId) {
+        User user = getUserProfile(userId);
+        if (user.getAvatarUrl() != null) {
+            String s3Key = userId.toString() + "/avatar.png";
+            storageService.deleteFile(avatarsBucket, s3Key);
+            user.setAvatarUrl(null);
+            userRepository.save(user);
+        }
+        return user;
     }
 }
