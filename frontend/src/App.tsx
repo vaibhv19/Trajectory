@@ -10,6 +10,9 @@ import { OutreachPage } from './pages/OutreachPage';
 import { ResumesPage } from './pages/ResumesPage';
 import { ResourcesPage } from './pages/ResourcesPage';
 import { SettingsPage } from './pages/SettingsPage';
+import { PrivacyPage } from './pages/PrivacyPage';
+import { TermsPage } from './pages/TermsPage';
+import { ChangelogPage } from './pages/ChangelogPage';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { Layout } from './components/Layout';
 import { useThemeStore } from './store/themeStore';
@@ -116,6 +119,39 @@ const App: React.FC = () => {
               <ProtectedRoute>
                 <Layout>
                   <SettingsPage />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/privacy"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <PrivacyPage />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/terms"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <TermsPage />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/changelog"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <ChangelogPage />
                 </Layout>
               </ProtectedRoute>
             }
