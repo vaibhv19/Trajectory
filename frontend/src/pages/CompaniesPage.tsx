@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { useSidebarStore } from '../store/sidebarStore';
 import { 
   Search, 
   ExternalLink, 
@@ -122,9 +123,54 @@ const COMPANIES_DATA: PlacementCompany[] = [
 ];
 
 export const CompaniesPage: React.FC = () => {
+  const setSidebarContent = useSidebarStore(state => state.setContent);
   const [searchQuery, setSearchQuery] = useState('');
   const [minCtc, setMinCtc] = useState('');
   const [minCgpa, setMinCgpa] = useState('');
+
+  React.useEffect(() => {
+    setSidebarContent(
+      <div className="space-y-6 animate-in fade-in duration-200">
+        <div>
+          <h3 className="text-xs font-mono font-bold tracking-wider text-muted-foreground uppercase mb-2">Search</h3>
+          <div className="relative">
+            <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
+            <input
+              type="text"
+              placeholder="Google, Trees, SQL..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-8 pr-3 py-1.5 bg-background border border-border rounded-[4px] text-xs focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-transparent transition-all"
+            />
+          </div>
+        </div>
+
+        <div>
+          <h3 className="text-xs font-mono font-bold tracking-wider text-muted-foreground uppercase mb-2">Minimum CTC (LPA)</h3>
+          <input
+            type="number"
+            placeholder="e.g. 10"
+            value={minCtc}
+            onChange={(e) => setMinCtc(e.target.value)}
+            className="w-full px-2 py-1.5 bg-background border border-border rounded-[4px] text-xs focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground"
+          />
+        </div>
+
+        <div>
+          <h3 className="text-xs font-mono font-bold tracking-wider text-muted-foreground uppercase mb-2">Maximum CGPA Cutoff</h3>
+          <input
+            type="number"
+            step="0.1"
+            placeholder="e.g. 7.0"
+            value={minCgpa}
+            onChange={(e) => setMinCgpa(e.target.value)}
+            className="w-full px-2 py-1.5 bg-background border border-border rounded-[4px] text-xs focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground"
+          />
+        </div>
+      </div>
+    );
+    return () => setSidebarContent(null);
+  }, [searchQuery, minCtc, minCgpa, setSidebarContent]);
 
   const filteredCompanies = useMemo(() => {
     return COMPANIES_DATA.filter(comp => {
@@ -164,51 +210,7 @@ export const CompaniesPage: React.FC = () => {
         </p>
       </div>
 
-      {/* Filter panel */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 border-b border-border/30 pb-6 mb-2">
-        <div className="relative">
-          <label className="block text-[9px] font-mono font-bold uppercase tracking-wider text-muted-foreground mb-1.5">
-            Search Company or Prep Topic
-          </label>
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/60" />
-            <input
-              type="text"
-              placeholder="e.g. Google, Trees, SQL..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-background border border-border text-foreground pl-10 pr-4 py-2 text-sm rounded-[4px] placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-            />
-          </div>
-        </div>
 
-        <div>
-          <label className="block text-[9px] font-mono font-bold uppercase tracking-wider text-muted-foreground mb-1.5">
-            Minimum CTC (LPA)
-          </label>
-          <input
-            type="number"
-            placeholder="e.g. 10"
-            value={minCtc}
-            onChange={(e) => setMinCtc(e.target.value)}
-            className="w-full px-3 py-2 bg-background border border-border rounded-[4px] text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-          />
-        </div>
-
-        <div>
-          <label className="block text-[9px] font-mono font-bold uppercase tracking-wider text-muted-foreground mb-1.5">
-            Maximum CGPA Cutoff
-          </label>
-          <input
-            type="number"
-            step="0.1"
-            placeholder="e.g. 7.0"
-            value={minCgpa}
-            onChange={(e) => setMinCgpa(e.target.value)}
-            className="w-full px-3 py-2 bg-background border border-border rounded-[4px] text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-          />
-        </div>
-      </div>
 
       {/* Placement List Container */}
       <div className="border-t border-border/30 overflow-hidden">
