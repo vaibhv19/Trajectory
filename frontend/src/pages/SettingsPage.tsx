@@ -18,6 +18,7 @@ import {
   ShieldAlert,
   FileSpreadsheet
 } from 'lucide-react';
+import { ConfirmModal } from '../components/ConfirmModal';
 
 export const SettingsPage: React.FC = () => {
   const queryClient = useQueryClient();
@@ -48,6 +49,11 @@ export const SettingsPage: React.FC = () => {
   const [autoArchive, setAutoArchive] = useState(false);
   const [browserAlerts, setBrowserAlerts] = useState(true);
   const [emailAlerts, setEmailAlerts] = useState(true);
+
+  // Danger Zone Modals
+  const [confirmPurgeAppsOpen, setConfirmPurgeAppsOpen] = useState(false);
+  const [confirmPurgeOutreachOpen, setConfirmPurgeOutreachOpen] = useState(false);
+  const [confirmResetWorkspaceOpen, setConfirmResetWorkspaceOpen] = useState(false);
 
   // Status messages
   const [successMessage, setSuccessMessage] = useState('');
@@ -290,8 +296,11 @@ export const SettingsPage: React.FC = () => {
   };
 
   // Danger Zone Handlers
-  const purgeApplications = async () => {
-    if (!confirm("Are you absolutely sure you want to delete ALL applications from your database? This is irreversible.")) return;
+  const purgeApplications = () => {
+    setConfirmPurgeAppsOpen(true);
+  };
+
+  const executePurgeApplications = async () => {
     setProcessingDanger(true);
     try {
       const res = await api.applications.list({ page: 0, size: 5000 });
@@ -305,8 +314,11 @@ export const SettingsPage: React.FC = () => {
     }
   };
 
-  const purgeOutreach = async () => {
-    if (!confirm("Are you absolutely sure you want to delete ALL outreach and recruiter logs? This is irreversible.")) return;
+  const purgeOutreach = () => {
+    setConfirmPurgeOutreachOpen(true);
+  };
+
+  const executePurgeOutreach = async () => {
     setProcessingDanger(true);
     try {
       const res = await api.outreach.list();
@@ -321,7 +333,10 @@ export const SettingsPage: React.FC = () => {
   };
 
   const resetLocalAnalytics = () => {
-    if (!confirm("Reset all local targets, daily goals, and checklists to defaults?")) return;
+    setConfirmResetWorkspaceOpen(true);
+  };
+
+  const executeResetLocalAnalytics = () => {
     localStorage.removeItem('trajectory_weekly_goal');
     localStorage.removeItem('trajectory_daily_focus');
     localStorage.removeItem('trajectory_daily_checklist');
@@ -994,6 +1009,33 @@ export const SettingsPage: React.FC = () => {
 
         </div>
       </div>
+
+      <ConfirmModal
+        isOpen={confirmPurgeAppsOpen}
+        onClose={() => setConfirmPurgeAppsOpen(false)}
+        onConfirm={executePurgeApplications}
+        title="Purge Job Applications"
+        description="Are you absolutely sure you want to delete ALL job applications from your database? This action is permanent and cannot be undone."
+        confirmText="Purge Applications"
+      />
+
+      <ConfirmModal
+        isOpen={confirmPurgeOutreachOpen}
+        onClose={() => setConfirmPurgeOutreachOpen(false)}
+        onConfirm={executePurgeOutreach}
+        title="Purge Recruiter Outreach Logs"
+        description="Are you absolutely sure you want to delete ALL recruiter outreach CRM logs? This action will permanently erase message records."
+        confirmText="Purge Outreach CRM"
+      />
+
+      <ConfirmModal
+        isOpen={confirmResetWorkspaceOpen}
+        onClose={() => setConfirmResetWorkspaceOpen(false)}
+        onConfirm={executeResetLocalAnalytics}
+        title="Reset Local Workspace Defaults"
+        description="Are you sure you want to clear your local dashboard goals, active focuses, and daily agenda checklists?"
+        confirmText="Reset Defaults"
+      />
     </div>
   );
 };

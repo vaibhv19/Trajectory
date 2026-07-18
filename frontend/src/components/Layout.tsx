@@ -66,6 +66,10 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
       }
       if (e.key === 'Escape') {
         setMobileMenuOpen(false);
+        setNotificationsOpen(false);
+        setQuickAddOpen(false);
+        setUserDropdownOpen(false);
+        setCommandPaletteOpen(false);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -489,7 +493,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
       {/* Content Pane */}
       <main className="flex-1 overflow-y-auto px-6 py-8 md:px-8 bg-background relative">
-        <div className="max-w-7xl mx-auto min-h-[calc(100vh-80px)] flex flex-col justify-between space-y-8 animate-in fade-in duration-300">
+        <div className="max-w-7xl mx-auto min-h-[calc(100vh-80px)] flex flex-col justify-between space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-200">
           <div className="flex-1">
             {children}
           </div>

@@ -14,6 +14,8 @@ import {
   AlertCircle,
   Video
 } from 'lucide-react';
+import { Skeleton } from '../components/Skeleton';
+import { ConfirmModal } from '../components/ConfirmModal';
 
 export const ApplicationDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -21,6 +23,7 @@ export const ApplicationDetailsPage: React.FC = () => {
   const queryClient = useQueryClient();
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isEventParserOpen, setIsEventParserOpen] = useState(false);
+  const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
 
   // Form states for updates
   const [companyName, setCompanyName] = useState('');
@@ -166,9 +169,7 @@ export const ApplicationDetailsPage: React.FC = () => {
   };
 
   const handleDelete = () => {
-    if (window.confirm('Are you sure you want to delete this application?')) {
-      deleteMutation.mutate();
-    }
+    setIsConfirmDeleteOpen(true);
   };
 
   const handleDownloadResume = async (resId: string) => {
@@ -186,8 +187,28 @@ export const ApplicationDetailsPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="flex h-[60vh] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="space-y-8 animate-in fade-in duration-300 font-sans max-w-4xl mx-auto">
+        <Skeleton className="h-5 w-24" />
+        <div className="flex justify-between items-start border-b border-border/30 pb-6">
+          <div className="space-y-2">
+            <Skeleton className="h-7 w-64" />
+            <Skeleton className="h-4 w-40" />
+          </div>
+          <div className="flex gap-2">
+            <Skeleton className="h-9 w-20" />
+            <Skeleton className="h-9 w-20" />
+          </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="md:col-span-2 space-y-6">
+            <Skeleton className="h-5 w-32" />
+            <Skeleton className="h-40 w-full" />
+          </div>
+          <div className="space-y-6">
+            <Skeleton className="h-5 w-32" />
+            <Skeleton className="h-32 w-full" />
+          </div>
+        </div>
       </div>
     );
   }
@@ -707,6 +728,15 @@ export const ApplicationDetailsPage: React.FC = () => {
           </form>
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={isConfirmDeleteOpen}
+        onClose={() => setIsConfirmDeleteOpen(false)}
+        onConfirm={() => deleteMutation.mutate()}
+        title="Delete Application"
+        description="Are you sure you want to permanently delete this job application? This action will erase all status histories and logged details from your workspace."
+        confirmText="Delete Application"
+      />
     </div>
   );
 };
