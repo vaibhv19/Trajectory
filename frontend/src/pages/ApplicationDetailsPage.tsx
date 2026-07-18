@@ -82,7 +82,7 @@ export const ApplicationDetailsPage: React.FC = () => {
     } else {
       setResumeId('');
     }
-  }, [resumes]);
+  }, [resumes, resumeId]);
 
   // Mutators
   const updateMutation = useMutation({
@@ -161,7 +161,7 @@ export const ApplicationDetailsPage: React.FC = () => {
       
       setIsEventParserOpen(false);
       setIsEditOpen(true);
-    } catch (err) {
+    } catch {
       alert('Failed to parse event details from text');
     } finally {
       setParsingEvent(false);
@@ -180,7 +180,7 @@ export const ApplicationDetailsPage: React.FC = () => {
       a.href = url;
       a.download = 'resume.pdf';
       a.click();
-    } catch (err) {
+    } catch {
       alert('Could not download resume.');
     }
   };

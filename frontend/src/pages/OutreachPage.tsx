@@ -161,7 +161,7 @@ export const OutreachPage: React.FC = () => {
         `- Key Points:\n${result.key_points.map((kp: string) => `  * ${kp}`).join('\n')}`
       );
       setIsAiOpen(false);
-    } catch (err) {
+    } catch {
       alert('AI analysis failed. Please update status manually.');
     } finally {
       setAnalyzingMsg(false);
