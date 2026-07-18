@@ -85,9 +85,32 @@ export default {
           "0%, 100%": { opacity: "1" },
           "50%": { opacity: ".4" },
         },
+        "fade-in-up": {
+          "0%": { opacity: "0", transform: "translateY(6px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+        "fade-out-down": {
+          "0%": { opacity: "1", transform: "translateY(0)" },
+          "100%": { opacity: "0", transform: "translateY(6px)" },
+        },
+        "scale-in": {
+          "0%": { opacity: "0", transform: "scale(0.98)" },
+          "100%": { opacity: "1", transform: "scale(1)" },
+        },
+        "scale-out": {
+          "0%": { opacity: "1", transform: "scale(1)" },
+          "100%": { opacity: "0", transform: "scale(0.98)" },
+        },
+        "shimmer": {
+          "100%": { transform: "translateX(100%)" },
+        },
       },
       animation: {
         "pulse-slow": "status-pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+        "in-up": "fade-in-up 200ms cubic-bezier(0.16, 1, 0.3, 1) forwards",
+        "out-down": "fade-out-down 150ms cubic-bezier(0.16, 1, 0.3, 1) forwards",
+        "modal-in": "scale-in 200ms cubic-bezier(0.16, 1, 0.3, 1) forwards",
+        "modal-out": "scale-out 150ms cubic-bezier(0.16, 1, 0.3, 1) forwards",
       },
     },
   },

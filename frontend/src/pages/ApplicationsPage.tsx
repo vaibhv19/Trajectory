@@ -12,6 +12,7 @@ import {
   Loader2, 
   Briefcase
 } from 'lucide-react';
+import { SkeletonTable } from '../components/Skeleton';
 
 export const ApplicationsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -319,9 +320,7 @@ export const ApplicationsPage: React.FC = () => {
 
       {/* Grid List */}
       {isLoading ? (
-        <div className="flex h-[40vh] items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
+        <SkeletonTable rows={5} cols={5} />
       ) : (
         <div className="space-y-6 animate-in fade-in duration-300">
           <div className="overflow-hidden border-t border-border/30">
@@ -379,16 +378,30 @@ export const ApplicationsPage: React.FC = () => {
                 <tbody className="divide-y divide-border">
                   {!data || data.content.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="px-6 py-8 text-left text-sm text-muted-foreground font-sans">
-                        <div className="flex items-center gap-2">
-                          <Briefcase className="h-4 w-4 text-muted-foreground/50 shrink-0" />
-                          <span>No applications match these filters.</span>
-                          {(search || profileFilter || statusFilters.length > 0) && (
+                      <td colSpan={6} className="px-6 py-12 text-center text-sm text-muted-foreground font-sans">
+                        <div className="flex flex-col items-center justify-center space-y-2">
+                          <Briefcase className="h-8 w-8 text-muted-foreground/30 mb-1" />
+                          <p className="font-semibold text-foreground">No applications found</p>
+                          <p className="text-xs text-muted-foreground max-w-sm">
+                            {search || profileFilter || statusFilters.length > 0
+                              ? "No applications match your active search filters. Try clearing them."
+                              : "Start tracking your career journey by logging your first job application."}
+                          </p>
+                          {(search || profileFilter || statusFilters.length > 0) ? (
                             <button 
+                              type="button"
                               onClick={() => { setSearch(''); setProfileFilter(''); setStatusFilters([]); setPage(0); }}
-                              className="text-xs font-semibold text-primary hover:underline ml-2"
+                              className="mt-2 text-xs font-semibold bg-muted border border-border hover:bg-muted/80 text-foreground px-3 py-1.5 rounded-[4px] transition-colors"
                             >
                               Clear filters
+                            </button>
+                          ) : (
+                            <button 
+                              type="button"
+                              onClick={() => { resetForm(); setIsModalOpen(true); }}
+                              className="mt-2 text-xs font-semibold bg-primary hover:bg-primary/95 text-primary-foreground px-3 py-1.5 rounded-[4px] transition-all"
+                            >
+                              Add Application
                             </button>
                           )}
                         </div>
