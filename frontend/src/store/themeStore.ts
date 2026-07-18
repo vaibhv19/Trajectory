@@ -66,7 +66,14 @@ export const useThemeStore = create<ThemeState>((set, get) => {
       return { themeMode: mode, theme: resolved };
     }),
     toggleTheme: () => set((state) => {
-      const nextMode = state.themeMode === 'light' ? 'dark' : 'system';
+      let nextMode: 'light' | 'dark' | 'system';
+      if (state.themeMode === 'light') {
+        nextMode = 'dark';
+      } else if (state.themeMode === 'dark') {
+        nextMode = 'system';
+      } else {
+        nextMode = 'light';
+      }
       localStorage.setItem('themeMode', nextMode);
       const resolved = resolveTheme(nextMode);
       applyThemeClass(resolved);

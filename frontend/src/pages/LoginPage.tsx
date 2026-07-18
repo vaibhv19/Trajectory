@@ -63,36 +63,36 @@ export const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4 py-12 sm:px-6 lg:px-8 relative overflow-hidden">
+    <div className="flex min-h-screen items-center justify-center bg-background px-4 py-12 sm:px-6 lg:px-8 relative overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-300 font-sans">
       {/* Background gradient */}
       <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[60%] rounded-full bg-primary/5 blur-[120px]" />
 
-      <div className="w-full max-w-md space-y-8 z-10">
-        <div className="text-center">
-          <h2 className="font-display text-4xl font-extrabold tracking-tight text-foreground mb-2 uppercase">
+      <div className="w-full max-w-md space-y-6 z-10">
+        <div className="text-center space-y-1">
+          <h2 className="font-display text-3xl font-extrabold tracking-tight text-foreground">
             Trajectory
           </h2>
-          <p className="text-sm text-muted-foreground">
-            {isLogin ? 'Welcome back! Manage your career pipeline' : 'Get started with your career operating system'}
+          <p className="text-xs text-muted-foreground">
+            {isLogin ? 'Welcome back.' : 'Create your account.'}
           </p>
         </div>
 
         {/* Form panel */}
-        <div className="bg-card p-8 rounded-[4px] border border-border/40">
+        <div className="bg-card p-8 rounded-[4px] border border-border">
           {/* Tabs */}
           <div className="flex border-b border-border mb-6">
             <button
               onClick={() => { setIsLogin(true); setError(''); }}
-              className={`flex-1 pb-3 text-center text-sm font-semibold border-b-2 transition-all ${
-                isLogin ? 'border-primary text-foreground' : 'border-transparent text-muted-foreground hover:text-foreground'
+              className={`flex-1 pb-2.5 text-center text-xs uppercase tracking-wider font-mono border-b-2 transition-all ${
+                isLogin ? 'border-primary text-foreground font-bold' : 'border-transparent text-muted-foreground hover:text-foreground'
               }`}
             >
               Sign In
             </button>
             <button
               onClick={() => { setIsLogin(false); setError(''); }}
-              className={`flex-1 pb-3 text-center text-sm font-semibold border-b-2 transition-all ${
-                !isLogin ? 'border-primary text-foreground' : 'border-transparent text-muted-foreground hover:text-foreground'
+              className={`flex-1 pb-2.5 text-center text-xs uppercase tracking-wider font-mono border-b-2 transition-all ${
+                !isLogin ? 'border-primary text-foreground font-bold' : 'border-transparent text-muted-foreground hover:text-foreground'
               }`}
             >
               Sign Up
@@ -100,14 +100,14 @@ export const LoginPage: React.FC = () => {
           </div>
 
           {error && (
-            <div className="p-3 mb-4 rounded-md bg-[#8C3A34]/10 border border-[#8C3A34]/30 text-[#8C3A34] text-xs font-mono">
+            <div className="p-3 mb-4 rounded-[4px] bg-destructive/10 border border-destructive/20 text-destructive text-xs font-sans">
               {error}
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {!isLogin && (
-              <div className="space-y-1">
+              <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-foreground">Full Name</label>
                 <div className="relative">
                   <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground">
@@ -119,13 +119,13 @@ export const LoginPage: React.FC = () => {
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     placeholder="John Doe"
-                    className="w-full pl-10 pr-3 py-2.5 bg-card border border-border rounded-[4px] text-sm text-foreground placeholder-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+                    className="w-full pl-10 pr-3 py-2 bg-background border border-border rounded-[4px] text-sm text-foreground placeholder-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
                   />
                 </div>
               </div>
             )}
 
-            <div className="space-y-1">
+            <div className="space-y-1.5">
               <label className="text-xs font-semibold text-foreground">Email Address</label>
               <div className="relative">
                 <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground">
@@ -137,12 +137,12 @@ export const LoginPage: React.FC = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="name@company.com"
-                  className="w-full pl-10 pr-3 py-2.5 bg-card border border-border rounded-[4px] text-sm text-foreground placeholder-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+                  className="w-full pl-10 pr-3 py-2 bg-background border border-border rounded-[4px] text-sm text-foreground placeholder-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
                 />
               </div>
             </div>
 
-            <div className="space-y-1">
+            <div className="space-y-1.5">
               <label className="text-xs font-semibold text-foreground">Password</label>
               <div className="relative">
                 <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground">
@@ -154,7 +154,7 @@ export const LoginPage: React.FC = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full pl-10 pr-3 py-2.5 bg-card border border-border rounded-[4px] text-sm text-foreground placeholder-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+                  className="w-full pl-10 pr-3 py-2 bg-background border border-border rounded-[4px] text-sm text-foreground placeholder-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
                 />
               </div>
             </div>
@@ -162,10 +162,10 @@ export const LoginPage: React.FC = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex items-center justify-center py-2.5 px-4 border border-transparent rounded-[4px] bg-primary text-primary-foreground text-sm font-semibold hover:bg-[#0C5A62] dark:hover:bg-[#4CB0BA] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ring disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 mt-6"
+              className="w-full flex items-center justify-center py-2 px-4 border border-transparent rounded-[4px] bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/95 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 mt-6"
             >
               {loading ? (
-                <Loader2 className="h-5 w-5 animate-spin" />
+                <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
                 isLogin ? 'Sign In' : 'Sign Up'
               )}
@@ -186,9 +186,9 @@ export const LoginPage: React.FC = () => {
           <div className="grid grid-cols-2 gap-3">
             <button
               onClick={() => handleOAuth('google')}
-              className="flex items-center justify-center py-2.5 border border-border rounded-[4px] bg-card hover:bg-muted text-sm font-medium text-foreground transition-colors"
+              className="flex items-center justify-center py-2 border border-border rounded-[4px] bg-card hover:bg-muted text-xs font-semibold text-foreground transition-colors"
             >
-              <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24">
+              <svg className="h-4 w-4 mr-2" viewBox="0 0 24 24">
                 <path
                   fill="#EA4335"
                   d="M12 5.04c1.62 0 3.08.56 4.22 1.64l3.15-3.15C17.45 1.72 14.9.96 12 .96c-4.49 0-8.34 2.58-10.22 6.36l3.78 2.93c.9-2.7 3.42-4.21 6.44-4.21z"
@@ -210,9 +210,9 @@ export const LoginPage: React.FC = () => {
             </button>
             <button
               onClick={() => handleOAuth('github')}
-              className="flex items-center justify-center py-2.5 border border-border rounded-[4px] bg-card hover:bg-muted text-sm font-medium text-foreground transition-colors"
+              className="flex items-center justify-center py-2 border border-border rounded-[4px] bg-card hover:bg-muted text-xs font-semibold text-foreground transition-colors"
             >
-              <svg className="h-5 w-5 mr-2 text-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg className="h-4 w-4 mr-2 text-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" />
                 <path d="M9 18c-4.51 2-5-2-7-2" />
               </svg>
