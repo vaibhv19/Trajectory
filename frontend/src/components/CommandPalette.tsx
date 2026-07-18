@@ -7,12 +7,12 @@ import {
   Briefcase, 
   Users, 
   FileText, 
-  Folder, 
   Settings, 
   Plus, 
   Moon, 
   Sun,
-  TrendingUp
+  TrendingUp,
+  Building2
 } from 'lucide-react';
 
 interface CommandItem {
@@ -87,12 +87,12 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
       action: () => { navigate('/resumes'); onClose(); }
     },
     {
-      id: 'nav-resources',
+      id: 'nav-companies',
       category: 'Navigation',
-      name: 'Go to Company Resources',
-      description: 'View helpful links and document attachments',
-      icon: Folder,
-      action: () => { navigate('/resources'); onClose(); }
+      name: 'Go to Companies',
+      description: 'View company intelligence hub and placement eligibility cutoffs',
+      icon: Building2,
+      action: () => { navigate('/companies'); onClose(); }
     },
     {
       id: 'nav-settings',

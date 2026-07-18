@@ -1,52 +1,76 @@
 import { create } from 'zustand';
 
 interface ThemeState {
+  themeMode: 'light' | 'dark' | 'system';
   theme: 'light' | 'dark';
   fontSize: 'small' | 'medium' | 'large';
   compactMode: boolean;
+  setThemeMode: (mode: 'light' | 'dark' | 'system') => void;
   toggleTheme: () => void;
   setFontSize: (size: 'small' | 'medium' | 'large') => void;
   setCompactMode: (compact: boolean) => void;
 }
 
-export const useThemeStore = create<ThemeState>((set) => {
-  const initialTheme = (localStorage.getItem('theme') as 'light' | 'dark') || 'dark';
-  const initialFontSize = (localStorage.getItem('fontSize') as 'small' | 'medium' | 'large') || 'medium';
-  const initialCompactMode = localStorage.getItem('compactMode') === 'true';
-  
-  // Apply initial theme
-  if (initialTheme === 'dark') {
+const resolveTheme = (mode: 'light' | 'dark' | 'system'): 'light' | 'dark' => {
+  if (mode === 'system') {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+  return mode;
+};
+
+const applyThemeClass = (resolvedTheme: 'light' | 'dark') => {
+  if (resolvedTheme === 'dark') {
     document.documentElement.classList.add('dark');
   } else {
     document.documentElement.classList.remove('dark');
   }
+};
 
-  // Apply initial font size
+export const useThemeStore = create<ThemeState>((set, get) => {
+  const initialMode = (localStorage.getItem('themeMode') as 'light' | 'dark' | 'system') || 'dark';
+  const initialTheme = resolveTheme(initialMode);
+  const initialFontSize = (localStorage.getItem('fontSize') as 'small' | 'medium' | 'large') || 'medium';
+  const initialCompactMode = localStorage.getItem('compactMode') === 'true';
+
+  // Apply initial classes
+  applyThemeClass(initialTheme);
+  
   document.documentElement.classList.remove('font-size-small', 'font-size-medium', 'font-size-large');
   document.documentElement.classList.add(`font-size-${initialFontSize}`);
 
-  // Apply initial compact mode
   if (initialCompactMode) {
     document.documentElement.classList.add('compact');
   } else {
     document.documentElement.classList.remove('compact');
   }
 
+  // Listener for system scheme shifts
+  const systemMatcher = window.matchMedia('(prefers-color-scheme: dark)');
+  systemMatcher.addEventListener('change', () => {
+    if (get().themeMode === 'system') {
+      const updated = resolveTheme('system');
+      applyThemeClass(updated);
+      set({ theme: updated });
+    }
+  });
+
   return {
+    themeMode: initialMode,
     theme: initialTheme,
     fontSize: initialFontSize,
     compactMode: initialCompactMode,
+    setThemeMode: (mode) => set(() => {
+      localStorage.setItem('themeMode', mode);
+      const resolved = resolveTheme(mode);
+      applyThemeClass(resolved);
+      return { themeMode: mode, theme: resolved };
+    }),
     toggleTheme: () => set((state) => {
-      const nextTheme = state.theme === 'light' ? 'dark' : 'light';
-      localStorage.setItem('theme', nextTheme);
-      
-      if (nextTheme === 'dark') {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-      }
-
-      return { theme: nextTheme };
+      const nextMode = state.themeMode === 'light' ? 'dark' : 'system';
+      localStorage.setItem('themeMode', nextMode);
+      const resolved = resolveTheme(nextMode);
+      applyThemeClass(resolved);
+      return { themeMode: nextMode, theme: resolved };
     }),
     setFontSize: (size) => set(() => {
       localStorage.setItem('fontSize', size);

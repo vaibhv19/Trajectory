@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Sans:wght@300;400;500;600;700&family=Public+Sans:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@100..900&family=Inter:wght@300..800&family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,32 +6,32 @@
 
 @layer base {
   :root {
-    --background: 40 12% 96%; /* #F7F6F3 (Paper) */
-    --foreground: 220 10% 12%; /* #1B1D21 (Graphite 900) */
+    --background: 220 14% 98%; /* #F8F9FA (Subtle Neutral Gray-White) */
+    --foreground: 224 71% 4%; /* #090A0B (Notion Dark Graphite) */
 
     --card: 0 0% 100%; /* #FFFFFF */
-    --card-foreground: 220 10% 12%;
+    --card-foreground: 224 71% 4%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 220 10% 12%;
+    --popover-foreground: 224 71% 4%;
 
     --primary: 186 78% 26%; /* #0F6E78 (Petrol 600) */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 42 17% 91%; /* #ECE9E2 (Paper 200) */
-    --secondary-foreground: 220 10% 12%;
+    --secondary: 220 14% 96%; /* #F1F2F4 (Muted) */
+    --secondary-foreground: 224 71% 4%;
 
-    --muted: 42 17% 91%; /* #ECE9E2 */
-    --muted-foreground: 40 4% 40%; /* #6B6862 (Stone 500) */
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 9% 46%; /* #6A737D (Slate Gray) */
 
-    --accent: 42 17% 91%;
-    --accent-foreground: 220 10% 12%;
+    --accent: 220 14% 96%;
+    --accent-foreground: 224 71% 4%;
 
     --destructive: 6 48% 38%; /* #8C3A34 (Brick) */
     --destructive-foreground: 43 14% 92%;
 
-    --border: 46 17% 86%; /* #E2DFD6 (Paper 300) */
-    --input: 46 17% 86%;
+    --border: 220 13% 91%; /* #E1E4E8 (Visible Divider Border) */
+    --input: 220 13% 91%;
     --ring: 186 78% 26%;
 
     --radius-lg: 4px;
