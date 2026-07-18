@@ -25,10 +25,7 @@ import {
   Home,
   TrendingUp,
   Building2,
-  HelpCircle,
-  Keyboard,
-  Database,
-  Compass
+  Laptop
 } from 'lucide-react';
 import { Footer } from './Footer';
 
@@ -38,7 +35,7 @@ interface LayoutProps {
 
 export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { fullName, email, logout } = useAuthStore();
-  const { theme, toggleTheme } = useThemeStore();
+  const { themeMode, setThemeMode, toggleTheme } = useThemeStore();
   const location = useLocation();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
@@ -84,6 +81,9 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   const displayName = userProfile?.fullName || fullName;
   const displayEmail = userProfile?.email || email;
+  const initials = userProfile?.fullName
+    ? userProfile.fullName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+    : 'US';
 
   // Fetch notifications
   const { data: unreadCount = 0 } = useQuery<number>({
@@ -317,10 +317,13 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           {/* Theme Toggle Button */}
           <button
             onClick={toggleTheme}
-            className="p-2 rounded-md border border-border bg-card hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+            className="p-2 rounded-md border border-border bg-card hover:bg-muted text-muted-foreground hover:text-foreground transition-colors flex items-center justify-center"
+            title={`Theme Mode: ${themeMode === 'light' ? 'Light' : themeMode === 'dark' ? 'Dark' : 'System'}`}
             aria-label="Toggle theme"
           >
-            {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            {themeMode === 'light' && <Sun className="h-4 w-4" />}
+            {themeMode === 'dark' && <Moon className="h-4 w-4" />}
+            {themeMode === 'system' && <Laptop className="h-4.5 w-4.5" />}
           </button>
 
           {/* User Settings Dropdown */}
@@ -389,102 +392,122 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         </div>
       </header>
 
-      {/* Mobile Drawer Menu (Productivity Utility Drawer) */}
+      {/* Mobile Drawer Menu (Mobile Navigation Panel) */}
       {mobileMenuOpen && (
-        <div className="fixed inset-0 z-40 flex">
+        <div className="fixed inset-0 z-40 flex" role="dialog" aria-modal="true" aria-label="Mobile Navigation">
+          {/* Backdrop Overlay */}
           <div 
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300" 
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 animate-in fade-in" 
             onClick={() => setMobileMenuOpen(false)} 
           />
           
           <aside className="relative flex w-80 max-w-xs flex-col bg-background border-r border-border p-5 animate-in slide-in-from-left duration-200 z-50">
+            {/* Header branding */}
             <div className="flex items-center justify-between pb-4 border-b border-border">
-              <div className="flex items-center gap-2">
-                <Compass className="h-4 w-4 text-primary" />
-                <span className="text-sm font-display font-extrabold text-foreground uppercase tracking-tight">Workspace Drawer</span>
-              </div>
-              <button onClick={() => setMobileMenuOpen(false)} className="text-muted-foreground hover:text-foreground p-1 hover:bg-muted rounded-[4px] transition-colors">
+              <Link to="/dashboard" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2">
+                <span className="text-sm font-display font-extrabold text-primary tracking-tight uppercase">Trajectory</span>
+              </Link>
+              <button 
+                onClick={() => setMobileMenuOpen(false)} 
+                className="text-muted-foreground hover:text-foreground p-1 hover:bg-muted rounded-[4px] transition-colors"
+                aria-label="Close menu"
+              >
                 <X className="h-4 w-4" />
               </button>
             </div>
 
-            <div className="flex-1 py-4 overflow-y-auto space-y-6 font-sans">
-              {/* Pinned shortcuts */}
-              <div className="space-y-2">
-                <h4 className="text-[10px] font-mono font-bold tracking-wider text-muted-foreground uppercase">Pinned Items</h4>
-                <div className="space-y-1.5">
-                  <button 
-                    onClick={() => { setMobileMenuOpen(false); navigate('/dashboard'); }}
-                    className="w-full flex items-center gap-2.5 px-3 py-2 text-xs rounded-[4px] hover:bg-muted text-foreground/80 hover:text-foreground text-left transition-colors"
+            {/* Same navigation items as desktop */}
+            <nav className="flex-1 py-4 space-y-1 font-sans overflow-y-auto">
+              <h4 className="text-[9px] font-mono font-bold tracking-wider text-muted-foreground uppercase px-3.5 mb-2">Navigation</h4>
+              {navigation.map((item) => {
+                const isActive = location.pathname.startsWith(item.href);
+                return (
+                  <Link
+                    key={item.name}
+                    to={item.href}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`flex items-center gap-2.5 px-3.5 py-2 rounded-[4px] text-xs font-semibold uppercase font-mono tracking-wider transition-colors ${
+                      isActive
+                        ? 'bg-primary/10 text-primary'
+                        : 'text-muted-foreground hover:text-foreground hover:bg-muted/40'
+                    }`}
                   >
-                    <Home className="h-3.5 w-3.5 text-primary" />
-                    Home Workspace
+                    <item.icon className="h-4 w-4 shrink-0 opacity-70" />
+                    <span>{item.name}</span>
+                  </Link>
+                );
+              })}
+            </nav>
+
+            {/* Footer with theme toggle, user profile settings, and logout */}
+            <div className="border-t border-border pt-4 space-y-4 font-sans mt-auto">
+              {/* User details */}
+              <div className="flex items-center gap-3 px-1">
+                {userProfile?.avatarUrl ? (
+                  <img 
+                    src={userProfile.avatarUrl} 
+                    alt="Avatar" 
+                    className="h-8 w-8 rounded-full object-cover border border-border"
+                  />
+                ) : (
+                  <div className="h-8 w-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-mono font-bold text-[10px] uppercase border border-border">
+                    {initials}
+                  </div>
+                )}
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-semibold text-foreground truncate">{displayName}</p>
+                  <p className="text-[10px] text-muted-foreground truncate font-mono">{displayEmail}</p>
+                </div>
+              </div>
+
+              {/* Theme Toggle selector inline */}
+              <div className="space-y-1.5">
+                <span className="text-[9px] font-mono font-bold tracking-wider text-muted-foreground uppercase px-1">Theme preference</span>
+                <div className="grid grid-cols-3 gap-1 p-1 bg-muted rounded-[4px]">
+                  <button
+                    onClick={() => setThemeMode('light')}
+                    className={`py-1 text-[10px] font-semibold rounded-[2px] transition-colors ${
+                      themeMode === 'light' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    Light
                   </button>
-                  <button 
-                    onClick={() => { setMobileMenuOpen(false); navigate('/applications?add=true'); }}
-                    className="w-full flex items-center gap-2.5 px-3 py-2 text-xs rounded-[4px] hover:bg-muted text-foreground/80 hover:text-foreground text-left transition-colors"
+                  <button
+                    onClick={() => setThemeMode('dark')}
+                    className={`py-1 text-[10px] font-semibold rounded-[2px] transition-colors ${
+                      themeMode === 'dark' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                    }`}
                   >
-                    <Plus className="h-3.5 w-3.5 text-primary" />
-                    Log Application
+                    Dark
                   </button>
-                  <button 
-                    onClick={() => { setMobileMenuOpen(false); navigate('/outreach?add=true'); }}
-                    className="w-full flex items-center gap-2.5 px-3 py-2 text-xs rounded-[4px] hover:bg-muted text-foreground/80 hover:text-foreground text-left transition-colors"
+                  <button
+                    onClick={() => setThemeMode('system')}
+                    className={`py-1 text-[10px] font-semibold rounded-[2px] transition-colors ${
+                      themeMode === 'system' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                    }`}
                   >
-                    <Users className="h-3.5 w-3.5 text-primary" />
-                    Log Recruiter contact
+                    System
                   </button>
                 </div>
               </div>
 
-              {/* Activity / Info summary */}
-              <div className="space-y-2 pt-2 border-t border-border/30">
-                <h4 className="text-[10px] font-mono font-bold tracking-wider text-muted-foreground uppercase">Recent Activity</h4>
-                <div className="px-3 py-2 bg-muted/20 border border-border/40 rounded-[4px] text-[11px] text-muted-foreground space-y-1 font-sans leading-relaxed">
-                  <p>Database synchronization connected.</p>
-                  <p>Active profile avatar upload enabled.</p>
-                </div>
-              </div>
-
-              {/* Workspace Utilities */}
-              <div className="space-y-2 pt-2 border-t border-border/30">
-                <h4 className="text-[10px] font-mono font-bold tracking-wider text-muted-foreground uppercase">Workspace Utilities</h4>
-                <div className="space-y-1.5">
-                  <button 
-                    onClick={() => { 
-                      setMobileMenuOpen(false); 
-                      const event = new KeyboardEvent('keydown', { key: 'k', ctrlKey: true });
-                      document.dispatchEvent(event);
-                    }}
-                    className="w-full flex items-center gap-2.5 px-3 py-2 text-xs rounded-[4px] hover:bg-muted text-foreground/80 hover:text-foreground text-left transition-colors"
-                  >
-                    <Keyboard className="h-3.5 w-3.5 text-muted-foreground" />
-                    Keyboard Shortcuts
-                  </button>
-                  <button 
-                    onClick={() => { setMobileMenuOpen(false); navigate('/settings'); }}
-                    className="w-full flex items-center gap-2.5 px-3 py-2 text-xs rounded-[4px] hover:bg-muted text-foreground/80 hover:text-foreground text-left transition-colors"
-                  >
-                    <Settings className="h-3.5 w-3.5 text-muted-foreground" />
-                    Workspace Settings
-                  </button>
-                  <button 
-                    onClick={() => { setMobileMenuOpen(false); navigate('/changelog'); }}
-                    className="w-full flex items-center gap-2.5 px-3 py-2 text-xs rounded-[4px] hover:bg-muted text-foreground/80 hover:text-foreground text-left transition-colors"
-                  >
-                    <Database className="h-3.5 w-3.5 text-muted-foreground" />
-                    Changelog History
-                  </button>
-                  <a 
-                    href="https://github.com/vaibhv19/Trajectory/issues"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="w-full flex items-center gap-2.5 px-3 py-2 text-xs rounded-[4px] hover:bg-muted text-foreground/80 hover:text-foreground text-left transition-colors block"
-                  >
-                    <HelpCircle className="h-3.5 w-3.5 text-muted-foreground" />
-                    Submit Feedback
-                  </a>
-                </div>
+              {/* Settings & Logout */}
+              <div className="space-y-1">
+                <Link
+                  to="/settings"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-2 px-3 py-2 text-xs rounded-[4px] text-muted-foreground hover:text-foreground hover:bg-muted transition-colors font-semibold"
+                >
+                  <Settings className="h-3.5 w-3.5" />
+                  Settings
+                </Link>
+                <button
+                  onClick={() => { setMobileMenuOpen(false); handleLogout(); }}
+                  className="w-full flex items-center gap-2 px-3 py-2 text-xs rounded-[4px] text-rose-500 hover:bg-rose-500/10 transition-colors font-semibold text-left"
+                >
+                  <LogOut className="h-3.5 w-3.5" />
+                  Logout
+                </button>
               </div>
             </div>
           </aside>
