@@ -43,7 +43,7 @@ export const ResumesPage: React.FC = () => {
     queryKey: ['profiles'],
     queryFn: api.profiles.list,
   });
-  const profiles = profilesData || [];
+  const profiles = React.useMemo(() => profilesData || [], [profilesData]);
 
   // Auto-select default profile
   React.useEffect(() => {
@@ -125,7 +125,7 @@ export const ResumesPage: React.FC = () => {
     }
   };
 
-  const handleResumeUploadSubmit = async (e: React.FormEvent) => {
+  const handleResumeUploadSubmit = React.useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     if (!resumeFile || !selectedProfileId) return;
 
@@ -139,12 +139,12 @@ export const ResumesPage: React.FC = () => {
       // Reset input element
       const fileInput = document.getElementById('resume-file-input') as HTMLInputElement;
       if (fileInput) fileInput.value = '';
-    } catch (err) {
+    } catch {
       alert('Failed to upload resume version');
     } finally {
       setUploadingResume(false);
     }
-  };
+  }, [resumeFile, selectedProfileId, resumeChangelog, queryClient]);
 
   const handleDownload = async (resumeId: string, fileName: string) => {
     try {
@@ -154,7 +154,7 @@ export const ResumesPage: React.FC = () => {
       a.href = url;
       a.download = fileName;
       a.click();
-    } catch (err) {
+    } catch {
       alert('Could not download resume file.');
     }
   };
@@ -283,7 +283,7 @@ export const ResumesPage: React.FC = () => {
       </div>
     );
     return () => setSidebarContent(null);
-  }, [profiles, selectedProfileId, resumeFile, resumeChangelog, uploadingResume, setSidebarContent]);
+  }, [profiles, selectedProfileId, resumeFile, resumeChangelog, uploadingResume, handleResumeUploadSubmit, setSidebarContent]);
 
   return (
     <div className="space-y-6">

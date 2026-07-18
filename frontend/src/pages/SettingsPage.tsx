@@ -202,7 +202,7 @@ export const SettingsPage: React.FC = () => {
           await api.users.importData(content);
           showSuccess("Workspace JSON restored successfully.");
           refetch();
-        } catch (err: any) {
+        } catch {
           showTransientError("Restoration failed: Invalid JSON layout.");
         } finally {
           setImporting(false);

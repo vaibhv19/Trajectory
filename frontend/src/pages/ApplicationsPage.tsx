@@ -158,7 +158,7 @@ export const ApplicationsPage: React.FC = () => {
       }
       setIsAiModalOpen(false);
       setIsModalOpen(true);
-    } catch (error) {
+    } catch {
       alert('AI failed to parse text. Please enter details manually.');
     } finally {
       setAiLoading(false);
@@ -175,7 +175,7 @@ export const ApplicationsPage: React.FC = () => {
       const resume = await api.resumes.upload(profileId, file, 'Uploaded via Application creation form.');
       setResumeId(resume.id);
       setResumeFileName(resume.fileName);
-    } catch (err) {
+    } catch {
       alert('Failed to upload resume');
     } finally {
       setUploadingResume(false);
@@ -204,7 +204,7 @@ export const ApplicationsPage: React.FC = () => {
     });
   };
 
-  const resetForm = () => {
+  const resetForm = React.useCallback(() => {
     setCompanyName('');
     setRoleTitle('');
     setProfileId(profiles.length > 0 ? profiles[0].id : '');
@@ -224,7 +224,7 @@ export const ApplicationsPage: React.FC = () => {
     setOaDateTime('');
     setInterviewDateTime('');
     setMeetingLink('');
-  };
+  }, [profiles]);
 
   React.useEffect(() => {
     setSidebarContent(
@@ -317,7 +317,7 @@ export const ApplicationsPage: React.FC = () => {
       </div>
     );
     return () => setSidebarContent(null);
-  }, [search, profileFilter, showArchived, sortField, sortDirection, profiles, setSidebarContent]);
+  }, [search, profileFilter, showArchived, sortField, sortDirection, profiles, resetForm, setSidebarContent]);
 
   return (
     <div className="space-y-6">

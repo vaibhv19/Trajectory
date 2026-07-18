@@ -47,7 +47,7 @@ export const AnalyticsPage: React.FC = () => {
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
-    } catch (err) {
+    } catch {
       alert("Failed to export CSV");
     }
   };
