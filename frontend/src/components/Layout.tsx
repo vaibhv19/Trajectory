@@ -43,7 +43,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     { name: 'Applications', href: '/applications' },
     { name: 'Outreach', href: '/outreach' },
     { name: 'Resumes', href: '/resumes' },
-    { name: 'Analytics', href: '/dashboard' },
+    { name: 'Analytics', href: '/analytics' },
     { name: 'Resources', href: '/resources' },
   ];
 
@@ -309,9 +309,24 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           <div className="relative">
             <button 
               onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-              className="h-8 w-8 rounded-md bg-primary/20 hover:bg-primary/30 text-primary flex items-center justify-center font-display font-semibold uppercase text-xs transition-colors"
+              className="h-8 w-8 rounded-full overflow-hidden border border-border flex items-center justify-center transition-colors shrink-0"
             >
-              {displayName?.substring(0, 2) || 'US'}
+              {userProfile?.avatarUrl ? (
+                <img 
+                  src={userProfile.avatarUrl} 
+                  alt="Avatar" 
+                  className="h-full w-full object-cover"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = `https://api.dicebear.com/7.x/initials/svg?seed=${userProfile?.fullName || 'U'}`;
+                  }}
+                />
+              ) : (
+                <div className="h-full w-full bg-primary/10 text-primary flex items-center justify-center font-mono font-bold text-[10px] uppercase">
+                  {userProfile?.fullName 
+                    ? userProfile.fullName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+                    : 'US'}
+                </div>
+              )}
             </button>
             {userDropdownOpen && (
               <>

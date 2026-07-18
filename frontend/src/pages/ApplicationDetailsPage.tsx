@@ -198,7 +198,7 @@ export const ApplicationDetailsPage: React.FC = () => {
         <AlertCircle className="h-12 w-12 text-rose-500 mb-4" />
         <h3 className="text-lg font-semibold">Application not found</h3>
         <p className="text-sm text-muted-foreground mt-1">Please verify the application URL.</p>
-        <button onClick={() => navigate('/applications')} className="mt-4 px-4 py-2 border rounded-xl hover:bg-muted text-sm font-semibold">
+        <button onClick={() => navigate('/applications')} className="mt-4 px-4 py-2 border border-border/40 rounded-[4px] hover:bg-muted text-sm font-semibold">
           Back to list
         </button>
       </div>
@@ -221,14 +221,14 @@ export const ApplicationDetailsPage: React.FC = () => {
         <div className="flex items-center gap-2">
           <button
             onClick={() => { setEventEmailText(''); setIsEventParserOpen(true); }}
-            className="flex items-center justify-center gap-2 px-4 py-2 border border-primary/30 rounded-md bg-primary/10 hover:bg-primary/20 text-primary text-sm font-semibold transition-all duration-200"
+            className="flex items-center justify-center gap-2 px-4 py-2 border border-primary/30 rounded-[4px] bg-primary/10 hover:bg-primary/20 text-primary text-sm font-semibold transition-all duration-200"
           >
             <Sparkles className="h-4 w-4" />
             AI Parse Invite
           </button>
           <button
             onClick={handleEditClick}
-            className="flex items-center justify-center gap-2 px-4 py-2 border rounded-md bg-card hover:bg-muted text-foreground text-sm font-semibold transition-all duration-200"
+            className="flex items-center justify-center gap-2 px-4 py-2 border border-border/40 rounded-[4px] bg-card hover:bg-muted text-foreground text-sm font-semibold transition-all duration-200"
           >
             <Edit3 className="h-4 w-4" />
             Edit
@@ -236,7 +236,7 @@ export const ApplicationDetailsPage: React.FC = () => {
           <button
             onClick={handleDelete}
             disabled={deleteMutation.isPending}
-            className="flex items-center justify-center gap-2 px-4 py-2 border border-destructive/20 rounded-md bg-destructive/5 hover:bg-destructive/10 text-destructive text-sm font-semibold transition-all duration-200"
+            className="flex items-center justify-center gap-2 px-4 py-2 border border-destructive/20 rounded-[4px] bg-destructive/5 hover:bg-destructive/10 text-destructive text-sm font-semibold transition-all duration-200"
           >
             <Trash2 className="h-4 w-4" />
             Delete
@@ -248,22 +248,22 @@ export const ApplicationDetailsPage: React.FC = () => {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
         {/* Left pane: Details Card */}
         <div className="col-span-12 lg:col-span-8 space-y-6">
-          <div className="p-6 rounded-lg border bg-card relative overflow-hidden">
+          <div className="py-6 border-b border-border/30 bg-transparent relative overflow-hidden">
             <div 
-              className="absolute top-0 left-0 w-full h-1" 
+              className="absolute top-0 left-0 w-full h-0.5" 
               style={{ backgroundColor: app.profile.colorCode }} 
             />
 
             <div className="flex items-start justify-between">
               <div>
-                <span className="text-xs font-mono font-semibold px-2 py-0.5 rounded-md" style={{ backgroundColor: `${app.profile.colorCode}20`, color: app.profile.colorCode }}>
+                <span className="text-xs font-mono font-semibold px-2 py-0.5 rounded-[4px]" style={{ backgroundColor: `${app.profile.colorCode}20`, color: app.profile.colorCode }}>
                   {app.profile.title.toUpperCase()}
                 </span>
                 <h2 className="text-2xl font-display font-extrabold mt-2 tracking-tight uppercase text-foreground">{app.companyName}</h2>
                 <p className="text-lg text-muted-foreground">{app.roleTitle}</p>
               </div>
               <span 
-                className="px-2.5 py-0.5 rounded-md text-xs font-mono uppercase tracking-wide border bg-transparent"
+                className="px-2.5 py-0.5 rounded-[4px] text-xs font-mono uppercase tracking-wide border bg-transparent"
                 style={{ 
                   borderColor: `var(--status-${app.status.toLowerCase()}-border)`, 
                   color: `var(--status-${app.status.toLowerCase()}-text)` 
@@ -324,7 +324,7 @@ export const ApplicationDetailsPage: React.FC = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6 pt-6 border-t border-border/40">
               {app.resumeFileName && (
-                <div className="p-3 rounded-md border bg-muted/20 flex items-center justify-between">
+                <div className="p-3 rounded-[4px] border border-border/30 bg-muted/5 flex items-center justify-between">
                   <div className="flex items-center gap-2 truncate max-w-[200px]">
                     <FileText className="h-4 w-4 text-primary" />
                     <div className="truncate">
@@ -338,7 +338,7 @@ export const ApplicationDetailsPage: React.FC = () => {
                   </div>
                   <button
                     onClick={() => handleDownloadResume(app.resumeId!)}
-                    className="p-1 px-2 border rounded-md bg-card hover:bg-muted text-[10px] font-semibold transition-colors"
+                    className="p-1 px-2 border border-border/40 rounded-[4px] bg-card hover:bg-muted text-[10px] font-semibold transition-colors"
                   >
                     Download
                   </button>
@@ -346,7 +346,7 @@ export const ApplicationDetailsPage: React.FC = () => {
               )}
 
               {app.jobDescriptionUrl && (
-                <div className="p-3 rounded-md border bg-muted/20 flex items-center justify-between">
+                <div className="p-3 rounded-[4px] border border-border/30 bg-muted/5 flex items-center justify-between">
                   <div className="flex items-center gap-2 truncate max-w-[200px]">
                     <LinkIcon className="h-4 w-4 text-primary" />
                     <span className="text-xs font-semibold truncate">Meeting/Listing Link</span>
@@ -355,7 +355,7 @@ export const ApplicationDetailsPage: React.FC = () => {
                     href={app.jobDescriptionUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="p-1 px-2.5 border rounded-md bg-primary text-primary-foreground hover:bg-[#0C5A62] dark:hover:bg-[#4CB0BA] text-[10px] font-semibold transition-colors flex items-center gap-1"
+                    className="p-1 px-2.5 border border-transparent rounded-[4px] bg-primary text-primary-foreground hover:bg-[#0C5A62] dark:hover:bg-[#4CB0BA] text-[10px] font-semibold transition-colors flex items-center gap-1"
                   >
                     <Video className="h-3 w-3" />
                     Launch
@@ -367,9 +367,9 @@ export const ApplicationDetailsPage: React.FC = () => {
 
           {/* Job Description raw details preservation */}
           {app.jobDescriptionRaw && (
-            <div className="p-6 rounded-lg border bg-card space-y-3">
+            <div className="py-6 border-t border-border/30 bg-transparent space-y-3">
               <h3 className="text-base font-display font-bold uppercase tracking-tight text-muted-foreground">Preserved Job Specification</h3>
-              <div className="p-4 rounded-md bg-muted/30 text-xs font-mono text-foreground max-h-60 overflow-y-auto whitespace-pre-wrap leading-relaxed border border-border">
+              <div className="p-4 rounded-[4px] bg-muted/15 text-xs font-mono text-foreground max-h-60 overflow-y-auto whitespace-pre-wrap leading-relaxed border border-border/30">
                 {app.jobDescriptionRaw}
               </div>
             </div>
@@ -378,7 +378,7 @@ export const ApplicationDetailsPage: React.FC = () => {
 
         {/* Right pane: Chronological status transition timeline */}
         <div className="col-span-12 lg:col-span-4 space-y-6">
-          <div className="p-6 rounded-lg border bg-card">
+          <div className="py-6 lg:pl-6 lg:border-l border-border/30">
             <h3 className="text-lg font-display font-bold mb-6 uppercase tracking-tight text-muted-foreground">Status Progression</h3>
 
             {/* Visual steps mapping */}
@@ -423,7 +423,7 @@ export const ApplicationDetailsPage: React.FC = () => {
       {/* AI Schedule Invite Parser Modal */}
       {isEventParserOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="bg-card border border-border p-6 rounded-lg w-full max-w-lg space-y-4 animate-in zoom-in-95 duration-200 shadow-2xl">
+          <div className="bg-card border border-border p-6 rounded-[4px] w-full max-w-lg space-y-4 animate-in zoom-in-95 duration-200 shadow-2xl">
             <div>
               <h3 className="text-lg font-display font-extrabold text-foreground flex items-center gap-2 uppercase tracking-tight">
                 <Sparkles className="h-5 w-5 text-primary" />
@@ -436,13 +436,13 @@ export const ApplicationDetailsPage: React.FC = () => {
               value={eventEmailText}
               onChange={(e) => setEventEmailText(e.target.value)}
               rows={8}
-              className="w-full p-3 bg-background border border-border rounded-md text-sm text-foreground placeholder-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+              className="w-full p-3 bg-background border border-border rounded-[4px] text-sm text-foreground placeholder-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
             />
             <div className="flex justify-end gap-2">
               <button
                 type="button"
                 onClick={() => setIsEventParserOpen(false)}
-                className="px-4 py-2 border border-border hover:bg-muted text-sm font-medium text-muted-foreground rounded-md transition-colors"
+                className="px-4 py-2 border border-border hover:bg-muted text-sm font-medium text-muted-foreground rounded-[4px] transition-colors"
               >
                 Cancel
               </button>
@@ -450,7 +450,7 @@ export const ApplicationDetailsPage: React.FC = () => {
                 type="button"
                 onClick={handleParseEvent}
                 disabled={parsingEvent}
-                className="flex items-center justify-center gap-2 px-4 py-2 rounded-md bg-primary text-primary-foreground hover:bg-[#0C5A62] dark:hover:bg-[#4CB0BA] text-sm font-semibold transition-all duration-200"
+                className="flex items-center justify-center gap-2 px-4 py-2 rounded-[4px] bg-primary text-primary-foreground hover:bg-[#0C5A62] dark:hover:bg-[#4CB0BA] text-sm font-semibold transition-all duration-200"
               >
                 {parsingEvent ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -471,7 +471,7 @@ export const ApplicationDetailsPage: React.FC = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
           <form 
             onSubmit={handleUpdate}
-            className="bg-card border border-border p-6 rounded-lg w-full max-w-xl max-h-[85vh] overflow-y-auto space-y-4 animate-in zoom-in-95 duration-200 shadow-2xl"
+            className="bg-card border border-border p-6 rounded-[4px] w-full max-w-xl max-h-[85vh] overflow-y-auto space-y-4 animate-in zoom-in-95 duration-200 shadow-2xl"
           >
             <div className="flex items-center justify-between pb-2 border-b border-border">
               <h3 className="text-lg font-display font-extrabold text-foreground uppercase tracking-tight">Modify Application</h3>
@@ -488,7 +488,7 @@ export const ApplicationDetailsPage: React.FC = () => {
                   required
                   value={companyName}
                   onChange={(e) => setCompanyName(e.target.value)}
-                  className="w-full px-3 py-2 bg-background border border-border rounded-md text-sm text-foreground placeholder-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+                  className="w-full px-3 py-2 bg-background border border-border rounded-[4px] text-sm text-foreground placeholder-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
                 />
               </div>
 
@@ -499,7 +499,7 @@ export const ApplicationDetailsPage: React.FC = () => {
                   required
                   value={roleTitle}
                   onChange={(e) => setRoleTitle(e.target.value)}
-                  className="w-full px-3 py-2 bg-background border border-border rounded-md text-sm text-foreground placeholder-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+                  className="w-full px-3 py-2 bg-background border border-border rounded-[4px] text-sm text-foreground placeholder-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
                 />
               </div>
             </div>
@@ -511,7 +511,7 @@ export const ApplicationDetailsPage: React.FC = () => {
                   required
                   value={profileId}
                   onChange={(e) => setProfileId(e.target.value)}
-                  className="w-full px-3 py-2.5 bg-background border border-border rounded-md text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full px-3 py-2.5 bg-background border border-border rounded-[4px] text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                 >
                   {profiles.map(p => (
                     <option key={p.id} value={p.id}>{p.title}</option>
@@ -524,7 +524,7 @@ export const ApplicationDetailsPage: React.FC = () => {
                 <select
                   value={status}
                   onChange={(e) => setStatus(e.target.value)}
-                  className="w-full px-3 py-2.5 bg-background border border-border rounded-md text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full px-3 py-2.5 bg-background border border-border rounded-[4px] text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                 >
                   <option value="APPLIED">Applied</option>
                   <option value="OA">Online Assessment</option>
@@ -539,14 +539,14 @@ export const ApplicationDetailsPage: React.FC = () => {
 
             {/* Smart Status Fields */}
             {status === 'OA' && (
-              <div className="grid grid-cols-2 gap-4 p-4 rounded-md border border-border bg-muted/30">
+              <div className="grid grid-cols-2 gap-4 p-4 rounded-[4px] border border-border/40 bg-muted/30">
                 <div className="space-y-1">
                   <label className="text-xs font-semibold text-foreground font-display">OA Date & Time</label>
                   <input
                     type="datetime-local"
                     value={oaDateTime}
                     onChange={(e) => setOaDateTime(e.target.value)}
-                    className="w-full px-3 py-2 bg-background border border-border rounded-md text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+                    className="w-full px-3 py-2 bg-background border border-border rounded-[4px] text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
                   />
                 </div>
                 <div className="space-y-1">
@@ -556,21 +556,21 @@ export const ApplicationDetailsPage: React.FC = () => {
                     value={meetingLink}
                     onChange={(e) => setMeetingLink(e.target.value)}
                     placeholder="e.g. https://hackerrank.com/..."
-                    className="w-full px-3 py-2 bg-background border border-border rounded-md text-sm text-foreground placeholder-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+                    className="w-full px-3 py-2 bg-background border border-border rounded-[4px] text-sm text-foreground placeholder-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
                   />
                 </div>
               </div>
             )}
 
             {status === 'INTERVIEW' && (
-              <div className="grid grid-cols-2 gap-4 p-4 rounded-md border border-border bg-muted/30">
+              <div className="grid grid-cols-2 gap-4 p-4 rounded-[4px] border border-border/40 bg-muted/30">
                 <div className="space-y-1">
                   <label className="text-xs font-semibold text-foreground">Interview Date & Time</label>
                   <input
                     type="datetime-local"
                     value={interviewDateTime}
                     onChange={(e) => setInterviewDateTime(e.target.value)}
-                    className="w-full px-3 py-2 bg-background border border-border rounded-md text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+                    className="w-full px-3 py-2 bg-background border border-border rounded-[4px] text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
                   />
                 </div>
                 <div className="space-y-1">
@@ -580,7 +580,7 @@ export const ApplicationDetailsPage: React.FC = () => {
                     value={meetingLink}
                     onChange={(e) => setMeetingLink(e.target.value)}
                     placeholder="e.g. https://zoom.us/j/..."
-                    className="w-full px-3 py-2 bg-background border border-border rounded-md text-sm text-foreground placeholder-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+                    className="w-full px-3 py-2 bg-background border border-border rounded-[4px] text-sm text-foreground placeholder-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
                   />
                 </div>
               </div>
@@ -592,7 +592,7 @@ export const ApplicationDetailsPage: React.FC = () => {
                 <select
                   value={resumeId}
                   onChange={(e) => setResumeId(e.target.value)}
-                  className="w-full px-3 py-2.5 bg-background border border-border rounded-md text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full px-3 py-2.5 bg-background border border-border rounded-[4px] text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                 >
                   <option value="">No Resume Linked</option>
                   {resumes.map(r => (
@@ -607,7 +607,7 @@ export const ApplicationDetailsPage: React.FC = () => {
                   type="text"
                   value={source}
                   onChange={(e) => setSource(e.target.value)}
-                  className="w-full px-3 py-2 bg-background border border-border rounded-md text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+                  className="w-full px-3 py-2 bg-background border border-border rounded-[4px] text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
                 />
               </div>
             </div>
@@ -619,7 +619,7 @@ export const ApplicationDetailsPage: React.FC = () => {
                   type="text"
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
-                  className="w-full px-3 py-2 bg-background border border-border rounded-md text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+                  className="w-full px-3 py-2 bg-background border border-border rounded-[4px] text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
                 />
               </div>
 
@@ -629,7 +629,7 @@ export const ApplicationDetailsPage: React.FC = () => {
                   type="text"
                   value={salaryRange}
                   onChange={(e) => setSalaryRange(e.target.value)}
-                  className="w-full px-3 py-2 bg-background border border-border rounded-md text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+                  className="w-full px-3 py-2 bg-background border border-border rounded-[4px] text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
                 />
               </div>
             </div>
@@ -641,7 +641,7 @@ export const ApplicationDetailsPage: React.FC = () => {
                   type="date"
                   value={dateApplied}
                   onChange={(e) => setDateApplied(e.target.value)}
-                  className="w-full px-3 py-2 bg-background border border-border rounded-md text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full px-3 py-2 bg-background border border-border rounded-[4px] text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                 />
               </div>
 
@@ -651,7 +651,7 @@ export const ApplicationDetailsPage: React.FC = () => {
                   type="date"
                   value={followUpDate}
                   onChange={(e) => setFollowUpDate(e.target.value)}
-                  className="w-full px-3 py-2 bg-background border border-border rounded-md text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full px-3 py-2 bg-background border border-border rounded-[4px] text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                 />
               </div>
 
@@ -661,7 +661,7 @@ export const ApplicationDetailsPage: React.FC = () => {
                   type="date"
                   value={responseDate}
                   onChange={(e) => setResponseDate(e.target.value)}
-                  className="w-full px-3 py-2 bg-background border border-border rounded-md text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full px-3 py-2 bg-background border border-border rounded-[4px] text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                 />
               </div>
             </div>
@@ -673,7 +673,7 @@ export const ApplicationDetailsPage: React.FC = () => {
                 value={jobDescriptionUrl}
                 onChange={(e) => setJobDescriptionUrl(e.target.value)}
                 placeholder="Zoom, Google Meet or JD Link..."
-                className="w-full px-3 py-2 bg-background border border-border rounded-md text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+                className="w-full px-3 py-2 bg-background border border-border rounded-[4px] text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
               />
             </div>
 
@@ -683,7 +683,7 @@ export const ApplicationDetailsPage: React.FC = () => {
                 value={jobDescriptionRaw}
                 onChange={(e) => setJobDescriptionRaw(e.target.value)}
                 rows={4}
-                className="w-full p-2 bg-background border border-border rounded-md text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+                className="w-full p-2 bg-background border border-border rounded-[4px] text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
               />
             </div>
 
@@ -691,14 +691,14 @@ export const ApplicationDetailsPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setIsEditOpen(false)}
-                className="px-4 py-2 border border-border hover:bg-muted text-sm font-medium text-muted-foreground rounded-md transition-colors"
+                className="px-4 py-2 border border-border hover:bg-muted text-sm font-medium text-muted-foreground rounded-[4px] transition-colors"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={updateMutation.isPending}
-                className="flex items-center justify-center gap-2 px-4 py-2 rounded-md bg-primary text-primary-foreground hover:bg-[#0C5A62] dark:hover:bg-[#4CB0BA] text-sm font-semibold transition-all duration-200"
+                className="flex items-center justify-center gap-2 px-4 py-2 rounded-[4px] bg-primary text-primary-foreground hover:bg-[#0C5A62] dark:hover:bg-[#4CB0BA] text-sm font-semibold transition-all duration-200"
               >
                 {updateMutation.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
                 Save Changes
