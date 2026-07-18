@@ -18,6 +18,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.trajectory.backend.exception.ResourceNotFoundException;
+import com.trajectory.backend.exception.BadRequestException;
 import java.util.UUID;
 
 @Service
@@ -52,7 +54,7 @@ public class UserService {
     @Transactional
     public AuthResponse registerUser(RegisterRequest request) {
         if (userRepository.existsByEmail(request.email())) {
-            throw new IllegalArgumentException("Email is already taken");
+            throw new BadRequestException("Email is already taken");
         }
 
         User user = User.builder()
@@ -104,7 +106,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public User getUserProfile(UUID userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
 
     @Transactional
@@ -119,7 +121,7 @@ public class UserService {
     public void changePassword(UUID userId, String oldPassword, String newPassword) {
         User user = getUserProfile(userId);
         if (!passwordEncoder.matches(oldPassword, user.getPasswordHash())) {
-            throw new IllegalArgumentException("Incorrect current password");
+            throw new BadRequestException("Incorrect current password");
         }
         user.setPasswordHash(passwordEncoder.encode(newPassword));
         userRepository.save(user);
@@ -181,7 +183,7 @@ public class UserService {
     public byte[] downloadAvatar(UUID userId) {
         User user = getUserProfile(userId);
         if (user.getAvatarUrl() == null) {
-            throw new RuntimeException("No avatar uploaded");
+            throw new ResourceNotFoundException("No avatar uploaded");
         }
         
         String s3Key = userId.toString() + "/avatar.png";

@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.trajectory.backend.exception.ResourceNotFoundException;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -62,7 +63,7 @@ public class CompanyDocumentService {
 
     public byte[] downloadDocumentFile(UUID userId, UUID documentId) {
         CompanyDocument document = companyDocumentRepository.findByIdAndUserId(documentId, userId)
-                .orElseThrow(() -> new RuntimeException("Document not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Document not found"));
 
         return storageService.downloadFile(companyDocsBucket, document.getS3Key());
     }
@@ -70,7 +71,7 @@ public class CompanyDocumentService {
     @Transactional
     public void deleteDocument(UUID userId, UUID documentId) {
         CompanyDocument document = companyDocumentRepository.findByIdAndUserId(documentId, userId)
-                .orElseThrow(() -> new RuntimeException("Document not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Document not found"));
 
         storageService.deleteFile(companyDocsBucket, document.getS3Key());
         companyDocumentRepository.delete(document);

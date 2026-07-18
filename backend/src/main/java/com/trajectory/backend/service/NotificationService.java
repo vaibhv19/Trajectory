@@ -6,6 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.trajectory.backend.exception.ResourceNotFoundException;
+import com.trajectory.backend.exception.UnauthorizedException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
@@ -42,9 +44,9 @@ public class NotificationService {
     @Transactional
     public void markAsRead(UUID userId, UUID notificationId) {
         Notification notification = notificationRepository.findById(notificationId)
-                .orElseThrow(() -> new RuntimeException("Notification not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Notification not found"));
         if (!notification.getUser().getId().equals(userId)) {
-            throw new IllegalArgumentException("Unauthorized");
+            throw new UnauthorizedException("Unauthorized");
         }
         notification.setRead(true);
         notificationRepository.save(notification);
