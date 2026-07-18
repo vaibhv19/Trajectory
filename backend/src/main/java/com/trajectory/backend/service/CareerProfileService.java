@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.trajectory.backend.exception.ResourceNotFoundException;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -56,7 +57,7 @@ public class CareerProfileService {
     public CareerProfileResponse updateProfile(UUID userId, UUID profileId, CareerProfileRequest request) {
         CareerProfile profile = careerProfileRepository.findById(profileId)
                 .filter(p -> p.getUser().getId().equals(userId))
-                .orElseThrow(() -> new RuntimeException("Profile not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Profile not found"));
 
         profile.setTitle(request.title());
         profile.setColorCode(request.colorCode());
@@ -75,7 +76,7 @@ public class CareerProfileService {
     public void deleteProfile(UUID userId, UUID profileId) {
         CareerProfile profile = careerProfileRepository.findById(profileId)
                 .filter(p -> p.getUser().getId().equals(userId))
-                .orElseThrow(() -> new RuntimeException("Profile not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Profile not found"));
 
         if (profile.isDefault()) {
             throw new IllegalArgumentException("Cannot delete the default career profile");
