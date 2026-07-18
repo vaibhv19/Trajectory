@@ -13,10 +13,12 @@ import {
   Briefcase
 } from 'lucide-react';
 import { SkeletonTable } from '../components/Skeleton';
+import { useSidebarStore } from '../store/sidebarStore';
 
 export const ApplicationsPage: React.FC = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const setSidebarContent = useSidebarStore(state => state.setContent);
   const [search, setSearch] = useState('');
   const [profileFilter, setProfileFilter] = useState('');
   const [statusFilters, setStatusFilters] = useState<string[]>([]);
@@ -224,7 +226,98 @@ export const ApplicationsPage: React.FC = () => {
     setMeetingLink('');
   };
 
+  React.useEffect(() => {
+    setSidebarContent(
+      <div className="space-y-6 animate-in fade-in duration-200">
+        <div>
+          <h3 className="text-xs font-mono font-bold tracking-wider text-muted-foreground uppercase mb-2">Search</h3>
+          <div className="relative">
+            <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
+            <input
+              type="text"
+              placeholder="Search company, role..."
+              value={search}
+              onChange={(e) => { setSearch(e.target.value); setPage(0); }}
+              className="w-full pl-8 pr-3 py-1.5 bg-background border border-border rounded-[4px] text-xs focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-transparent transition-all"
+            />
+          </div>
+        </div>
 
+        <div>
+          <h3 className="text-xs font-mono font-bold tracking-wider text-muted-foreground uppercase mb-2">Career Persona</h3>
+          <select
+            value={profileFilter}
+            onChange={(e) => { setProfileFilter(e.target.value); setPage(0); }}
+            className="w-full px-2 py-1.5 bg-background border border-border rounded-[4px] text-xs focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground"
+          >
+            <option value="">All Career Personas</option>
+            {profiles.map(p => (
+              <option key={p.id} value={p.id}>{p.title}</option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <h3 className="text-xs font-mono font-bold tracking-wider text-muted-foreground uppercase mb-2">Filters</h3>
+          <label className="flex items-center gap-2 text-xs text-muted-foreground cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={showArchived}
+              onChange={(e) => { setShowArchived(e.target.checked); setPage(0); }}
+              className="w-4 h-4 accent-teal-700 cursor-pointer border border-border rounded-[4px]"
+            />
+            <span>Show Archived</span>
+          </label>
+        </div>
+
+        <div>
+          <h3 className="text-xs font-mono font-bold tracking-wider text-muted-foreground uppercase mb-2">Sorting</h3>
+          <div className="space-y-2">
+            <select
+              value={sortField}
+              onChange={(e) => { setSortField(e.target.value as any); setPage(0); }}
+              className="w-full px-2 py-1.5 bg-background border border-border rounded-[4px] text-xs focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground"
+            >
+              <option value="dateApplied">Date Applied</option>
+              <option value="companyName">Company Name</option>
+              <option value="roleTitle">Role Title</option>
+              <option value="status">Status</option>
+              <option value="followUpDate">Follow Up Date</option>
+            </select>
+            <select
+              value={sortDirection}
+              onChange={(e) => { setSortDirection(e.target.value as any); setPage(0); }}
+              className="w-full px-2 py-1.5 bg-background border border-border rounded-[4px] text-xs focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground"
+            >
+              <option value="desc">Descending</option>
+              <option value="asc">Ascending</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="pt-4 border-t border-border/30 space-y-2">
+          <h3 className="text-xs font-mono font-bold tracking-wider text-muted-foreground uppercase mb-2">Quick Actions</h3>
+          <button
+            type="button"
+            onClick={() => { resetForm(); setIsAiModalOpen(true); }}
+            className="w-full flex items-center justify-center gap-2 px-3 py-2 border border-primary/30 rounded-md bg-primary/10 hover:bg-primary/20 text-primary text-xs font-semibold transition-all duration-200"
+          >
+            <Sparkles className="h-3.5 w-3.5" />
+            AI Quick Add
+          </button>
+          <button
+            type="button"
+            onClick={() => { resetForm(); setIsModalOpen(true); }}
+            className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-md bg-primary hover:bg-primary/95 text-primary-foreground text-xs font-semibold transition-all duration-200"
+          >
+            <Plus className="h-3.5 w-3.5" />
+            Add Application
+          </button>
+        </div>
+      </div>
+    );
+    return () => setSidebarContent(null);
+  }, [search, profileFilter, showArchived, sortField, sortDirection, profiles, setSidebarContent]);
 
   return (
     <div className="space-y-6">
@@ -279,44 +372,7 @@ export const ApplicationsPage: React.FC = () => {
         ))}
       </div>
 
-      {/* Filters Section */}
-      <div className="py-2 flex flex-col gap-4 border-b border-border/30 pb-6">
-        {/* Search & Profile select */}
-        <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
-          <div className="relative flex-1 w-full">
-            <Search className="absolute inset-y-0 left-0 pl-3 h-full w-4 text-muted-foreground flex items-center" />
-            <input
-              type="text"
-              placeholder="Search company, role or location..."
-              value={search}
-              onChange={(e) => { setSearch(e.target.value); setPage(0); }}
-              className="w-full pl-9 pr-3 py-2 bg-background border border-border rounded-md text-sm placeholder-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
-            />
-          </div>
-          <div className="flex items-center gap-4 w-full sm:w-auto">
-            <select
-              value={profileFilter}
-              onChange={(e) => { setProfileFilter(e.target.value); setPage(0); }}
-              className="px-3 py-2 bg-background border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring w-full sm:w-auto"
-            >
-              <option value="">All Career Personas</option>
-              {profiles.map(p => (
-                <option key={p.id} value={p.id}>{p.title}</option>
-              ))}
-            </select>
 
-            <label className="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-muted-foreground cursor-pointer shrink-0">
-              <input
-                type="checkbox"
-                checked={showArchived}
-                onChange={(e) => { setShowArchived(e.target.checked); setPage(0); }}
-                className="w-4 h-4 accent-teal-700 cursor-pointer border border-border rounded focus:ring-0"
-              />
-              Show Archived
-            </label>
-          </div>
-        </div>
-      </div>
 
       {/* Grid List */}
       {isLoading ? (

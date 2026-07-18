@@ -1,6 +1,7 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../services/api';
+import { useSidebarStore } from '../store/sidebarStore';
 import { 
   AlertCircle,
   Loader2
@@ -18,11 +19,92 @@ import {
 } from 'recharts';
 
 export const AnalyticsPage: React.FC = () => {
+  const [timeRange, setTimeRange] = React.useState('all-time');
+  const setSidebarContent = useSidebarStore(state => state.setContent);
+
   const { data: metrics, isLoading, error } = useQuery({
     queryKey: ['dashboard-metrics'],
     queryFn: api.dashboard.getMetrics,
     refetchInterval: 15000,
   });
+
+  const handleExportCSV = async () => {
+    try {
+      const response = await api.applications.list({ page: 0, size: 1000 });
+      const apps = response.content;
+      let csvContent = "Company,Title,Status,Salary,DateApplied,Location,Link\n";
+      apps.forEach(app => {
+        const cleanCompany = (app.companyName || '').replace(/"/g, '""');
+        const cleanTitle = (app.roleTitle || '').replace(/"/g, '""');
+        const cleanLocation = (app.location || '').replace(/"/g, '""');
+        csvContent += `"${cleanCompany}","${cleanTitle}","${app.status}","${app.salaryRange || ''}","${app.dateApplied || ''}","${cleanLocation}","${app.jobDescriptionUrl || ''}"\n`;
+      });
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `trajectory-applications-analytics-${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    } catch (err) {
+      alert("Failed to export CSV");
+    }
+  };
+
+  React.useEffect(() => {
+    if (!metrics) return;
+    setSidebarContent(
+      <div className="space-y-6 animate-in fade-in duration-200">
+        <div>
+          <h3 className="text-xs font-mono font-bold tracking-wider text-muted-foreground uppercase mb-2">Time Range</h3>
+          <select
+            value={timeRange}
+            onChange={(e) => setTimeRange(e.target.value)}
+            className="w-full px-2 py-1.5 bg-background border border-border rounded-[4px] text-xs focus:outline-none focus:ring-2 focus:ring-primary/40 text-foreground"
+          >
+            <option value="all-time">All Time</option>
+            <option value="30-days">Last 30 Days</option>
+            <option value="90-days">Last 90 Days</option>
+            <option value="180-days">Last 6 Months</option>
+          </select>
+        </div>
+
+        <div>
+          <h3 className="text-xs font-mono font-bold tracking-wider text-muted-foreground uppercase mb-2">Metrics Summary</h3>
+          <div className="space-y-2 font-sans text-xs text-muted-foreground">
+            <div className="flex justify-between border-b border-border/30 pb-1">
+              <span>Total Logged</span>
+              <span className="font-semibold text-foreground font-mono">{metrics.totalApplications}</span>
+            </div>
+            <div className="flex justify-between border-b border-border/30 pb-1">
+              <span>Active Pipeline</span>
+              <span className="font-semibold text-foreground font-mono">{metrics.activeApplications}</span>
+            </div>
+            <div className="flex justify-between border-b border-border/30 pb-1">
+              <span>Response Rate</span>
+              <span className="font-semibold text-foreground font-mono">
+                {metrics.totalApplications > 0 
+                  ? ((metrics.activeApplications / metrics.totalApplications) * 100).toFixed(1) + '%' 
+                  : '0%'}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div className="pt-4 border-t border-border/30 space-y-2">
+          <h3 className="text-xs font-mono font-bold tracking-wider text-muted-foreground uppercase mb-2">Options</h3>
+          <button
+            onClick={handleExportCSV}
+            className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-md bg-primary hover:bg-primary/95 text-primary-foreground text-xs font-semibold transition-all duration-200"
+          >
+            Export CSV Spreadsheet
+          </button>
+        </div>
+      </div>
+    );
+    return () => setSidebarContent(null);
+  }, [metrics, timeRange, setSidebarContent]);
 
   if (isLoading) {
     return (
