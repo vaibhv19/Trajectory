@@ -10,8 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import com.trajectory.backend.exception.ResourceNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -61,9 +61,9 @@ public class ApplicationService {
 
     @Transactional(readOnly = true)
     public ApplicationResponse getApplication(UUID userId, UUID id) {
-        Application app = applicationRepository.findByIdAndUserId(id, userId)
-                .orElseThrow(() -> new RuntimeException("Application not found"));
-        return mapToResponse(app);
+        Application application = applicationRepository.findByIdAndUserId(id, userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Application not found"));
+        return mapToResponse(application);
     }
 
     @Transactional
@@ -78,7 +78,7 @@ public class ApplicationService {
 
         CareerProfile profile = careerProfileRepository.findById(request.profileId())
                 .filter(p -> p.getUser().getId().equals(userId))
-                .orElseThrow(() -> new RuntimeException("Career profile not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Career profile not found"));
 
         // Date Validation
         LocalDate appliedDate = request.dateApplied() != null ? request.dateApplied() : LocalDate.now();
@@ -165,15 +165,15 @@ public class ApplicationService {
 
     @Transactional
     public ApplicationResponse updateApplication(UUID userId, UUID id, ApplicationRequest request) {
-        Application app = applicationRepository.findByIdAndUserId(id, userId)
-                .orElseThrow(() -> new RuntimeException("Application not found"));
+        Application application = applicationRepository.findByIdAndUserId(id, userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Application not found"));
 
         CareerProfile profile = careerProfileRepository.findById(request.profileId())
                 .filter(p -> p.getUser().getId().equals(userId))
-                .orElseThrow(() -> new RuntimeException("Career profile not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Career profile not found"));
 
         // Date Validation
-        LocalDate appliedDate = request.dateApplied() != null ? request.dateApplied() : app.getDateApplied();
+        LocalDate appliedDate = request.dateApplied() != null ? request.dateApplied() : application.getDateApplied();
         if (request.followUpDate() != null && request.followUpDate().isBefore(appliedDate)) {
             throw new IllegalArgumentException("Follow-up date cannot be before the applied date.");
         }
@@ -183,7 +183,7 @@ public class ApplicationService {
             resume = resumeRepository.findById(request.resumeId()).orElse(null);
         }
 
-        ApplicationStatus nextStatus = app.getStatus();
+        ApplicationStatus nextStatus = application.getStatus();
         if (request.status() != null) {
             try {
                 nextStatus = ApplicationStatus.valueOf(request.status().toUpperCase());
@@ -192,35 +192,35 @@ public class ApplicationService {
             }
         }
 
-        boolean statusChanged = !app.getStatus().equals(nextStatus);
+        boolean statusChanged = !application.getStatus().equals(nextStatus);
 
         // Auto-Archive Logic
-        boolean shouldArchive = (nextStatus == ApplicationStatus.REJECTED || nextStatus == ApplicationStatus.GHOSTED) && app.getUser().isAutoArchiveEnabled();
-        boolean isArchived = request.isArchived() != null ? request.isArchived() : (statusChanged ? shouldArchive : app.isArchived());
+        boolean shouldArchive = (nextStatus == ApplicationStatus.REJECTED || nextStatus == ApplicationStatus.GHOSTED) && application.getUser().isAutoArchiveEnabled();
+        boolean isArchived = request.isArchived() != null ? request.isArchived() : (statusChanged ? shouldArchive : application.isArchived());
 
-        boolean oaUpdated = request.oaDateTime() != null && (app.getOaDateTime() == null || !app.getOaDateTime().equals(request.oaDateTime()));
-        boolean interviewUpdated = request.interviewDateTime() != null && (app.getInterviewDateTime() == null || !app.getInterviewDateTime().equals(request.interviewDateTime()));
+        boolean oaUpdated = request.oaDateTime() != null && (application.getOaDateTime() == null || !application.getOaDateTime().equals(request.oaDateTime()));
+        boolean interviewUpdated = request.interviewDateTime() != null && (application.getInterviewDateTime() == null || !application.getInterviewDateTime().equals(request.interviewDateTime()));
 
-        app.setCareerProfile(profile);
-        app.setResume(resume);
-        app.setCompanyName(request.companyName());
-        app.setRoleTitle(request.roleTitle());
-        app.setLocation(request.location());
-        app.setJobDescriptionUrl(request.jobDescriptionUrl());
-        app.setJobDescriptionRaw(request.jobDescriptionRaw());
-        app.setStatus(nextStatus);
-        app.setSource(request.source());
-        app.setSalaryRange(request.salaryRange());
-        app.setDateApplied(appliedDate);
-        app.setFollowUpDate(request.followUpDate());
-        app.setResponseDate(request.responseDate());
-        app.setArchived(isArchived);
-        app.setOaDateTime(request.oaDateTime());
-        app.setInterviewDateTime(request.interviewDateTime());
-        app.setMeetingLink(request.meetingLink());
-        app.setLastActivityAt(OffsetDateTime.now());
+        application.setCareerProfile(profile);
+        application.setResume(resume);
+        application.setCompanyName(request.companyName());
+        application.setRoleTitle(request.roleTitle());
+        application.setLocation(request.location());
+        application.setJobDescriptionUrl(request.jobDescriptionUrl());
+        application.setJobDescriptionRaw(request.jobDescriptionRaw());
+        application.setStatus(nextStatus);
+        application.setSource(request.source());
+        application.setSalaryRange(request.salaryRange());
+        application.setDateApplied(appliedDate);
+        application.setFollowUpDate(request.followUpDate());
+        application.setResponseDate(request.responseDate());
+        application.setArchived(isArchived);
+        application.setOaDateTime(request.oaDateTime());
+        application.setInterviewDateTime(request.interviewDateTime());
+        application.setMeetingLink(request.meetingLink());
+        application.setLastActivityAt(OffsetDateTime.now());
 
-        Application saved = applicationRepository.save(app);
+        Application saved = applicationRepository.save(application);
 
         if (oaUpdated) {
             String linkStr = saved.getMeetingLink() != null && !saved.getMeetingLink().isEmpty() ? " Link: " + saved.getMeetingLink() : "";
@@ -255,9 +255,9 @@ public class ApplicationService {
 
     @Transactional
     public void deleteApplication(UUID userId, UUID id) {
-        Application app = applicationRepository.findByIdAndUserId(id, userId)
-                .orElseThrow(() -> new RuntimeException("Application not found"));
-        applicationRepository.delete(app);
+        Application application = applicationRepository.findByIdAndUserId(id, userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Application not found"));
+        applicationRepository.delete(application);
         log.info("Deleted application {}", id);
     }
 
@@ -265,7 +265,7 @@ public class ApplicationService {
     public List<ApplicationStatusHistory> getStatusHistory(UUID userId, UUID applicationId) {
         // Validate ownership
         applicationRepository.findByIdAndUserId(applicationId, userId)
-                .orElseThrow(() -> new RuntimeException("Application not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Application not found"));
 
         return statusHistoryRepository.findByApplicationIdOrderByChangedAtAsc(applicationId);
     }

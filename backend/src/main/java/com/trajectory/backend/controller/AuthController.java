@@ -14,17 +14,21 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 import java.util.UUID;
 
+import com.trajectory.backend.dto.UserResponse;
+import com.trajectory.backend.service.RefreshTokenService;
+import com.trajectory.backend.security.JwtTokenProvider;
+
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
 
     private final UserService userService;
-    private final com.trajectory.backend.service.RefreshTokenService refreshTokenService;
-    private final com.trajectory.backend.security.JwtTokenProvider tokenProvider;
+    private final RefreshTokenService refreshTokenService;
+    private final JwtTokenProvider tokenProvider;
 
     public AuthController(UserService userService, 
-                          com.trajectory.backend.service.RefreshTokenService refreshTokenService, 
-                          com.trajectory.backend.security.JwtTokenProvider tokenProvider) {
+                          RefreshTokenService refreshTokenService, 
+                          JwtTokenProvider tokenProvider) {
         this.userService = userService;
         this.refreshTokenService = refreshTokenService;
         this.tokenProvider = tokenProvider;
@@ -49,33 +53,27 @@ public class AuthController {
             return ResponseEntity.badRequest().body(Map.of("message", "Refresh token is missing"));
         }
 
-        try {
-            return refreshTokenService.findByToken(requestRefreshToken)
-                    .map(refreshTokenService::verifyExpiration)
-                    .map(com.trajectory.backend.model.RefreshToken::getUser)
-                    .map(user -> {
-                        String token = tokenProvider.generateTokenForUser(com.trajectory.backend.security.UserPrincipal.create(user));
-                        return ResponseEntity.ok(Map.of(
-                                "token", token,
-                                "refreshToken", requestRefreshToken
-                        ));
-                    })
-                    .orElseGet(() -> ResponseEntity.badRequest().body(Map.of("message", "Refresh token not found")));
-        } catch (Exception e) {
-            return ResponseEntity.status(403).body(Map.of("message", e.getMessage()));
-        }
+        return refreshTokenService.findByToken(requestRefreshToken)
+                .map(refreshTokenService::verifyExpiration)
+                .map(com.trajectory.backend.model.RefreshToken::getUser)
+                .map(user -> {
+                    String token = tokenProvider.generateTokenForUser(com.trajectory.backend.security.UserPrincipal.create(user));
+                    return ResponseEntity.ok(Map.of(
+                            "token", token,
+                            "refreshToken", requestRefreshToken
+                    ));
+                })
+                .orElseGet(() -> ResponseEntity.badRequest().body(Map.of("message", "Refresh token not found")));
     }
 
     @GetMapping("/profile")
-    public ResponseEntity<User> getProfile(@AuthenticationPrincipal UserPrincipal principal) {
+    public ResponseEntity<UserResponse> getProfile(@AuthenticationPrincipal UserPrincipal principal) {
         User user = userService.getUserProfile(principal.getId());
-        // Do not return password hash in response
-        user.setPasswordHash(null);
-        return ResponseEntity.ok(user);
+        return ResponseEntity.ok(UserResponse.fromEntity(user));
     }
 
     @PutMapping("/profile")
-    public ResponseEntity<User> updateProfile(
+    public ResponseEntity<UserResponse> updateProfile(
             @AuthenticationPrincipal UserPrincipal principal,
             @RequestBody Map<String, String> request) {
         User user = userService.updateUserProfile(
@@ -83,20 +81,18 @@ public class AuthController {
                 request.get("fullName"),
                 request.get("avatarUrl")
         );
-        user.setPasswordHash(null);
-        return ResponseEntity.ok(user);
+        return ResponseEntity.ok(UserResponse.fromEntity(user));
     }
 
     @PutMapping("/settings")
-    public ResponseEntity<User> updateSettings(
+    public ResponseEntity<UserResponse> updateSettings(
             @AuthenticationPrincipal UserPrincipal principal,
             @RequestBody Map<String, Object> request) {
         int ghostThreshold = (int) request.getOrDefault("ghostThresholdDays", 30);
         boolean autoArchive = (boolean) request.getOrDefault("autoArchiveEnabled", false);
         
         User user = userService.updateSettings(principal.getId(), ghostThreshold, autoArchive);
-        user.setPasswordHash(null);
-        return ResponseEntity.ok(user);
+        return ResponseEntity.ok(UserResponse.fromEntity(user));
     }
 
     @PutMapping("/change-password")
@@ -110,11 +106,7 @@ public class AuthController {
             return ResponseEntity.badRequest().body(Map.of("message", "Both old and new passwords are required"));
         }
 
-        try {
-            userService.changePassword(principal.getId(), oldPassword, newPassword);
-            return ResponseEntity.ok(Map.of("message", "Password changed successfully"));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
-        }
+        userService.changePassword(principal.getId(), oldPassword, newPassword);
+        return ResponseEntity.ok(Map.of("message", "Password changed successfully"));
     }
 }

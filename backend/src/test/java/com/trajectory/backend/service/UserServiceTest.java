@@ -27,6 +27,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+import com.trajectory.backend.exception.BadRequestException;
+
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
 
@@ -48,6 +50,9 @@ class UserServiceTest {
     @Mock
     private RefreshTokenService refreshTokenService;
 
+    @Mock
+    private StorageService storageService;
+
     private UserService userService;
 
     @BeforeEach
@@ -58,7 +63,8 @@ class UserServiceTest {
                 passwordEncoder,
                 authenticationManager,
                 tokenProvider,
-                refreshTokenService
+                refreshTokenService,
+                storageService
         );
     }
 
@@ -104,7 +110,7 @@ class UserServiceTest {
         when(userRepository.existsByEmail(request.email())).thenReturn(true);
 
         // Act & Assert
-        assertThrows(IllegalArgumentException.class, () -> userService.registerUser(request));
+        assertThrows(BadRequestException.class, () -> userService.registerUser(request));
         verify(userRepository).existsByEmail(request.email());
         verify(userRepository, never()).save(any(User.class));
     }

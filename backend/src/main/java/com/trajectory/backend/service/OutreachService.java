@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.trajectory.backend.exception.ResourceNotFoundException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
@@ -46,7 +47,7 @@ public class OutreachService {
 
     public OutreachResponse getOutreach(UUID userId, UUID id) {
         Outreach outreach = outreachRepository.findByIdAndUserId(id, userId)
-                .orElseThrow(() -> new RuntimeException("Outreach contact not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Outreach contact not found"));
         return mapToResponse(outreach);
     }
 
@@ -90,7 +91,7 @@ public class OutreachService {
     @Transactional
     public OutreachResponse updateOutreach(UUID userId, UUID id, OutreachRequest request) {
         Outreach outreach = outreachRepository.findByIdAndUserId(id, userId)
-                .orElseThrow(() -> new RuntimeException("Outreach contact not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Outreach contact not found"));
 
         // Validation: Date Sent vs Follow-up Date
         LocalDate dateSent = request.dateSent() != null ? request.dateSent() : outreach.getDateSent();
@@ -125,7 +126,7 @@ public class OutreachService {
     @Transactional
     public void deleteOutreach(UUID userId, UUID id) {
         Outreach outreach = outreachRepository.findByIdAndUserId(id, userId)
-                .orElseThrow(() -> new RuntimeException("Outreach contact not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Outreach contact not found"));
         outreachRepository.delete(outreach);
         log.info("Deleted outreach contact {}", id);
     }
@@ -133,7 +134,7 @@ public class OutreachService {
     @Transactional
     public ApplicationResponse convertToApplication(UUID userId, UUID outreachId, UUID profileId) {
         Outreach outreach = outreachRepository.findByIdAndUserId(outreachId, userId)
-                .orElseThrow(() -> new RuntimeException("Outreach contact not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Outreach contact not found"));
 
         // Convert outreach to application
         ApplicationRequest appRequest = new ApplicationRequest(

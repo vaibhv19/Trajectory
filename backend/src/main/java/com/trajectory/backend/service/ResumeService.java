@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.trajectory.backend.exception.ResourceNotFoundException;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -40,7 +41,7 @@ public class ResumeService {
         // Validate profile ownership
         CareerProfile profile = careerProfileRepository.findById(profileId)
                 .filter(p -> p.getUser().getId().equals(userId))
-                .orElseThrow(() -> new RuntimeException("Career profile not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Career profile not found"));
 
         return resumeRepository.findByCareerProfileIdOrderByVersionNumberDesc(profileId).stream()
                 .map(this::mapToResponse)
@@ -51,7 +52,7 @@ public class ResumeService {
     public ResumeResponse uploadResume(UUID userId, UUID profileId, String fileName, byte[] bytes, String changelog) {
         CareerProfile profile = careerProfileRepository.findById(profileId)
                 .filter(p -> p.getUser().getId().equals(userId))
-                .orElseThrow(() -> new RuntimeException("Career profile not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Career profile not found"));
 
         // Determine next version number
         Optional<Resume> latestResume = resumeRepository.findFirstByCareerProfileIdOrderByVersionNumberDesc(profileId);
@@ -78,7 +79,7 @@ public class ResumeService {
     public byte[] downloadResumeFile(UUID userId, UUID resumeId) {
         Resume resume = resumeRepository.findById(resumeId)
                 .filter(r -> r.getCareerProfile().getUser().getId().equals(userId))
-                .orElseThrow(() -> new RuntimeException("Resume not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Resume not found"));
 
         return storageService.downloadFile(resumesBucket, resume.getS3Key());
     }
@@ -87,7 +88,7 @@ public class ResumeService {
     public void deleteResume(UUID userId, UUID resumeId) {
         Resume resume = resumeRepository.findById(resumeId)
                 .filter(r -> r.getCareerProfile().getUser().getId().equals(userId))
-                .orElseThrow(() -> new RuntimeException("Resume not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Resume not found"));
 
         // Delete from MinIO
         storageService.deleteFile(resumesBucket, resume.getS3Key());
