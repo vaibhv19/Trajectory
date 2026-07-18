@@ -43,6 +43,23 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [quickAddOpen, setQuickAddOpen] = React.useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = React.useState(false);
   const [commandPaletteOpen, setCommandPaletteOpen] = React.useState(false);
+  const [sidebarOpen, setSidebarOpen] = React.useState(() => {
+    const saved = localStorage.getItem('sidebarOpen');
+    return saved !== null ? saved === 'true' : true;
+  });
+
+  const handleToggleMenu = () => {
+    if (window.innerWidth < 768) {
+      setMobileMenuOpen(prev => !prev);
+    } else {
+      setSidebarOpen(prev => {
+        const next = !prev;
+        localStorage.setItem('sidebarOpen', String(next));
+        return next;
+      });
+    }
+  };
+
   const queryClient = useQueryClient();
 
   const navigation = [
@@ -158,14 +175,14 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-background text-foreground transition-colors duration-200">
       {/* Top Navbar */}
-      <header className="flex h-14 items-center justify-between px-6 border-b border-border bg-card z-10">
+      <header className="flex h-14 items-center justify-between px-6 border-b border-border bg-card z-10 shrink-0">
         <div className="flex items-center gap-6">
           <button
-            onClick={() => setMobileMenuOpen(true)}
-            className="md:hidden text-muted-foreground hover:text-foreground"
-            aria-label="Open mobile menu"
-            aria-expanded={mobileMenuOpen}
-            aria-controls="mobile-nav-drawer"
+            onClick={handleToggleMenu}
+            className="text-muted-foreground hover:text-foreground p-1 hover:bg-muted rounded-[4px] transition-colors flex items-center justify-center"
+            aria-label="Toggle navigation"
+            aria-expanded={sidebarOpen}
+            aria-controls="desktop-sidebar"
           >
             <Menu className="h-5 w-5" />
           </button>
@@ -173,26 +190,6 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           <Link to="/dashboard" className="flex items-center gap-2">
             <span className="text-lg font-display font-extrabold text-primary tracking-tight uppercase">Trajectory</span>
           </Link>
-
-          <nav className="hidden md:flex items-stretch h-14 gap-1 font-sans">
-            {navigation.map((item) => {
-              const isActive = location.pathname.startsWith(item.href);
-              return (
-                <Link
-                  key={item.name}
-                  to={item.href}
-                  className={`flex items-center gap-1.5 px-3 border-b-2 text-xs transition-colors ${
-                    isActive
-                      ? 'border-primary text-foreground font-semibold bg-primary/[2%]'
-                      : 'border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/30'
-                  }`}
-                >
-                  <item.icon className="h-3.5 w-3.5 shrink-0 opacity-70" />
-                  <span>{item.name}</span>
-                </Link>
-              );
-            })}
-          </nav>
         </div>
 
         {/* Global Search and Quick Actions */}
@@ -531,15 +528,123 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         </div>
       )}
 
-      {/* Content Pane */}
-      <main className="flex-1 overflow-y-auto px-6 py-8 md:px-8 bg-background relative">
-        <div className="max-w-7xl mx-auto min-h-[calc(100vh-80px)] flex flex-col justify-between space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-200">
-          <div className="flex-1">
-            {children}
+      {/* Main Container below Header */}
+      <div className="flex flex-1 overflow-hidden">
+        {/* Desktop Collapsible Sidebar */}
+        <aside 
+          id="desktop-sidebar"
+          className={`hidden md:flex flex-col bg-card border-r border-border p-5 transition-all duration-300 ease-in-out shrink-0 h-full ${
+            sidebarOpen ? 'w-60 opacity-100' : 'w-0 p-0 border-r-0 opacity-0 overflow-hidden'
+          }`}
+        >
+          {/* Navigation Links */}
+          <nav className="flex-1 py-1 space-y-1 font-sans overflow-y-auto">
+            <h4 className="text-[9px] font-mono font-bold tracking-wider text-muted-foreground uppercase px-3.5 mb-2">Navigation</h4>
+            {navigation.map((item) => {
+              const isActive = location.pathname.startsWith(item.href);
+              return (
+                <Link
+                  key={item.name}
+                  to={item.href}
+                  className={`flex items-center gap-2.5 px-3.5 py-2 rounded-[4px] text-xs font-semibold uppercase font-mono tracking-wider transition-colors ${
+                    isActive
+                      ? 'bg-primary/10 text-primary'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/40'
+                  }`}
+                >
+                  <item.icon className="h-4 w-4 shrink-0 opacity-70" />
+                  <span>{item.name}</span>
+                </Link>
+              );
+            })}
+          </nav>
+
+          {/* Footer with theme toggle, user profile settings, and logout */}
+          <div className="border-t border-border pt-4 space-y-4 font-sans mt-auto">
+            {/* User details */}
+            <div className="flex items-center gap-3 px-1">
+              {userProfile?.avatarUrl ? (
+                <img 
+                  src={userProfile.avatarUrl} 
+                  alt="Avatar" 
+                  className="h-8 w-8 rounded-full object-cover border border-border"
+                />
+              ) : (
+                <div className="h-8 w-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-mono font-bold text-[10px] uppercase border border-border">
+                  {initials}
+                </div>
+              )}
+              <div className="min-w-0 flex-1">
+                <p className="text-xs font-semibold text-foreground truncate">{displayName}</p>
+                <p className="text-[10px] text-muted-foreground truncate font-mono">{displayEmail}</p>
+              </div>
+            </div>
+
+            {/* Theme Toggle selector inline */}
+            <div className="space-y-1.5">
+              <span className="text-[9px] font-mono font-bold tracking-wider text-muted-foreground uppercase px-1">Theme preference</span>
+              <div className="grid grid-cols-3 gap-1 p-1 bg-muted rounded-[4px]">
+                <button
+                  type="button"
+                  onClick={() => setThemeMode('light')}
+                  className={`py-1 text-[10px] font-semibold rounded-[2px] transition-colors ${
+                    themeMode === 'light' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  Light
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setThemeMode('dark')}
+                  className={`py-1 text-[10px] font-semibold rounded-[2px] transition-colors ${
+                    themeMode === 'dark' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  Dark
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setThemeMode('system')}
+                  className={`py-1 text-[10px] font-semibold rounded-[2px] transition-colors ${
+                    themeMode === 'system' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  System
+                </button>
+              </div>
+            </div>
+
+            {/* Settings & Logout */}
+            <div className="space-y-1">
+              <Link
+                to="/settings"
+                className="flex items-center gap-2 px-3 py-2 text-xs rounded-[4px] text-muted-foreground hover:text-foreground hover:bg-muted transition-colors font-semibold"
+              >
+                <Settings className="h-3.5 w-3.5" />
+                Settings
+              </Link>
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="w-full flex items-center gap-2 px-3 py-2 text-xs rounded-[4px] text-rose-500 hover:bg-rose-500/10 transition-colors font-semibold text-left"
+              >
+                <LogOut className="h-3.5 w-3.5" />
+                Logout
+              </button>
+            </div>
           </div>
-          <Footer />
-        </div>
-      </main>
+        </aside>
+
+        {/* Content Pane */}
+        <main className="flex-1 overflow-y-auto px-6 py-8 md:px-8 bg-background relative">
+          <div className="max-w-7xl mx-auto min-h-[calc(100vh-80px)] flex flex-col justify-between space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-200">
+            <div className="flex-1">
+              {children}
+            </div>
+            <Footer />
+          </div>
+        </main>
+      </div>
 
       <CommandPalette isOpen={commandPaletteOpen} onClose={() => setCommandPaletteOpen(false)} />
     </div>
