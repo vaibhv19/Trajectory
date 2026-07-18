@@ -11,7 +11,8 @@ import {
   Settings, 
   Plus, 
   Moon, 
-  Sun 
+  Sun,
+  TrendingUp
 } from 'lucide-react';
 
 interface CommandItem {
@@ -48,10 +49,18 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
     {
       id: 'nav-home',
       category: 'Navigation',
-      name: 'Go to Home / Dashboard',
-      description: 'View pipeline stats and today\'s agenda',
+      name: 'Go to Home Workspace',
+      description: 'View your daily focus, checklist, and agenda',
       icon: Home,
       action: () => { navigate('/dashboard'); onClose(); }
+    },
+    {
+      id: 'nav-analytics',
+      category: 'Navigation',
+      name: 'Go to Analytics',
+      description: 'View charts, metrics distributions, and conversion trends',
+      icon: TrendingUp,
+      action: () => { navigate('/analytics'); onClose(); }
     },
     {
       id: 'nav-apps',
