@@ -76,8 +76,8 @@ export default {
         xl: "var(--radius-xl, 6px)",
       },
       fontFamily: {
-        sans: ["Public Sans", "sans-serif"],
-        display: ["IBM Plex Sans", "sans-serif"],
+        sans: ["Geist", "Inter", "sans-serif"],
+        display: ["Geist", "Inter", "sans-serif"],
         mono: ["IBM Plex Mono", "monospace"],
       },
       keyframes: {
