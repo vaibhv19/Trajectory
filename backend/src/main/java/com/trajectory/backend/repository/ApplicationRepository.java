@@ -19,7 +19,10 @@ public interface ApplicationRepository extends JpaRepository<Application, UUID> 
 
     @Query("SELECT a FROM Application a WHERE a.user.id = :userId AND " +
            "a.isArchived = :isArchived AND " +
-           "(:search IS NULL OR LOWER(a.companyName) LIKE LOWER(CONCAT('%', :search, '%')) OR LOWER(a.roleTitle) LIKE LOWER(CONCAT('%', :search, '%')) OR LOWER(a.location) LIKE LOWER(CONCAT('%', :search, '%'))) AND " +
+           "(:search IS NULL OR " +
+           "LOWER(a.companyName) LIKE LOWER(CONCAT('%', CAST(:search as string), '%')) OR " +
+           "LOWER(a.roleTitle) LIKE LOWER(CONCAT('%', CAST(:search as string), '%')) OR " +
+           "LOWER(a.location) LIKE LOWER(CONCAT('%', CAST(:search as string), '%'))) AND " +
            "(:statuses IS NULL OR a.status IN :statuses) AND " +
            "(:profileId IS NULL OR a.careerProfile.id = :profileId)")
     Page<Application> searchApplications(
