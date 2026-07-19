@@ -33,7 +33,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         String token = tokenProvider.generateTokenForUser(principal);
         String refreshToken = refreshTokenService.createRefreshToken(principal.getId()).getToken();
 
-        String targetUrl = UriComponentsBuilder.fromUriString("http://localhost:5173/login")
+        String targetUrl = UriComponentsBuilder.fromUriString("https://trajectory-mu-six.vercel.app/login")
                 .queryParam("token", token)
                 .queryParam("refreshToken", refreshToken)
                 .queryParam("email", principal.getEmail())
