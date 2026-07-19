@@ -60,7 +60,8 @@ spring:
     multipart:
       max-file-size: 10MB
       max-request-size: 10MB
-
+server:
+  forward-headers-strategy: framework
 aws:
   s3:
     region: ${AWS_REGION:ap-south-1}
