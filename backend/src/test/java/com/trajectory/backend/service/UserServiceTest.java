@@ -1,7 +1,6 @@
 package com.trajectory.backend.service;
 
 import com.trajectory.backend.dto.AuthResponse;
-import com.trajectory.backend.dto.LoginRequest;
 import com.trajectory.backend.dto.RegisterRequest;
 import com.trajectory.backend.model.CareerProfile;
 import com.trajectory.backend.model.User;
@@ -16,8 +15,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;

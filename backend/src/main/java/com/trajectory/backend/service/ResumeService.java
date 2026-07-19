@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.trajectory.backend.exception.ResourceNotFoundException;
-import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -39,7 +38,7 @@ public class ResumeService {
     @Transactional(readOnly = true)
     public List<ResumeResponse> getResumesForProfile(UUID userId, UUID profileId) {
         // Validate profile ownership
-        CareerProfile profile = careerProfileRepository.findById(profileId)
+        careerProfileRepository.findById(profileId)
                 .filter(p -> p.getUser().getId().equals(userId))
                 .orElseThrow(() -> new ResourceNotFoundException("Career profile not found"));
 

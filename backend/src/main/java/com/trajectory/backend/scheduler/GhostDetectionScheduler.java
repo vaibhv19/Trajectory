@@ -32,11 +32,7 @@ public class GhostDetectionScheduler {
     public void detectGhostedApplications() {
         log.info("Starting automated ghost application detection job...");
         
-        List<ApplicationStatus> activeStatuses = List.of(
-                ApplicationStatus.APPLIED, 
-                ApplicationStatus.OA, 
-                ApplicationStatus.INTERVIEW
-        );
+
 
         // We can fetch applications that are in active status
         // Since different users have different thresholds, we will load active ones and compare
