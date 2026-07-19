@@ -57,11 +57,11 @@ export const LoginPage: React.FC = () => {
     }
   };
 
-  const handleOAuth = (provider: string) => {
-    window.location.href =
-    `${import.meta.env.VITE_API_BASE_URL}/oauth2/authorization/${provider}`;
-  };
+ const handleOAuth = (provider: string) => {
+  const apiBase = import.meta.env.VITE_API_BASE_URL.replace(/\/api$/, "");
 
+  window.location.href = `${apiBase}/oauth2/authorization/${provider}`;
+};
   return (
     <div className="flex min-h-screen bg-background font-sans">
       {/* Left Column: Branding and Features Showcase */}
