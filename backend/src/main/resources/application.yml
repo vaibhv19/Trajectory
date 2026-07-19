@@ -63,13 +63,12 @@ spring:
 
 aws:
   s3:
-    endpoint: ${AWS_S3_ENDPOINT:http://localhost:9000}
-    access-key: ${AWS_ACCESS_KEY_ID:trajectory_admin}
-    secret-key: ${AWS_SECRET_ACCESS_KEY:trajectory_storage_secret}
-    region: ${AWS_REGION:us-east-1}
+    region: ${AWS_REGION:ap-south-1}
+    access-key: ${AWS_ACCESS_KEY_ID}
+    secret-key: ${AWS_SECRET_ACCESS_KEY}
     bucket:
-      resumes: resumes
-      company-docs: company-docs
+      resumes: ${AWS_S3_BUCKET_RESUMES}
+      company-docs: ${AWS_S3_BUCKET_COMPANY_DOCS}
 
 security:
   jwt:

@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.trajectory.backend.exception.ResourceNotFoundException;
+import com.trajectory.backend.exception.BadRequestException;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -21,17 +22,17 @@ public class CompanyDocumentService {
 
     private final CompanyDocumentRepository companyDocumentRepository;
     private final UserRepository userRepository;
-    private final StorageService storageService;
+    private final S3StorageService s3StorageService;
 
     @Value("${aws.s3.bucket.company-docs}")
     private String companyDocsBucket;
 
     public CompanyDocumentService(CompanyDocumentRepository companyDocumentRepository,
                                   UserRepository userRepository,
-                                  StorageService storageService) {
+                                  S3StorageService s3StorageService) {
         this.companyDocumentRepository = companyDocumentRepository;
         this.userRepository = userRepository;
-        this.storageService = storageService;
+        this.s3StorageService = s3StorageService;
     }
 
     public List<CompanyDocumentResponse> getDocuments(UUID userId) {
@@ -42,11 +43,13 @@ public class CompanyDocumentService {
 
     @Transactional
     public CompanyDocumentResponse uploadDocument(UUID userId, String companyName, String documentName,
-                                                  String documentType, String fileName, byte[] bytes) {
+                                                  String documentType, String fileName, String contentType, byte[] bytes) {
+        validateCompanyDocumentFile(contentType, bytes);
         User user = userRepository.findById(userId).orElseThrow();
 
-        String s3Key = userId.toString() + "/" + UUID.randomUUID() + "_" + fileName;
-        storageService.uploadFile(companyDocsBucket, s3Key, bytes, "application/pdf");
+        String sanitizedFileName = S3StorageService.sanitizeFilename(fileName);
+        String s3Key = "company-docs/" + UUID.randomUUID() + "_" + sanitizedFileName;
+        s3StorageService.uploadFile(companyDocsBucket, s3Key, bytes, contentType);
 
         CompanyDocument document = CompanyDocument.builder()
                 .user(user)
@@ -65,7 +68,7 @@ public class CompanyDocumentService {
         CompanyDocument document = companyDocumentRepository.findByIdAndUserId(documentId, userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Document not found"));
 
-        return storageService.downloadFile(companyDocsBucket, document.getS3Key());
+        return s3StorageService.downloadFile(companyDocsBucket, document.getS3Key());
     }
 
     @Transactional
@@ -73,13 +76,29 @@ public class CompanyDocumentService {
         CompanyDocument document = companyDocumentRepository.findByIdAndUserId(documentId, userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Document not found"));
 
-        storageService.deleteFile(companyDocsBucket, document.getS3Key());
+        s3StorageService.deleteFile(companyDocsBucket, document.getS3Key());
         companyDocumentRepository.delete(document);
         log.info("Deleted document {}", documentId);
     }
 
+    private void validateCompanyDocumentFile(String contentType, byte[] bytes) {
+        if (bytes == null || bytes.length > 10 * 1024 * 1024) {
+            throw new BadRequestException("File size must not exceed 10MB");
+        }
+
+        if (contentType == null || !(
+                contentType.equals("application/pdf") ||
+                contentType.equals("application/msword") ||
+                contentType.equals("application/vnd.openxmlformats-officedocument.wordprocessingml.document") ||
+                contentType.equals("image/jpeg") ||
+                contentType.equals("image/png")
+        )) {
+            throw new BadRequestException("Allowed file types are PDF, Word documents, JPEG, and PNG");
+        }
+    }
+
     private CompanyDocumentResponse mapToResponse(CompanyDocument doc) {
-        // Extract original file name from key (remove userId/UUID_)
+        // Extract original file name from key (remove company-docs/UUID_)
         String key = doc.getS3Key();
         String fileName = key.substring(key.lastIndexOf("_") + 1);
 

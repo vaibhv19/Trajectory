@@ -48,7 +48,7 @@ class UserServiceTest {
     private RefreshTokenService refreshTokenService;
 
     @Mock
-    private StorageService storageService;
+    private S3StorageService s3StorageService;
 
     private UserService userService;
 
@@ -61,7 +61,7 @@ class UserServiceTest {
                 authenticationManager,
                 tokenProvider,
                 refreshTokenService,
-                storageService
+                s3StorageService
         );
     }
 
