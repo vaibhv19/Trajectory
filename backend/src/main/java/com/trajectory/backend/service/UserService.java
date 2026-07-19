@@ -32,7 +32,7 @@ public class UserService {
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider tokenProvider;
     private final RefreshTokenService refreshTokenService;
-    private final StorageService storageService;
+    private final S3StorageService s3StorageService;
     private final String avatarsBucket = "avatars";
 
     public UserService(UserRepository userRepository, 
@@ -41,14 +41,14 @@ public class UserService {
                        AuthenticationManager authenticationManager, 
                        JwtTokenProvider tokenProvider,
                        RefreshTokenService refreshTokenService,
-                       StorageService storageService) {
+                       S3StorageService s3StorageService) {
         this.userRepository = userRepository;
         this.careerProfileRepository = careerProfileRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.tokenProvider = tokenProvider;
         this.refreshTokenService = refreshTokenService;
-        this.storageService = storageService;
+        this.s3StorageService = s3StorageService;
     }
 
     @Transactional
@@ -173,7 +173,7 @@ public class UserService {
         }
         
         String s3Key = userId.toString() + "/avatar.png";
-        storageService.uploadFile(avatarsBucket, s3Key, bytes, contentType);
+        s3StorageService.uploadFile(avatarsBucket, s3Key, bytes, contentType);
         
         user.setAvatarUrl("/api/auth/users/" + userId + "/avatar");
         return userRepository.save(user);
@@ -187,7 +187,7 @@ public class UserService {
         }
         
         String s3Key = userId.toString() + "/avatar.png";
-        return storageService.downloadFile(avatarsBucket, s3Key);
+        return s3StorageService.downloadFile(avatarsBucket, s3Key);
     }
 
     @Transactional
@@ -195,7 +195,7 @@ public class UserService {
         User user = getUserProfile(userId);
         if (user.getAvatarUrl() != null) {
             String s3Key = userId.toString() + "/avatar.png";
-            storageService.deleteFile(avatarsBucket, s3Key);
+            s3StorageService.deleteFile(avatarsBucket, s3Key);
             user.setAvatarUrl(null);
             userRepository.save(user);
         }

@@ -48,6 +48,7 @@ public class ResumeController {
                 principal.getId(), 
                 profileId, 
                 file.getOriginalFilename(), 
+                file.getContentType(),
                 file.getBytes(), 
                 changelog
         );
