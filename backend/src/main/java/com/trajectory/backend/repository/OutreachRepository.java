@@ -16,7 +16,10 @@ import java.util.UUID;
 public interface OutreachRepository extends JpaRepository<Outreach, UUID> {
     
     @Query("SELECT o FROM Outreach o WHERE o.user.id = :userId AND " +
-           "(:search IS NULL OR LOWER(o.contactName) LIKE LOWER(CONCAT('%', :search, '%')) OR LOWER(o.companyName) LIKE LOWER(CONCAT('%', :search, '%')) OR LOWER(o.positionDiscussed) LIKE LOWER(CONCAT('%', :search, '%'))) AND " +
+           "(:search IS NULL OR " +
+           "LOWER(o.contactName) LIKE LOWER(CONCAT('%', CAST(:search as string), '%')) OR " +
+           "LOWER(o.companyName) LIKE LOWER(CONCAT('%', CAST(:search as string), '%')) OR " +
+           "LOWER(o.positionDiscussed) LIKE LOWER(CONCAT('%', CAST(:search as string), '%'))) AND " +
            "(:status IS NULL OR o.status = :status) " +
            "ORDER BY o.createdAt DESC")
     List<Outreach> searchOutreach(
