@@ -58,7 +58,8 @@ export const LoginPage: React.FC = () => {
   };
 
   const handleOAuth = (provider: string) => {
-    window.location.href = `http://localhost:8080/oauth2/authorization/${provider}`;
+    window.location.href =
+    `${import.meta.env.VITE_API_BASE_URL}/oauth2/authorization/${provider}`;
   };
 
   return (
