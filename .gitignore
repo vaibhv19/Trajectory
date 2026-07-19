@@ -1,5 +1,6 @@
 # Local Environment Secrets
 .env
+.env.prod
 .env.local
 .env.*.local
 .env.example
@@ -55,3 +56,6 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+
+# SSH Key
+trajectory-key.pem

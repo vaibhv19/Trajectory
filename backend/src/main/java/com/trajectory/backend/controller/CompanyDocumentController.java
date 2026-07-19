@@ -50,6 +50,7 @@ public class CompanyDocumentController {
                 documentName,
                 documentType,
                 file.getOriginalFilename(),
+                file.getContentType(),
                 file.getBytes()
         );
 

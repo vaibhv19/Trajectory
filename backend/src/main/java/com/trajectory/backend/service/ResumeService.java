@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.trajectory.backend.exception.ResourceNotFoundException;
+import com.trajectory.backend.exception.BadRequestException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -22,17 +23,17 @@ public class ResumeService {
 
     private final ResumeRepository resumeRepository;
     private final CareerProfileRepository careerProfileRepository;
-    private final StorageService storageService;
+    private final S3StorageService s3StorageService;
 
     @Value("${aws.s3.bucket.resumes}")
     private String resumesBucket;
 
     public ResumeService(ResumeRepository resumeRepository,
                          CareerProfileRepository careerProfileRepository,
-                         StorageService storageService) {
+                         S3StorageService s3StorageService) {
         this.resumeRepository = resumeRepository;
         this.careerProfileRepository = careerProfileRepository;
-        this.storageService = storageService;
+        this.s3StorageService = s3StorageService;
     }
 
     @Transactional(readOnly = true)
@@ -48,7 +49,9 @@ public class ResumeService {
     }
 
     @Transactional
-    public ResumeResponse uploadResume(UUID userId, UUID profileId, String fileName, byte[] bytes, String changelog) {
+    public ResumeResponse uploadResume(UUID userId, UUID profileId, String fileName, String contentType, byte[] bytes, String changelog) {
+        validateResumeFile(contentType, bytes);
+
         CareerProfile profile = careerProfileRepository.findById(profileId)
                 .filter(p -> p.getUser().getId().equals(userId))
                 .orElseThrow(() -> new ResourceNotFoundException("Career profile not found"));
@@ -57,9 +60,10 @@ public class ResumeService {
         Optional<Resume> latestResume = resumeRepository.findFirstByCareerProfileIdOrderByVersionNumberDesc(profileId);
         int nextVersion = latestResume.map(resume -> resume.getVersionNumber() + 1).orElse(1);
 
-        // Upload file to MinIO
-        String s3Key = profileId.toString() + "/v" + nextVersion + "_" + fileName;
-        storageService.uploadFile(resumesBucket, s3Key, bytes, "application/pdf");
+        // Upload file to S3 under resumes/ folder
+        String sanitizedFileName = S3StorageService.sanitizeFilename(fileName);
+        String s3Key = "resumes/" + UUID.randomUUID() + "_" + sanitizedFileName;
+        s3StorageService.uploadFile(resumesBucket, s3Key, bytes, contentType);
 
         Resume resume = Resume.builder()
                 .careerProfile(profile)
@@ -80,7 +84,7 @@ public class ResumeService {
                 .filter(r -> r.getCareerProfile().getUser().getId().equals(userId))
                 .orElseThrow(() -> new ResourceNotFoundException("Resume not found"));
 
-        return storageService.downloadFile(resumesBucket, resume.getS3Key());
+        return s3StorageService.downloadFile(resumesBucket, resume.getS3Key());
     }
 
     @Transactional
@@ -89,12 +93,26 @@ public class ResumeService {
                 .filter(r -> r.getCareerProfile().getUser().getId().equals(userId))
                 .orElseThrow(() -> new ResourceNotFoundException("Resume not found"));
 
-        // Delete from MinIO
-        storageService.deleteFile(resumesBucket, resume.getS3Key());
+        // Delete from S3
+        s3StorageService.deleteFile(resumesBucket, resume.getS3Key());
 
         // Delete from database
         resumeRepository.delete(resume);
         log.info("Deleted resume v{} for profile ID: {}", resume.getVersionNumber(), resume.getCareerProfile().getId());
+    }
+
+    private void validateResumeFile(String contentType, byte[] bytes) {
+        if (bytes == null || bytes.length > 10 * 1024 * 1024) {
+            throw new BadRequestException("File size must not exceed 10MB");
+        }
+
+        if (contentType == null || !(
+                contentType.equals("application/pdf") ||
+                contentType.equals("application/msword") ||
+                contentType.equals("application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+        )) {
+            throw new BadRequestException("Only PDF and Word documents are allowed for resumes");
+        }
     }
 
     private ResumeResponse mapToResponse(Resume resume) {
