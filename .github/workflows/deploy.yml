@@ -7,23 +7,20 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     steps:
-      - name: Deploy via SSH
-        uses: appleboy/ssh-action@v1.2.0
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_SSH_KEY }}
+      - name: Deploy Backend
+        run: |
+          cd /home/ubuntu/Trajectory
 
-          script: |
-            cd /home/ubuntu/Trajectory
+          git fetch origin
+          git reset --hard origin/main
 
-            git pull origin main
+          docker compose down
+          docker compose up --build -d
 
-            docker compose down
-            docker compose up --build -d
-
-            docker image prune -f
+          docker image prune -f
