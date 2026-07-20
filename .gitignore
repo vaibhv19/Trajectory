@@ -59,3 +59,4 @@ pnpm-debug.log*
 
 # SSH Key
 trajectory-key.pem
+github-action-key*
