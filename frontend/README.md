@@ -1,63 +1,76 @@
-# Trajectory— React Frontend SPA 🌐
+# Trajectory — React Frontend SPA 🌐
 
-The frontend of **Trajectory** is a high-fidelity Single Page Application (SPA) designed as an interactive instrument ledger / control center for career management.
+The frontend of **Trajectory** is a high-fidelity Single Page Application (SPA) designed as a high-density, real-time command center for career pipeline management.
 
 ---
 
-## 🛠️ Technology Stack & Libraries
+## 🛠️ Technology Stack & Dependencies
 
-*   **Framework:** React 18+ (bundled with **Vite** for fast HMR and compilation).
-*   **Language:** TypeScript (configured for strict type checks, no `any`).
-*   **Styling:** **Tailwind CSS** implementing a custom-mixed paper-and-graphite layout token structure (detailed in `DESIGN.md`).
-*   **UI Components:** **Shadcn UI** built over raw **Radix UI** primitives.
+*   **Framework:** **React 19** (`^19.0.0`) bundled with **Vite** (`^5.3.4`) for fast HMR and compilation.
+*   **Language:** TypeScript (`^5.5.3`) configured for strict type safety.
+*   **Styling:** **Tailwind CSS** (`^3.4.6`) implementing custom tokens defined in [Docs/DESIGN.md](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/Docs/DESIGN.md).
+*   **UI Components:** **Shadcn UI** primitives built over **Radix UI** primitives (`@radix-ui/react-dialog`, `@radix-ui/react-dropdown-menu`, `@radix-ui/react-select`, `@radix-ui/react-tabs`, `@radix-ui/react-tooltip`).
 *   **State Management:**
-    *   **Server State:** **TanStack Query (React Query v5)** for API fetch caching, optimistic UI updates, and synchronization.
-    *   **Client State:** **Zustand** for lightweight global UI states (sidebar toggles, modal open states, active profiles, and active themes).
-*   **Forms & Validation:** **React Hook Form** + **Zod** schema constraints matching backend validations.
-*   **Analytics Visualizations:** **Recharts** rendering custom Area and Bar conversions (representing the application funnel).
-*   **Iconography:** Lucide React icons.
-*   **Router:** React Router Dom (v6+).
+    *   **Server State:** **TanStack Query v5** (`@tanstack/react-query ^5.51.1`) for API fetching, caching, optimistic UI updates, and query invalidation.
+    *   **Client State:** **Zustand** (`^4.5.4`) for global authentication (`useAuthStore`), theme customization (`useThemeStore`), and UI alerts (`useUIStore`).
+*   **Forms & Validation:** **React Hook Form** (`^7.52.1`) + **Zod** (`^3.23.8`) for client-side input validation.
+*   **Analytics Visualizations:** **Recharts** (`^2.12.7`) rendering area and conversion funnel charts.
+*   **Iconography:** Lucide React (`^0.407.0`).
+*   **Routing:** React Router Dom (`^6.25.1`).
+*   **Hosting Configuration:** Vercel Edge Network configured via [frontend/vercel.json](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/frontend/vercel.json) (`source: "/(.*)", destination: "/index.html"`).
 
 ---
 
-## 📂 Project Structure
+## 📂 Frontend Directory Structure
 
-All client application source files are nested in the [`/src`](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/frontend/src) directory:
+Source files are organized under [`frontend/src`](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/frontend/src):
 
-*   [`pages/`](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/frontend/src/pages) — Main route canvases:
-    *   `LoginPage`: Minimal canvas handling email credentials login/registration and social auth button triggers.
-    *   `DashboardPage`: Command Center showing high-level counters, Recharts area charts, and "Today's Agenda".
-    *   `ApplicationsPage`: High-density application matrix showing a tabular, paginated database list with filter controls. Includes AI Import and Quick Resume Upload dialogs.
-    *   `ApplicationDetailsPage`: Detailed view displaying status audit trails on a chronological timeline (represented by diamond nodes), S3 resume associations, and schedule invite parser modals.
-    *   `OutreachPage`: Networking CRM contacts grid with follow-up warning triggers and "Convert to Application" widgets.
-    *   `ResumesPage`: Career persona configurations, versioned PDF records, and keywords changelog logs.
-    *   `ResourcesPage`: Placement records database for 100+ technology companies and private S3-backed document uploads.
-    *   `SettingsPage`: Display name profile edits, passwords updates, and ghost threshold configs.
-*   [`components/`](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/frontend/src/components) — Reusable components (e.g. navigation sidebar, shell layout, table primitives).
-*   [`services/`](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/frontend/src/services) — `api.ts` Axios-based client layer with API token interceptors and hooks.
-*   [`store/`](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/frontend/src/store) — Zustand global slices (e.g. authentication, themes, UI alerts).
-*   [`types/`](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/frontend/src/types) — Strict TypeScript interfaces mapping database entities.
+```text
+src/
+├── components/                     # Reusable UI Components
+│   ├── auth/                       # Protected Route Wrappers
+│   ├── common/                     # Dialogs, Modals, Loading Spinners
+│   ├── layout/                     # Sidebar Navigation, Navbar, Header
+│   └── ui/                         # Base Shadcn / Radix primitives
+├── pages/                          # Primary Page Views & Canvases
+│   ├── LoginPage.tsx               # Auth Page (Credentials & OAuth triggers)
+│   ├── DashboardPage.tsx           # Main Command Center & Recharts Funnels
+│   ├── ApplicationsPage.tsx        # High-Density Paginated Job Application Table
+│   ├── ApplicationDetailsPage.tsx  # Timeline Inspector & History Nodes
+│   ├── OutreachPage.tsx            # Networking CRM & Recruiter Cards Grid
+│   ├── ResumesPage.tsx             # Career Profile Personas & Resume Manager
+│   ├── ResourcesPage.tsx           # Company Placement Sheets & Document Uploads
+│   └── SettingsPage.tsx            # User Preferences & Inactivity Thresholds
+├── services/                       # API Integration Layer
+│   └── api.ts                      # Axios Client Instance with Interceptors
+├── store/                          # Zustand Global Slices
+│   ├── authStore.ts                # Session state, JWT, and LocalStorage sync
+│   ├── themeStore.ts               # Theme modes (light, dark, system)
+│   └── uiStore.ts                  # Modals and notifications state
+└── types/                          # Strict TypeScript Interfaces
+    └── index.ts                    # User, Application, Outreach, DTO interfaces
+```
 
 ---
 
-## ⚙️ Routing & View Paths
+## ⚙️ Client-Side Routing Reference
 
-Client-side routes are mapped inside [`App.tsx`](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/frontend/src/App.tsx):
+Client-side routes are configured in [`App.tsx`](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/frontend/src/App.tsx):
 
-*   `/login` — Credentials login/signup tabs.
-*   `/dashboard` — Command center landing.
-*   `/applications` — Job tracker table list.
-*   `/applications/:id` — Detail view and audit history timeline.
-*   `/outreach` — CRM networking and recruiters.
-*   `/resumes` — Career profiles and resume manager.
-*   `/resources` — Placement details and private storage.
-*   `/settings` — User preferences and configurations.
+*   **`/login`** — Authentication Canvas.
+*   **`/dashboard`** — Command Center landing page (`<ProtectedRoute>`).
+*   **`/applications`** — Applications Table (`<ProtectedRoute>`).
+*   **`/applications/:id`** — Application Detail Inspector & History Timeline (`<ProtectedRoute>`).
+*   **`/outreach`** — Networking CRM Contact Grid (`<ProtectedRoute>`).
+*   **`/resumes`** — Career Profile Manager & Versioned Resumes (`<ProtectedRoute>`).
+*   **`/resources`** — Placement Criteria Sheets & Private S3 Storage (`<ProtectedRoute>`).
+*   **`/settings`** — User Profile Settings & Ghost Threshold Controls (`<ProtectedRoute>`).
 
 ---
 
 ## 🛠️ Developer Commands
 
-Ensure that the backend server is running on `http://localhost:8080` (or configure `VITE_API_BASE_URL` in `.env` accordingly).
+Ensure backend server is available at `VITE_API_BASE_URL` (defaults to `http://localhost:8080/api`).
 
 ### Install Dependencies
 ```bash
@@ -68,17 +81,15 @@ npm install
 ```bash
 npm run dev
 ```
-Starts Vite dev server, typically exposed at [http://localhost:5173](http://localhost:5173).
+Starts Vite dev server on `http://localhost:5173`.
 
-### Build Production Bundle
+### Build Production Asset Bundle
 ```bash
 npm run build
 ```
-Creates optimized build assets inside `/dist/`.
+Generates optimized static build assets inside `/dist/`.
 
-### Run Linter
+### Run Linters
 ```bash
 npm run lint
-# or run oxlint fast linter:
-npx oxlint
 ```
