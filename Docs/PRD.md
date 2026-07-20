@@ -1,149 +1,117 @@
 # Product Requirements Document (PRD): Trajectory
 
-**Project Name:** Trajectory – Your Career Operating System[cite: 1]  
-**Status:** Finalized / Ready for Core Implementation  
-**Document Version:** 1.0  
+**Project Name:** Trajectory – Your Career Operating System  
+**Status:** Production Ready / Deployed  
+**Document Version:** 2.0 (Synchronized with Source Implementation)  
 
 ---
 
 ## 1. Executive Summary
-**Trajectory** is a comprehensive, full-stack career management platform designed to centralize the fragmented job search process[cite: 1]. It moves beyond simple spreadsheets by integrating resume versioning, AI-powered data extraction, cold outreach tracking, and deep analytics[cite: 1]. The goal is to provide job seekers with a "Command Center" that automates administrative tasks and provides actionable insights into their application performance[cite: 1].
+**Trajectory** is a comprehensive, full-stack career management platform designed to centralize and automate the fragmented job search process. By moving beyond static spreadsheets, Trajectory integrates resume versioning, AI-powered data extraction, cold outreach tracking, placement criteria sheets, and deep analytics into a unified "Command Center" (Dashboard).
+
+The system operates as a decoupled architecture: a **React 19 SPA** hosted on **Vercel** communicating via HTTPS with a **Java 21 / Spring Boot 3.3.1 REST API** running in Docker on an **AWS EC2** instance, backed by **AWS RDS PostgreSQL 16** and **AWS S3**.
 
 ---
 
-## 2. Target Audience
-*   **Active Job Seekers:** New graduates and experienced professionals managing high volumes of applications[cite: 1].
-*   **Career Switchers:** Users managing multiple personas/profiles (e.g., applying for both Data Science and Software Engineering roles)[cite: 1].
-*   **Power Users:** Job seekers who utilize cold outreach, track networking, and maintain multiple resume iterations[cite: 1].
+## 2. Target Persona & User Demographics
+- **Active Job Seekers:** New graduates and experienced software engineers managing high volumes of applications (50–200+ roles).
+- **Multi-Track Applicants:** Engineers maintaining multiple career personas (e.g. applying for both "Frontend Engineer" and "Full Stack Developer" roles).
+- **Power Networkers:** Applicants leveraging recruiter outreach, tracking cold messages, and converting successful outreach into formal applications.
 
 ---
 
 ## 3. Product Features & Functional Requirements
 
 ### 3.1 Dashboard (The Command Center)
-The dashboard provides a high-level bird's-eye view of the user’s pipeline[cite: 1].
-*   **Core Metrics:** Total, Active, Rejected, and Ghosted counts[cite: 1].
-*   **Funnel Analytics:** OA (Online Assessment) count, Interview count, Offer count[cite: 1].
-*   **Performance Tracking:** Response Rate, Interview Conversion, and Offer Conversion rates[cite: 1].
-*   **Temporal Tracking:** 
-    *   **Applications This Week:** Rolling count of applications submitted in the last 7 days[cite: 3].
-    *   **Applications This Month:** Count of applications submitted in the current calendar month[cite: 3].
-*   **Visualizations:** 
-    *   Resume performance (comparing different resume versions against their "Response Rate" to identify which version gets more hits)[cite: 1, 3].
-    *   Applications by source (LinkedIn, Indeed, etc.) and career profile distribution[cite: 1].
-*   **Daily Action:** A "Today’s Agenda" widget showing upcoming interviews, OAs, and follow-ups[cite: 1].
+- **Pipeline Metrics Cards:** High-level counters for `Total`, `Active`, `Rejected`, and `Ghosted` applications.
+- **Funnel Analytics:** Numerical tracking of Online Assessments (OAs), Interviews, and Offers.
+- **Performance Rates:** Real-time percentage conversion metrics:
+  - **Response Rate:** `(OAs + Interviews + Offers) / Total Applications`
+  - **Interview Conversion Rate:** `Interviews / (OAs + Applied)`
+  - **Offer Conversion Rate:** `Offers / Interviews`
+- **Temporal Metrics:** Rollup counts for applications submitted "This Week" (rolling 7 days) and "This Month".
+- **Analytics Charts (Recharts):** Visual charts rendering application distribution by source and career profile.
+- **Today's Agenda Widget:** Consolidated daily action list showing upcoming OA/Interview start times and CRM follow-up dates.
 
-### 3.2 Application Management
-A robust CRUD system for tracking the lifecycle of a job application[cite: 1].
-*   **Core Fields:** Company Name, Role, Career Profile, Resume Version, Location, Date Applied, Status, Source, Application Link, and Notes[cite: 1].
-*   **Critical Dates:** 
-    *   **Follow-up Date:** A user-defined date to trigger a "Check-in" reminder[cite: 3].
-    *   **Response Date:** The date the company first contacted the user after application[cite: 3].
-*   **Smart Status Updates:** 
-    *   If status changes to "OA" or "Interview," automatically prompt for Date/Time and Meeting Links[cite: 1].
-    *   Automatic creation of calendar reminders based on these dates[cite: 1].
-*   **Status Timeline:** Each application detail page must feature a chronological history where every status change (e.g., Applied $\rightarrow$ OA $\rightarrow$ Interview $\rightarrow$ Offer) is timestamped and logged, allowing users to see the duration spent in each stage[cite: 3].
-*   **Automation:** 
-    *   **Ghost Detection:** If no update occurs within a user-defined threshold (e.g., 30 days), the status automatically flips to "Ghosted"[cite: 1].
-    *   **Archive:** One-click archiving for rejected applications[cite: 1].
+### 3.2 Job Application Management (CRUD & Timeline)
+- **Core Attributes:** Company Name, Role Title, Location, Career Profile, Resume Version, Applied Date, Source (LinkedIn, Indeed, Referral), Salary Range, Job Description URL, and Notes.
+- **Status Lifecycle State Machine:** Enforces `application_status` ENUM transitions (`APPLIED`, `OA`, `INTERVIEW`, `OFFER`, `REJECTED`, `GHOSTED`, `WITHDRAWN`).
+- **Timeline Audit History (`application_status_history`):** Every status change logs the new status, timestamp (`changed_at`), notes, and calculates duration spent in the previous stage.
+- **Smart Date & Meeting Fields:** When status changes to `OA` or `INTERVIEW`, system prompts for `oa_date_time` or `interview_date_time` and `meeting_link`.
+- **Archival Control (`is_archived`):** One-click toggle to archive rejected or inactive applications without deleting history.
+- **Automated Ghost Detection:** Spring Scheduler daemon automatically flips status to `GHOSTED` for applications inactive beyond the user's `ghost_threshold_days` (default: 30 days).
 
-### 3.3 Resume & Career Profile Manager
-Solves the "Which resume did I use for this job?" problem[cite: 1].
-*   **Career Profiles:** Users define profiles (e.g., "Full Stack Dev," "Product Manager") with specific icons and color themes[cite: 1].
-*   **Versioning Logic:** Upload and store multiple versions of a resume[cite: 1].
-    *   **Auto-Increment:** When a user uploads a new version for a specific profile, the system suggests an incremented version number (e.g., v1 $\rightarrow$ v2)[cite: 3].
-    *   **Inline Creation:** Within the "Add Application" modal, users must have a "Quick Upload" button to add a new resume version without leaving the current workflow[cite: 3].
-*   **Auto-Link:** System automatically suggests the "Latest Resume" for a specific Career Profile during new application creation[cite: 1].
-*   **Changelog:** Notes for each resume version to track specific keywords added or sections changed[cite: 1].
+### 3.3 Career Profiles & Versioned Resumes
+- **Career Profiles (`career_profiles`):** Create personas (e.g., "Full Stack Dev", "Product Manager") with custom Hex color codes (`color_code`) and Lucide icon identifiers (`icon_identifier`).
+- **Auto-Version Increment:** Uploading a new resume for a profile auto-increments the `version_number` (v1 ➔ v2 ➔ v3).
+- **S3 File Storage:** Resumes are stored privately in AWS S3 (`s3_key`). Users can download or delete binaries.
+- **Inline Resume Upload:** Allows uploading a new resume version directly within the "Add Application" modal.
+- **Changelog:** Notes field for each resume version to record what skills/sections changed.
 
-### 3.4 Cold Outreach & Networking (CRM Module)
-A dedicated CRM for non-portal applications and direct networking[cite: 1, 4].
-*   **Fields:** Recruiter/Contact name, Company, Email, LinkedIn, and Outreach Status[cite: 1].
-*   **Position:** A mandatory text field to specify the exact role being discussed (e.g., "Senior Backend Engineer")[cite: 4].
-*   **Date Sent:** A date-picker field to log exactly when the initial contact was made[cite: 4]. This date serves as the baseline for calculating the follow-up reminder[cite: 4].
-*   **Follow-ups:** Set reminders for follow-up emails[cite: 1].
-*   **Conversion:** One-click button to convert a successful outreach thread into a formal "Application" entry, transferring recruiter notes, contact history, and company details.
+### 3.4 Cold Outreach & Networking CRM
+- **Contact Tracking (`outreach`):** Recruiter name, company, email, LinkedIn URL, position discussed, date sent, and follow-up date.
+- **Outreach Status State Machine:** ENUM values (`PENDING`, `CONTACTED`, `REPLIED`, `INTERVIEW_SECURED`, `NO_RESPONSE`).
+- **AI Sentiment Analysis:** Paste recruiter replies into the AI analysis modal to evaluate sentiment and suggest status updates.
+- **One-Click Application Conversion:** Convert an outreach contact into a formal job application entry, transferring contact details and notes.
 
-### 3.5 AI Features (Workflow Automation)
-Leveraging LLMs to reduce manual data entry and expedite form completion[cite: 1, 3].
-*   **Parsing:** Import and extract data from Job Descriptions, Recruiter Emails, OA Invitations, Offer Letters, Google Form Confirmations, and Interview Invites[cite: 1, 3].
-*   **Auto-Populate Logic:** Beyond extraction, the AI module will auto-populate the application form[cite: 3]. The user reviews the pre-filled fields generated from the pasted text/email and clicks "Save"[cite: 3].
-*   **Field Extraction & Suggestions:** AI identifies Company, Role, Location, Skills, and Experience requirements, and suggests the most relevant "Career Profile" based on the job description[cite: 1].
-*   **Preservation:** Automatically saves the original Job Description, protecting against deleted job postings[cite: 1].
+### 3.5 AI-Powered Workflow Automation (Spring AI + Groq)
+- **Job Description Parsing (`POST /api/ai/extract-jd`):** Extracts `company_name`, `role_title`, `location`, `skills`, `salary_range`, and `suggested_profile_title` from raw job descriptions.
+- **Schedule Invite Parsing (`POST /api/ai/extract-event`):** Extracts `event_type`, `event_date`, `event_time`, `meeting_link`, and `duration_minutes` from recruiter emails.
+- **Outreach Response Sentiment (`POST /api/ai/analyze-outreach`):** Extracts `suggested_status`, `suggested_action`, and `key_points` from recruiter responses.
+- **Mock Fallback Mode:** Seamless fallback to regex mock algorithms when Groq API key is set to `mock-key` or omitted.
 
-### 3.6 Company Resources & Documents (Private Storage)
-*   **Local-to-Cloud Storage:** Centralized repository for Career Page links, Placement PPTs, Hiring Process PDFs, and Eligibility documents[cite: 1, 3]. These are uploaded by the user and stored privately in their cloud storage account, ensuring access even if original external links expire[cite: 3].
-*   **Context:** Attach specific documents to specific companies for easy retrieval during interview prep[cite: 1].
+### 3.6 Company Resources & Placement Sheets
+- **Placement Reference Sheets (`PublicUserController`):** Built-in database for 100+ top technology companies listing CTC packages, CGPA/12th eligibility criteria, and interview topics.
+- **Private S3 Document Management (`company_documents`):** Upload company-specific offer PDFs, benefit guides, and process guidelines securely to AWS S3.
+
+### 3.7 Notifications & Preferences
+- **System Notifications (`notifications`):** In-app and Web Push notifications for upcoming OAs, interviews, and outreach follow-ups.
+- **User Settings (`users`):** Modifiable parameters for display name, password, `ghost_threshold_days`, `auto_archive_enabled`, `browser_notifications_enabled`, and `email_notifications_enabled`.
 
 ---
 
-## 4. Engineering & Technical Requirements
+## 4. Database Schema Specifications
 
-### 4.1 Security & Authentication
-*   **Methods:** Email/Password (hashed via bcrypt/argon2), Google OAuth, and GitHub OAuth[cite: 1].
-*   **Session Management:** JWT with Refresh Token rotation[cite: 1].
-*   **Authorization:** Future-proofing for Role-Based Access Control (RBAC)[cite: 1].
+The PostgreSQL database schema is versioned via Flyway:
 
-### 4.2 System Architecture & Infrastructure
-*   **API:** RESTful API with structured logging and global exception handling[cite: 1].
-*   **Performance:** Implement Pagination for application lists and Optimistic UI updates for a snappy feel[cite: 1].
-*   **Integrity:** Input validation on all endpoints and duplicate application detection (based on Company + Role)[cite: 1].
-*   **Storage:** Secure file upload for resumes and PDFs (S3 or similar)[cite: 1].
-*   **Rate Limiting:** Implement API rate limiting (e.g., using Redis) to prevent brute-force attacks and control AI API expenses (e.g., max 50 AI extractions per user per day)[cite: 3, 4].
-*   **Input Validation Logic:** Strict validation for "Date Sent" and "Follow-up Date" to ensure no historical conflicts (e.g., Follow-up Date cannot be before Date Sent)[cite: 4].
-*   **State Persistence:** Ensure that "Auto-Archive" and "Notification" preferences are persisted in the database, not just local storage, to maintain cross-device consistency[cite: 4].
-
-### 4.3 UI/UX & Navigation
-*   **Data Management:** Every list view (Applications, Outreach, Resources) must support real-time keyword search (across Company, Role, and Notes), sorting (by Date Applied, Status, or Company Name), and multi-select filtering (by Career Profile, Status, or Source)[cite: 3].
-*   **Themes:** Light, Dark, and System-matching modes[cite: 1].
-*   **Accessibility:** Font size adjustments and "Compact Mode" for power users with 100+ applications[cite: 1].
+### Core Tables Summary:
+- **`users`:** `id (UUID)`, `email`, `password_hash`, `full_name`, `avatar_url`, `auth_provider`, `ghost_threshold_days`, `auto_archive_enabled`, `browser_notifications_enabled`, `email_notifications_enabled`, `ai_extractions_count`, `last_ai_extraction_date`.
+- **`career_profiles`:** `id (UUID)`, `user_id`, `title`, `color_code`, `icon_identifier`, `is_default`.
+- **`resumes`:** `id (UUID)`, `profile_id`, `version_number`, `s3_key`, `file_name`, `changelog`.
+- **`applications`:** `id (UUID)`, `user_id`, `profile_id`, `resume_id`, `company_name`, `role_title`, `location`, `job_description_url`, `job_description_raw`, `status`, `source`, `salary_range`, `date_applied`, `follow_up_date`, `response_date`, `is_archived`, `oa_date_time`, `interview_date_time`, `meeting_link`, `last_activity_at`.
+- **`application_status_history`:** `id (UUID)`, `application_id`, `status`, `notes`, `changed_at`.
+- **`outreach`:** `id (UUID)`, `user_id`, `contact_name`, `company_name`, `position_discussed`, `email`, `linkedin_url`, `status`, `date_sent`, `follow_up_date`, `notes`.
+- **`company_documents`:** `id (UUID)`, `user_id`, `company_name`, `document_name`, `s3_key`, `document_type`.
+- **`notifications`:** `id (UUID)`, `user_id`, `title`, `message`, `type`, `is_read`, `created_at`.
+- **`refresh_tokens`:** `id (UUID)`, `user_id`, `token`, `expiry_date`.
 
 ---
 
-## 5. Notification System
-A centralized notification engine will handle:
-*   **Agenda Alerts:** Daily morning digest of "Today's Agenda" via the dashboard widget[cite: 3, 4].
-*   **Event Reminders:** High-priority alerts for OA and Interview start times[cite: 3].
-*   **Nudge Notifications:** Reminders for "Follow-up Dates" that have been reached[cite: 3].
-*   **System Alerts:** Browser-based push notifications (Web Push API) for real-time updates[cite: 1, 4].
+## 5. Non-Functional & Security Requirements
+
+- **Concurrency:** Java 21 Virtual Threads (`spring.threads.virtual.enabled=true`) ensuring non-blocking I/O execution.
+- **Stateless Security:** JWT authentication with access token expiration (24h) and refresh token rotation.
+- **CORS & Proxy Enforcements:** Cors origins restricted to production frontend (`https://trajectory-mu-six.vercel.app`); HTTPS scheme forwarded via Nginx (`server.forward-headers-strategy: framework`).
+- **Data Isolation:** Enforced via `user_id` foreign key filters on all SQL repository queries.
 
 ---
 
-## 6. Settings & Data Portability
+## 6. Future Roadmap (Un-implemented Features)
 
-### 6.1 Automation Toggles & Configurations
-*   **Auto-Archive Toggle:** When enabled, any application whose status is updated to "Rejected" or "Ghosted" will automatically be moved to the Archive view[cite: 4]. (Default: Disabled)[cite: 4].
-*   **Browser Notification Toggle:** A master ON/OFF switch for the Web Push API[cite: 4]. If disabled, reminders only appear within the internal dashboard widget[cite: 4].
-*   **Ghosting Threshold:** A numerical input (days) that determines when an application is flagged as "Ghosted" based on the last recorded activity[cite: 4] or the "Date Applied".
-*   **Notification Prefixes:** Customize how long before an event a reminder is triggered.
+The following features represent planned enhancements for future releases:
 
-### 6.2 Account Management
-The account section handles the full identity lifecycle of the user:
-*   **Update Profile:** Ability to modify display name and profile picture/avatar[cite: 3, 4].
-*   **Change Email:** Users must provide their current password and verify the new email address via a verification link before the primary account email updates[cite: 4].
-*   **Change Password:** Standard security workflow (Current Password + New Password + Confirm New Password)[cite: 4].
-*   **OAuth Management:** Display linked Google or GitHub accounts and provide options to unlink/re-link[cite: 4].
-
-### 6.3 Data Control
-*   **Export:** Download full application and history data in JSON/CSV format for local backup[cite: 3].
-*   **Import Backup:** Ability to upload a previously exported Trajectory JSON file to completely restore account state[cite: 3].
-*   **Deletion:** Permanent deletion of the account and all associated data.
+1. **Browser Extension:** One-click application scraping directly from LinkedIn and Indeed.
+2. **Bi-Directional Calendar Sync:** Automatic Google Calendar / Microsoft Outlook event synchronization.
+3. **AI Cover Letter Generator:** Automated generation of personalized cover letters from Resume + Job Description.
+4. **JD vs. Resume Match Scoring:** Compatibility scoring comparing specific resume versions against job posting keywords.
+5. **Skill Gap Analytics:** Automated identification of missing resume keywords based on job search history.
+6. **Container Registry Integration:** Automating ECR/GHCR image compilation before deployment.
 
 ---
 
-## 7. Future Roadmap
-1.  **Browser Extension:** One-click application "scraping" directly from LinkedIn/Indeed[cite: 1].
-2.  **Calendar Sync:** Bi-directional sync with Google/Outlook Calendars[cite: 1].
-3.  **AI Cover Letter Generator:** Using the Resume + Job Description to draft personalized letters[cite: 1].
-4.  **JD vs. Resume Matching:** A scoring system that compares a specific Resume Version against a Job Description to provide a "Compatibility Score"[cite: 3].
-5.  **Skill Gap Analysis:** Analyzing multiple JDs in a Career Profile to identify recurring keywords missing from the user’s current resume[cite: 1, 3].
-6.  **Job Portal Integration:** API-level integration with major boards (where available)[cite: 1].
-7.  **Resume Builder:** An integrated tool to create resumes using the platform’s native Career Profile data[cite: 3].
-8.  **Interview Tracker:** A dedicated module for post-interview debriefs (questions asked, interviewer names, self-evaluation)[cite: 3].
+## Related Documentation
 
----
-
-## 8. Success Metrics
-*   **Reduction in Data Entry Time:** Measured by the usage of AI Import vs. Manual Entry workflows[cite: 1].
-*   **User Retention:** Active tracking of applications over a 3-month job search cycle[cite: 1].
-*   **Conversion Accuracy:** Correctness of AI-extracted fields from emails and JDs[cite: 1].
+- [**Documentation Index (Docs/INDEX.md)**](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/Docs/INDEX.md)
+- [**Application Flow (Docs/App Flow.md)**](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/Docs/App%20Flow.md)
+- [**REST API Specification (Docs/API_SPECIFICATION.md)**](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/Docs/API_SPECIFICATION.md)
+- [**Production Deployment Guide (Docs/Deployment.md)**](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/Docs/Deployment.md)
