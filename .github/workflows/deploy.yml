@@ -10,17 +10,22 @@ jobs:
     runs-on: self-hosted
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Deploy Backend
+      - name: Deploy latest version
         run: |
+          set -e
+
           cd /home/ubuntu/Trajectory
 
+          echo "Fetching latest code..."
           git fetch origin
+
+          echo "Resetting to latest commit..."
           git reset --hard origin/main
 
-          docker compose down
+          echo "Building and starting containers..."
           docker compose up --build -d
 
+          echo "Cleaning unused images..."
           docker image prune -f
+
+          echo "Deployment completed successfully!"
