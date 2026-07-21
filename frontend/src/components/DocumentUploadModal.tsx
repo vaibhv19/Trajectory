@@ -36,15 +36,24 @@ export const DocumentUploadModal: React.FC<DocumentUploadModalProps> = ({
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Reset state when modal opens/closes
+  // Reset state when modal opens/closes & add Escape key listener
   useEffect(() => {
     if (isOpen) {
       setSelectedFile(null);
       setNotes('');
       setErrorMsg(null);
       setIsDragOver(false);
+
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === 'Escape' && !isUploading) {
+          onClose();
+        }
+      };
+
+      window.addEventListener('keydown', handleKeyDown);
+      return () => window.removeEventListener('keydown', handleKeyDown);
     }
-  }, [isOpen]);
+  }, [isOpen, isUploading, onClose]);
 
   if (!isOpen) return null;
 
