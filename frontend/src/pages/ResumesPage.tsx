@@ -6,7 +6,6 @@ import { useSidebarStore } from '../store/sidebarStore';
 import type { CareerProfile, Resume } from '../types';
 import { 
   Plus, 
-  Upload, 
   Trash2, 
   FileText, 
   Briefcase, 
@@ -16,6 +15,8 @@ import {
 } from 'lucide-react';
 import { SkeletonTable } from '../components/Skeleton';
 import { ConfirmModal } from '../components/ConfirmModal';
+import { DocumentUploadModal } from '../components/DocumentUploadModal';
+import { toast } from 'sonner';
 
 export const ResumesPage: React.FC = () => {
   const queryClient = useQueryClient();
@@ -33,9 +34,8 @@ export const ResumesPage: React.FC = () => {
   const [deleteProfileTarget, setDeleteProfileTarget] = useState<string | null>(null);
   const [deleteResumeTarget, setDeleteResumeTarget] = useState<string | null>(null);
 
-  // Resume Upload State
-  const [resumeFile, setResumeFile] = useState<File | null>(null);
-  const [resumeChangelog, setResumeChangelog] = useState('');
+  // Resume Upload Modal State
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [uploadingResume, setUploadingResume] = useState(false);
 
   // Fetch Career Profiles
@@ -56,10 +56,7 @@ export const ResumesPage: React.FC = () => {
   // Listen for quick-add query parameter to upload a new resume
   React.useEffect(() => {
     if (window.location.search.includes('add=true')) {
-      const fileInput = document.getElementById('resume-file-input') as HTMLInputElement;
-      if (fileInput) {
-        fileInput.click();
-      }
+      setIsUploadModalOpen(true);
       // Clean up parameter
       navigate('/resumes', { replace: true });
     }
@@ -81,7 +78,11 @@ export const ResumesPage: React.FC = () => {
       setIsProfileModalOpen(false);
       setSelectedProfileId(data.id);
       resetProfileForm();
+      toast.success('Career profile created successfully');
     },
+    onError: () => {
+      toast.error('Failed to create career profile');
+    }
   });
 
   const updateProfileMutation = useMutation({
@@ -90,7 +91,11 @@ export const ResumesPage: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['profiles'] });
       setIsProfileModalOpen(false);
       resetProfileForm();
+      toast.success('Career profile updated successfully');
     },
+    onError: () => {
+      toast.error('Failed to update career profile');
+    }
   });
 
   const deleteProfileMutation = useMutation({
@@ -98,7 +103,11 @@ export const ResumesPage: React.FC = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['profiles'] });
       setSelectedProfileId(null);
+      toast.success('Career profile deleted');
     },
+    onError: () => {
+      toast.error('Failed to delete career profile');
+    }
   });
 
   const deleteResumeMutation = useMutation({
@@ -106,7 +115,11 @@ export const ResumesPage: React.FC = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['resumes', selectedProfileId] });
       queryClient.invalidateQueries({ queryKey: ['dashboard-metrics'] });
+      toast.success('Resume version deleted');
     },
+    onError: () => {
+      toast.error('Failed to delete resume version');
+    }
   });
 
   const handleProfileSubmit = (e: React.FormEvent) => {
@@ -125,26 +138,25 @@ export const ResumesPage: React.FC = () => {
     }
   };
 
-  const handleResumeUploadSubmit = React.useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!resumeFile || !selectedProfileId) return;
+  const handleResumeUpload = async (file: File, changelog: string) => {
+    if (!selectedProfileId) {
+      toast.error('Please select a career profile first.');
+      return;
+    }
 
     setUploadingResume(true);
     try {
-      await api.resumes.upload(selectedProfileId, resumeFile, resumeChangelog);
+      await api.resumes.upload(selectedProfileId, file, changelog);
       queryClient.invalidateQueries({ queryKey: ['resumes', selectedProfileId] });
       queryClient.invalidateQueries({ queryKey: ['dashboard-metrics'] });
-      setResumeFile(null);
-      setResumeChangelog('');
-      // Reset input element
-      const fileInput = document.getElementById('resume-file-input') as HTMLInputElement;
-      if (fileInput) fileInput.value = '';
+      toast.success('Resume version uploaded successfully!');
+      setIsUploadModalOpen(false);
     } catch {
-      alert('Failed to upload resume version');
+      toast.error('Failed to upload resume version');
     } finally {
       setUploadingResume(false);
     }
-  }, [resumeFile, selectedProfileId, resumeChangelog, queryClient]);
+  };
 
   const handleDownload = async (resumeId: string, fileName: string) => {
     try {
@@ -154,15 +166,16 @@ export const ResumesPage: React.FC = () => {
       a.href = url;
       a.download = fileName;
       a.click();
+      toast.success(`Downloading ${fileName}...`);
     } catch {
-      alert('Could not download resume file.');
+      toast.error('Could not download resume file.');
     }
   };
 
   const handleDeleteProfile = (id: string) => {
     const prof = profiles.find(p => p.id === id);
     if (prof?.isDefault) {
-      alert('Cannot delete the default career profile.');
+      toast.error('Cannot delete the default career profile.');
       return;
     }
     setDeleteProfileTarget(id);
@@ -243,47 +256,24 @@ export const ResumesPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Upload Resume Form inline in sidebar */}
+        {/* Upload Resume Button in sidebar */}
         {selectedProfileId && (
           <div className="pt-4 border-t border-border/30">
             <h3 className="text-xs font-mono font-bold tracking-wider text-muted-foreground uppercase mb-3">Upload Version</h3>
-            <form onSubmit={handleResumeUploadSubmit} className="space-y-3 font-sans">
-              <div>
-                <label className="text-[10px] font-semibold text-muted-foreground block mb-1">Select PDF File</label>
-                <input 
-                  id="resume-file-input"
-                  type="file"
-                  required
-                  accept=".pdf"
-                  onChange={(e) => setResumeFile(e.target.files?.[0] || null)}
-                  className="w-full text-xs text-muted-foreground file:mr-2 file:py-1 file:px-2.5 file:rounded-[4px] file:border file:border-border file:text-[10px] file:font-semibold file:bg-background file:text-foreground file:cursor-pointer cursor-pointer focus:outline-none"
-                />
-              </div>
-              <div>
-                <label className="text-[10px] font-semibold text-muted-foreground block mb-1">Changelog Notes</label>
-                <textarea
-                  placeholder="e.g. Added new projects..."
-                  value={resumeChangelog}
-                  onChange={(e) => setResumeChangelog(e.target.value)}
-                  rows={2}
-                  className="w-full p-2 bg-background border border-border rounded-[4px] text-xs placeholder-muted-foreground/60 focus:outline-none focus:ring-1 focus:ring-primary/40 focus:border-transparent transition-all"
-                />
-              </div>
-              <button
-                type="submit"
-                disabled={uploadingResume || !resumeFile}
-                className="w-full flex items-center justify-center gap-2 px-3 py-1.5 rounded-[4px] bg-primary hover:bg-primary/95 text-primary-foreground text-xs font-semibold disabled:opacity-50 transition-all duration-200"
-              >
-                {uploadingResume ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Upload className="h-3.5 w-3.5" />}
-                Upload PDF
-              </button>
-            </form>
+            <button
+              type="button"
+              onClick={() => setIsUploadModalOpen(true)}
+              className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-[4px] bg-primary hover:bg-primary/95 text-primary-foreground text-xs font-semibold shadow-sm transition-all duration-200"
+            >
+              <Plus className="h-4 w-4" />
+              Add Resume
+            </button>
           </div>
         )}
       </div>
     );
     return () => setSidebarContent(null);
-  }, [profiles, selectedProfileId, resumeFile, resumeChangelog, uploadingResume, handleResumeUploadSubmit, setSidebarContent]);
+  }, [profiles, selectedProfileId, setSidebarContent]);
 
   return (
     <div className="space-y-6">
@@ -514,6 +504,22 @@ export const ResumesPage: React.FC = () => {
           confirmText="Delete Resume Version"
         />
       )}
+
+      {/* Document Upload Modal */}
+      <DocumentUploadModal
+        isOpen={isUploadModalOpen}
+        onClose={() => setIsUploadModalOpen(false)}
+        title="Upload Resume Version"
+        subtitle={activeProfile ? `Persona: ${activeProfile.title}` : undefined}
+        acceptedFileTypes=".pdf"
+        maxSizeMB={10}
+        showNotesField={true}
+        notesLabel="Changelog Notes"
+        notesPlaceholder="e.g. Added new projects, updated technical skills section..."
+        uploadButtonText="Upload Resume"
+        isUploading={uploadingResume}
+        onUpload={handleResumeUpload}
+      />
     </div>
   );
 };
