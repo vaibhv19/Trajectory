@@ -325,10 +325,20 @@ export const ResumesPage: React.FC = () => {
               {resumesLoading ? (
                 <SkeletonTable rows={3} cols={5} />
               ) : resumes.length === 0 ? (
-                <div className="flex flex-col items-center justify-center text-center py-12 border border-dashed border-border rounded-md">
-                  <FileText className="h-8 w-8 text-muted-foreground/30 mb-2" />
-                  <p className="text-xs font-semibold text-muted-foreground">No resumes uploaded yet</p>
-                  <p className="text-[10px] text-muted-foreground mt-0.5">Attach your first resume version inside the sidebar.</p>
+                <div className="flex flex-col items-center justify-center text-center py-12 border border-dashed border-border rounded-md bg-muted/5">
+                  <FileText className="h-10 w-10 text-muted-foreground/30 mb-3" />
+                  <p className="text-sm font-semibold text-foreground">No resumes uploaded yet</p>
+                  <p className="text-xs text-muted-foreground mt-1 max-w-sm">
+                    Upload your first versioned resume PDF to track revisions and target application personas.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setIsUploadModalOpen(true)}
+                    className="mt-4 flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary/95 text-primary-foreground text-xs font-semibold rounded-[4px] shadow-sm transition-all"
+                  >
+                    <Plus className="h-4 w-4" />
+                    Upload First Resume
+                  </button>
                 </div>
               ) : (
                 <div className="overflow-x-auto">
