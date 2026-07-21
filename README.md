@@ -18,6 +18,20 @@ Trajectory is deployed in production and accessible at the following live endpoi
 
 ---
 
+## 📸 Application Screenshots
+
+Here is a visual preview of **Trajectory** in both Light and Dark themes, captured directly from the live Vercel production deployment:
+
+| **1. Split-Screen Authentication (Light Mode)** | **2. Command Center Dashboard (Dark Mode)** |
+| :---: | :---: |
+| ![Auth Light Mode](Docs/screenshots/auth_light_mode.png) | ![Dashboard Dark Mode](Docs/screenshots/dashboard_dark_mode.png) |
+
+| **3. Resume Version Matrix (Dark Mode)** | **4. Application Lifecycle Board (Dark Mode)** |
+| :---: | :---: |
+| ![Resumes Dark Mode](Docs/screenshots/resumes_dark_mode.png) | ![Applications Dark Mode](Docs/screenshots/applications_dark_mode.png) |
+
+---
+
 ## 🌟 Core Features
 
 ### 📊 1. The Command Center (Dashboard)
