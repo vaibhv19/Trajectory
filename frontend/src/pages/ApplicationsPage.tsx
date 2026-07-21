@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { SkeletonTable } from '../components/Skeleton';
 import { useSidebarStore } from '../store/sidebarStore';
+import { toast } from 'sonner';
 
 export const ApplicationsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -159,7 +160,7 @@ export const ApplicationsPage: React.FC = () => {
       setIsAiModalOpen(false);
       setIsModalOpen(true);
     } catch {
-      alert('AI failed to parse text. Please enter details manually.');
+      toast.error('AI failed to parse text. Please enter details manually.');
     } finally {
       setAiLoading(false);
     }
@@ -175,8 +176,9 @@ export const ApplicationsPage: React.FC = () => {
       const resume = await api.resumes.upload(profileId, file, 'Uploaded via Application creation form.');
       setResumeId(resume.id);
       setResumeFileName(resume.fileName);
+      toast.success('Resume uploaded successfully!');
     } catch {
-      alert('Failed to upload resume');
+      toast.error('Failed to upload resume');
     } finally {
       setUploadingResume(false);
     }

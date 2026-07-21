@@ -2,6 +2,7 @@ import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../services/api';
 import { useSidebarStore } from '../store/sidebarStore';
+import { toast } from 'sonner';
 import { 
   AlertCircle,
   Loader2
@@ -47,8 +48,9 @@ export const AnalyticsPage: React.FC = () => {
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
+      toast.success('CSV report exported successfully!');
     } catch {
-      alert("Failed to export CSV");
+      toast.error('Failed to export CSV');
     }
   };
 

@@ -19,6 +19,7 @@ import {
   FileSpreadsheet
 } from 'lucide-react';
 import { ConfirmModal } from '../components/ConfirmModal';
+import { toast } from 'sonner';
 
 export const SettingsPage: React.FC = () => {
   const queryClient = useQueryClient();
@@ -371,7 +372,7 @@ export const SettingsPage: React.FC = () => {
     if (input === text) {
       deleteAccountMutation.mutate();
     } else if (input !== null) {
-      alert('Confirmation word did not match. Account deletion cancelled.');
+      toast.error('Confirmation word did not match. Account deletion cancelled.');
     }
   };
 
