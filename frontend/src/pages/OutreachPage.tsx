@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { Skeleton } from '../components/Skeleton';
 import { ConfirmModal } from '../components/ConfirmModal';
+import { toast } from 'sonner';
 
 export const OutreachPage: React.FC = () => {
   const navigate = useNavigate();
@@ -162,7 +163,7 @@ export const OutreachPage: React.FC = () => {
       );
       setIsAiOpen(false);
     } catch {
-      alert('AI analysis failed. Please update status manually.');
+      toast.error('AI analysis failed. Please update status manually.');
     } finally {
       setAnalyzingMsg(false);
     }
