@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { Skeleton } from '../components/Skeleton';
 import { ConfirmModal } from '../components/ConfirmModal';
+import { toast } from 'sonner';
 
 export const ApplicationDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -162,7 +163,7 @@ export const ApplicationDetailsPage: React.FC = () => {
       setIsEventParserOpen(false);
       setIsEditOpen(true);
     } catch {
-      alert('Failed to parse event details from text');
+      toast.error('Failed to parse event details from text');
     } finally {
       setParsingEvent(false);
     }
@@ -180,8 +181,9 @@ export const ApplicationDetailsPage: React.FC = () => {
       a.href = url;
       a.download = 'resume.pdf';
       a.click();
+      toast.success('Downloading resume...');
     } catch {
-      alert('Could not download resume.');
+      toast.error('Could not download resume.');
     }
   };
 
