@@ -18,6 +18,22 @@ Trajectory is deployed in production and accessible at the following live endpoi
 
 ---
 
+## 🖼️ Application Screenshots
+
+### 1. Split-Screen Authentication (Light Mode)
+![Split-Screen Login Page](Docs/screenshots/login_light.png)
+
+### 2. Command Center & Funnel Dashboard (Dark Mode)
+![Command Center Dashboard](Docs/screenshots/dashboard_dark.png)
+
+### 3. Application Pipeline Board (Dark Mode)
+![Applications Board](Docs/screenshots/applications_dark.png)
+
+### 4. Resume & Career Profile Version Matrix (Dark Mode)
+![Resumes Version Matrix](Docs/screenshots/resumes_dark.png)
+
+---
+
 ## 🌟 Core Features
 
 ### 📊 1. The Command Center (Dashboard)
