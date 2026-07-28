@@ -1,29 +1,29 @@
-# Trajectory REST API Specification
+# REST API Specification: Trajectory (v1.0.1)
 
-This document provides the complete, authoritative specification for all REST API endpoints implemented in the **Trajectory Backend** (`com.trajectory.backend.controller`). 
+This document provides the canonical, production-grade specification for all REST API endpoints implemented in the **Trajectory Backend** (`com.trajectory.backend.controller`).
 
 ---
 
-## 1. Global API Architecture & Conventions
+## 1. Global API Architecture & Configurations
 
-### 1.1 Base URL & Path Structure
-- **Local Development Base URL:** `http://localhost:8080/api`
-- **Production Base URL:** `https://trajectory-api.duckdns.org/api`
-- **Interactive Swagger UI:** `http://localhost:8080/swagger-ui.html`
-- **OpenAPI Schema JSON:** `http://localhost:8080/v3/api-docs`
+### 1.1 Server Gateways
+*   **Local Development Base URL:** `http://localhost:8080/api`
+*   **Production Gateway URL:** `https://trajectory-api.duckdns.org/api`
+*   **Interactive Swagger UI:** `https://trajectory-api.duckdns.org/swagger-ui/index.html` (Local: `http://localhost:8080/swagger-ui.html`)
+*   **JSON OpenAPI 3.0 Specs:** `/v3/api-docs`
 
-### 1.2 Authentication Scheme
-All endpoints (except those marked as `Public`) require HTTP Bearer Token authentication in the `Authorization` header:
+### 1.2 Access Headers
+Unless explicitly labeled as `Public`, all endpoints require the `Authorization` header populated with a valid JWT access token:
 ```http
 Authorization: Bearer <JWT_ACCESS_TOKEN>
 ```
 
-### 1.3 Standard Response & Error Format
-All validation failures, entity missing errors, and internal exceptions return standard HTTP status codes accompanied by structured JSON error bodies handled by `GlobalExceptionHandler.java`:
+### 1.3 Standard Response & Error Envelope
+Error responses return standard HTTP status codes wrapped in a structured JSON payload handled by `GlobalExceptionHandler.java`:
 
 ```json
 {
-  "timestamp": "2026-07-20T14:30:00.000+00:00",
+  "timestamp": "2026-07-28T20:25:00.123+00:00",
   "status": 400,
   "error": "Bad Request",
   "message": "Validation failed for field 'email': Must be a well-formed email address",
@@ -33,149 +33,438 @@ All validation failures, entity missing errors, and internal exceptions return s
 
 ---
 
-## 2. Endpoints by Domain Controller
+## 2. API Endpoint Dictionary
 
-### 2.1 Authentication (`AuthController`) — Base Path: `/api/auth`
+### 2.1 Authentication Subsystem (`AuthController`)
+Base API Path: `/api/auth`
 
-| Endpoint Path | HTTP Method | Auth Required | Description | Request Body DTO | Response Body DTO / Type |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| `/login` | `POST` | Public | Authenticates user with email & password | `LoginRequest` | `AuthResponse` |
-| `/register` | `POST` | Public | Registers a new user account | `RegisterRequest` | `AuthResponse` |
-| `/refresh` | `POST` | Public | Rotates JWT access token using a valid refresh token | `Map<String, String>` (`refreshToken`) | `AuthResponse` |
-| `/logout` | `POST` | Bearer Token | Revokes active refresh token and invalidates session | None | `ResponseEntity<Void>` (200 OK) |
+#### 2.1.1 Local Account Login
+*   **Method / Path:** `POST /api/auth/login`
+*   **Authentication:** `Public`
+*   **Request Body (JSON):**
+    ```json
+    {
+      "email": "candidate@domain.com",
+      "password": "SecurePassword123"
+    }
+    ```
+*   **Response Body (JSON - 200 OK):**
+    ```json
+    {
+      "token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI1ZGVj...",
+      "refreshToken": "7c82a201-92ab-4eb2-a1f9-90bc1f3a210d",
+      "userId": "5dec9b01-a1b2-4c3d-8e5f-1a2b3c4d5e6f",
+      "email": "candidate@domain.com",
+      "fullName": "Jane Doe"
+    }
+    ```
 
-#### DTO Definitions:
-- **`LoginRequest`:** `String email`, `String password`
-- **`RegisterRequest`:** `String email`, `String password`, `String fullName`
-- **`AuthResponse`:** `String token`, `String refreshToken`, `UUID userId`, `String email`, `String name`
+#### 2.1.2 Register Local Account
+*   **Method / Path:** `POST /api/auth/register`
+*   **Authentication:** `Public`
+*   **Request Body (JSON):**
+    ```json
+    {
+      "email": "candidate@domain.com",
+      "password": "SecurePassword123",
+      "fullName": "Jane Doe"
+    }
+    ```
+*   **Response Body (JSON - 201 Created):** Same schema as `/login` response DTO.
 
----
+#### 2.1.3 Token Refresh Execution
+*   **Method / Path:** `POST /api/auth/refresh`
+*   **Authentication:** `Public`
+*   **Request Body (JSON):**
+    ```json
+    {
+      "refreshToken": "7c82a201-92ab-4eb2-a1f9-90bc1f3a210d"
+    }
+    ```
+*   **Response Body (JSON - 200 OK):** Same schema as `/login` response DTO.
 
-### 2.2 AI Automation (`AIController`) — Base Path: `/api/ai`
-
-| Endpoint Path | HTTP Method | Auth Required | Description | Request Payload | Response DTO |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| `/extract-jd` | `POST` | Bearer Token | Parses raw job description text via Spring AI / Groq | `Map<String, String>` (`text`) | `JobExtraction` |
-| `/analyze-outreach` | `POST` | Bearer Token | Analyzes recruiter reply sentiment and suggests status update | `Map<String, String>` (`text`) | `OutreachAnalysis` |
-| `/extract-event` | `POST` | Bearer Token | Parses interview/OA invite body to extract date, time, and meeting link | `Map<String, String>` (`text`) | `EventExtraction` |
-
-#### DTO Definitions:
-- **`JobExtraction`:** `String company_name`, `String role_title`, `String location`, `List<String> skills`, `String salary_range`, `String suggested_profile_title`
-- **`OutreachAnalysis`:** `String suggested_status`, `String suggested_action`, `List<String> key_points`
-- **`EventExtraction`:** `String event_type`, `String event_date`, `String event_time`, `String meeting_link`, `List<String> interviewer_names`, `Integer duration_minutes`
-
----
-
-### 2.3 Job Application Management (`ApplicationController`) — Base Path: `/api/applications`
-
-| Endpoint Path | HTTP Method | Auth Required | Description | Request Body | Response Body |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| `/` | `GET` | Bearer Token | Fetches all job applications for authenticated user | Query params: `profileId`, `status`, `search` | `List<ApplicationResponse>` |
-| `/{id}` | `GET` | Bearer Token | Fetches single application details by ID | Path variable `id` | `ApplicationResponse` |
-| `/` | `POST` | Bearer Token | Creates a new job application | `CreateApplicationRequest` | `ApplicationResponse` |
-| `/{id}` | `PUT` | Bearer Token | Updates existing application details | `UpdateApplicationRequest` | `ApplicationResponse` |
-| `/{id}/status` | `PATCH` | Bearer Token | Updates application status & logs history timeline | `StatusUpdateRequest` | `ApplicationResponse` |
-| `/{id}/archive` | `PATCH` | Bearer Token | Toggles application archival status (`is_archived`) | None | `ApplicationResponse` |
-| `/{id}` | `DELETE` | Bearer Token | Deletes an application and associated history | None | `ResponseEntity<Void>` (204 No Content) |
-
-#### DTO Definitions:
-- **`CreateApplicationRequest`:** `UUID profileId`, `UUID resumeId`, `String companyName`, `String roleTitle`, `String location`, `String jobDescriptionUrl`, `String jobDescriptionRaw`, `ApplicationStatus status`, `String source`, `String salaryRange`, `LocalDate dateApplied`, `LocalDate followUpDate`
-- **`UpdateApplicationRequest`:** `String companyName`, `String roleTitle`, `String location`, `String jobDescriptionUrl`, `String jobDescriptionRaw`, `String source`, `String salaryRange`, `LocalDate followUpDate`, `LocalDate responseDate`
-- **`StatusUpdateRequest`:** `ApplicationStatus status`, `String notes`, `LocalDateTime oaDateTime`, `LocalDateTime interviewDateTime`, `String meetingLink`
-
----
-
-### 2.4 Cold Outreach & Networking CRM (`OutreachController`) — Base Path: `/api/outreach`
-
-| Endpoint Path | HTTP Method | Auth Required | Description | Request Body | Response Body |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| `/` | `GET` | Bearer Token | Fetches all CRM outreach entries for user | Query params: `search`, `status` | `List<OutreachResponse>` |
-| `/{id}` | `GET` | Bearer Token | Fetches single outreach entry by ID | Path variable `id` | `OutreachResponse` |
-| `/` | `POST` | Bearer Token | Creates a new cold outreach entry | `CreateOutreachRequest` | `OutreachResponse` |
-| `/{id}` | `PUT` | Bearer Token | Updates outreach details & follow-up dates | `UpdateOutreachRequest` | `OutreachResponse` |
-| `/{id}/convert` | `POST` | Bearer Token | Converts outreach contact into formal Application | `ConvertOutreachRequest` | `ApplicationResponse` |
-| `/{id}` | `DELETE` | Bearer Token | Deletes an outreach record | None | `ResponseEntity<Void>` (204 No Content) |
+#### 2.1.4 Revoke/Logout Session
+*   **Method / Path:** `POST /api/auth/logout`
+*   **Authentication:** `Bearer Token`
+*   **Response (200 OK):** Empty body.
 
 ---
 
-### 2.5 Career Personas & Profiles (`CareerProfileController`) — Base Path: `/api/profiles`
+### 2.2 AI Extraction & Sentiment Services (`AIController`)
+Base API Path: `/api/ai`
 
-| Endpoint Path | HTTP Method | Auth Required | Description | Request Body | Response Body |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| `/` | `GET` | Bearer Token | Fetches all career profiles for user | None | `List<CareerProfileResponse>` |
-| `/` | `POST` | Bearer Token | Creates a new career profile persona | `CreateProfileRequest` | `CareerProfileResponse` |
-| `/{id}` | `PUT` | Bearer Token | Updates profile title, hex color, or icon | `UpdateProfileRequest` | `CareerProfileResponse` |
-| `/{id}` | `DELETE` | Bearer Token | Deletes career profile and associated records | None | `ResponseEntity<Void>` (204 No Content) |
+#### 2.2.1 Job Description Extraction
+*   **Method / Path:** `POST /api/ai/extract-jd`
+*   **Authentication:** `Bearer Token`
+*   **Request Body (JSON):**
+    ```json
+    {
+      "text": "Google is looking for a Systems Engineer in Sunnyvale, CA. Core skills: Java, Kubernetes. Salary: $150,000 - $180,000."
+    }
+    ```
+*   **Response Body (JSON - 200 OK):**
+    ```json
+    {
+      "company_name": "Google",
+      "role_title": "Systems Engineer",
+      "location": "Sunnyvale, CA",
+      "skills": ["Java", "Kubernetes"],
+      "salary_range": "$150,000 - $180,000",
+      "suggested_profile_title": "Systems Engineer"
+    }
+    ```
+
+#### 2.2.2 Recruiter Reply Sentiment Analysis
+*   **Method / Path:** `POST /api/ai/analyze-outreach`
+*   **Authentication:** `Bearer Token`
+*   **Request Body (JSON):**
+    ```json
+    {
+      "text": "Hi Jane, thanks for reaching out. We would love to hop on a quick intro call tomorrow at 10 AM. Let me know if that works."
+    }
+    ```
+*   **Response Body (JSON - 200 OK):**
+    ```json
+    {
+      "suggested_status": "REPLIED",
+      "suggested_action": "Schedule intro call",
+      "key_points": [
+        "Recruiter responded within 24 hours",
+        "Wants to schedule an intro call"
+      ]
+    }
+    ```
+
+#### 2.2.3 Event Invitation Parsing
+*   **Method / Path:** `POST /api/ai/extract-event`
+*   **Authentication:** `Bearer Token`
+*   **Request Body (JSON):**
+    ```json
+    {
+      "text": "Your Online Assessment is scheduled for July 30, 2026 at 2:00 PM. Here is the link: https://zoom.us/j/123456"
+    }
+    ```
+*   **Response Body (JSON - 200 OK):**
+    ```json
+    {
+      "event_type": "OA",
+      "event_date": "2026-07-30",
+      "event_time": "14:00:00",
+      "meeting_link": "https://zoom.us/j/123456",
+      "interviewer_names": [],
+      "duration_minutes": 60
+    }
+    ```
 
 ---
 
-### 2.6 Versioned Resumes (`ResumeController`) — Base Path: `/api/resumes`
+### 2.3 Job Applications (`ApplicationController`)
+Base API Path: `/api/applications`
 
-| Endpoint Path | HTTP Method | Auth Required | Description | Request Payload | Response Body |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| `/profile/{profileId}` | `GET` | Bearer Token | Fetches versioned resumes for a profile | Path variable `profileId` | `List<ResumeResponse>` |
-| `/upload` | `POST` | Bearer Token | Uploads new PDF resume version to AWS S3 | Multipart `file`, `profileId`, `changelog` | `ResumeResponse` |
-| `/{id}/download` | `GET` | Bearer Token | Generates pre-signed URL or streams PDF binary | Path variable `id` | Binary PDF / `byte[]` |
-| `/{id}` | `DELETE` | Bearer Token | Deletes resume metadata and S3 binary object | None | `ResponseEntity<Void>` (204 No Content) |
+#### 2.3.1 Query Applications List
+*   **Method / Path:** `GET /api/applications`
+*   **Authentication:** `Bearer Token`
+*   **Query Parameters:**
+    *   `profileId` (UUID, Optional) — Filter by career profile
+    *   `status` (String, Optional) — Filter by lifecycle status
+    *   `search` (String, Optional) — Text search across company name or role title
+*   **Response Body (JSON - 200 OK):**
+    ```json
+    [
+      {
+        "id": "1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d",
+        "companyName": "Google",
+        "roleTitle": "Software Engineer",
+        "location": "Remote",
+        "status": "APPLIED",
+        "source": "LinkedIn",
+        "salaryRange": "$140k - $160k",
+        "dateApplied": "2026-07-28",
+        "isArchived": false,
+        "lastActivityAt": "2026-07-28T20:25:00Z"
+      }
+    ]
+    ```
+
+#### 2.3.2 Get Application Details
+*   **Method / Path:** `GET /api/applications/{id}`
+*   **Authentication:** `Bearer Token`
+*   **Response Body (JSON - 200 OK):** Detailed application payload including associated resume metadata and timeline history records.
+
+#### 2.3.3 Create Job Application
+*   **Method / Path:** `POST /api/applications`
+*   **Authentication:** `Bearer Token`
+*   **Request Body (JSON):**
+    ```json
+    {
+      "profileId": "8f8b8a8c-8d8e-8f8f-9a9b-9c9d9e9f9a9b",
+      "resumeId": "5c5d5e5f-6a6b-6c6d-6e6f-7a7b7c7d7e7f",
+      "companyName": "Google",
+      "roleTitle": "Software Engineer",
+      "location": "Remote",
+      "jobDescriptionUrl": "https://careers.google.com/jobs/123",
+      "jobDescriptionRaw": "Google is looking for...",
+      "status": "APPLIED",
+      "source": "LinkedIn",
+      "salaryRange": "$140k - $160k",
+      "dateApplied": "2026-07-28"
+    }
+    ```
+*   **Response Body (JSON - 201 Created):** Same schema as Application Response DTO.
+
+#### 2.3.4 Patch Transition Status
+*   **Method / Path:** `PATCH /api/applications/{id}/status`
+*   **Authentication:** `Bearer Token`
+*   **Request Body (JSON):**
+    ```json
+    {
+      "status": "OA",
+      "notes": "Received HackerRank test link.",
+      "oaDateTime": "2026-07-30T14:00:00Z",
+      "meetingLink": "https://hackerrank.com/test/123"
+    }
+    ```
+*   **Response Body (JSON - 200 OK):** Updated application payload with new status history entry added.
+
+#### 2.3.5 Toggle Archival Status
+*   **Method / Path:** `PATCH /api/applications/{id}/archive`
+*   **Authentication:** `Bearer Token`
+*   **Response Body (JSON - 200 OK):** Updated Application Response showing modified `isArchived` flag.
+
+#### 2.3.6 Delete Application
+*   **Method / Path:** `DELETE /api/applications/{id}`
+*   **Authentication:** `Bearer Token`
+*   **Response (204 No Content):** Empty body.
 
 ---
 
-### 2.7 Placement Sheets & Documents (`CompanyDocumentController`) — Base Path: `/api/documents`
+### 2.4 Cold Outreach CRM (`OutreachController`)
+Base API Path: `/api/outreach`
 
-| Endpoint Path | HTTP Method | Auth Required | Description | Request Payload | Response Body |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| `/` | `GET` | Bearer Token | Fetches all private company documents for user | Query param: `companyName` | `List<CompanyDocumentResponse>` |
-| `/upload` | `POST` | Bearer Token | Uploads company PDF attachment to S3 bucket | Multipart `file`, `companyName`, `documentType` | `CompanyDocumentResponse` |
-| `/{id}/download` | `GET` | Bearer Token | Streams document file from AWS S3 | Path variable `id` | `ResponseEntity<byte[]>` |
-| `/{id}` | `DELETE` | Bearer Token | Deletes document record and S3 object | Path variable `id` | `ResponseEntity<Void>` |
+#### 2.4.1 Get CRM Outreach List
+*   **Method / Path:** `GET /api/outreach`
+*   **Query Parameters:** `search`, `status`
+*   **Response Body (JSON - 200 OK):** List of outreach contact records.
 
----
+#### 2.4.2 Log New Outreach Contact
+*   **Method / Path:** `POST /api/outreach`
+*   **Request Body (JSON):**
+    ```json
+    {
+      "contactName": "John Recruiter",
+      "companyName": "Netflix",
+      "positionDiscussed": "Senior Java Developer",
+      "email": "john@netflix.com",
+      "linkedinUrl": "https://linkedin.com/in/johnrecruiter",
+      "status": "PENDING",
+      "dateSent": "2026-07-28",
+      "followUpDate": "2026-08-04",
+      "notes": "Sent cold message on LinkedIn."
+    }
+    ```
+*   **Response Body (JSON - 201 Created):** Created outreach DTO record.
 
-### 2.8 Dashboard Analytics (`DashboardController`) — Base Path: `/api/dashboard`
-
-| Endpoint Path | HTTP Method | Auth Required | Description | Request | Response Body DTO |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| `/metrics` | `GET` | Bearer Token | Fetches aggregated funnel metrics & agenda | None | `DashboardMetricsResponse` |
-
-#### DTO Definition:
-- **`DashboardMetricsResponse`:** `long totalApplications`, `long activeApplications`, `long rejectedApplications`, `long ghostedApplications`, `long oaApplications`, `long interviewApplications`, `long offerApplications`, `long applicationsThisWeek`, `long applicationsThisMonth`, `double responseRate`, `double interviewConversionRate`, `double offerConversionRate`, `List<AgendaItemResponse> todayAgenda`
-
----
-
-### 2.9 Notifications & Agenda (`NotificationController`) — Base Path: `/api/notifications`
-
-| Endpoint Path | HTTP Method | Auth Required | Description | Request | Response Body |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| `/` | `GET` | Bearer Token | Fetches active notifications for user | Query param: `unreadOnly` | `List<NotificationResponse>` |
-| `/{id}/read` | `PATCH` | Bearer Token | Marks notification as read | Path variable `id` | `NotificationResponse` |
-| `/read-all` | `PATCH` | Bearer Token | Marks all user notifications as read | None | `ResponseEntity<Void>` |
-| `/push-subscription` | `POST` | Bearer Token | Saves Web Push API VAPID subscription | `PushSubscriptionRequest` | `ResponseEntity<Void>` |
-
----
-
-### 2.10 User Profile & Preferences (`UserController`) — Base Path: `/api/users`
-
-| Endpoint Path | HTTP Method | Auth Required | Description | Request | Response Body |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| `/me` | `GET` | Bearer Token | Fetches current user profile and settings | None | `UserProfileResponse` |
-| `/me` | `PUT` | Bearer Token | Updates display name or preferences | `UpdateUserProfileRequest` | `UserProfileResponse` |
-| `/me/password` | `PUT` | Bearer Token | Updates account password | `ChangePasswordRequest` | `ResponseEntity<Void>` |
-| `/me/data/export` | `GET` | Bearer Token | Exports entire user workspace as JSON | None | `ResponseEntity<byte[]>` (JSON File) |
-| `/me/data/import` | `POST` | Bearer Token | Imports workspace JSON to restore data | Multipart `file` | `ResponseEntity<Void>` |
+#### 2.4.3 Convert Outreach to Application
+*   **Method / Path:** `POST /api/outreach/{id}/convert`
+*   **Request Body (JSON):**
+    ```json
+    {
+      "profileId": "8f8b8a8c-8d8e-8f8f-9a9b-9c9d9e9f9a9b",
+      "resumeId": "5c5d5e5f-6a6b-6c6d-6e6f-7a7b7c7d7e7f",
+      "roleTitle": "Senior Java Developer",
+      "source": "Outreach",
+      "salaryRange": ""
+    }
+    ```
+*   **Response Body (JSON - 200 OK):** Created Job Application DTO record.
 
 ---
 
-### 2.11 Public Placement Reference (`PublicUserController`) — Base Path: `/api/public`
+### 2.5 Career Profiles (`CareerProfileController`)
+Base API Path: `/api/profiles`
 
-| Endpoint Path | HTTP Method | Auth Required | Description | Request | Response Body |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| `/placement-sheets` | `GET` | Public | Fetches company recruitment sheet references | Query param: `company` | `List<PlacementSheetResponse>` |
+#### 2.5.1 Fetch Career Profiles
+*   **Method / Path:** `GET /api/profiles`
+*   **Response Body (JSON - 200 OK):** Array of user career profiles (e.g. Frontend Engineer, DevOps).
+
+#### 2.5.2 Create Profile Persona
+*   **Method / Path:** `POST /api/profiles`
+*   **Request Body (JSON):**
+    ```json
+    {
+      "title": "DevOps Engineer",
+      "colorCode": "#10b981",
+      "iconIdentifier": "Terminal",
+      "isDefault": false
+    }
+    ```
+*   **Response Body (JSON - 201 Created):** Created Profile DTO.
+
+---
+
+### 2.6 Versioned Resumes (`ResumeController`)
+Base API Path: `/api/resumes`
+
+#### 2.6.1 Fetch Resumes for Profile
+*   **Method / Path:** `GET /api/resumes/profile/{profileId}`
+*   **Response Body (JSON - 200 OK):** Array of versioned resume records associated with the profile.
+
+#### 2.6.2 Multipart PDF Upload
+*   **Method / Path:** `POST /api/resumes/upload`
+*   **Request Content-Type:** `multipart/form-data`
+*   **Request Parameters:**
+    *   `file` (Binary PDF File)
+    *   `profileId` (UUID)
+    *   `changelog` (String)
+*   **Response Body (JSON - 200 OK):**
+    ```json
+    {
+      "id": "5c5d5e5f-6a6b-6c6d-6e6f-7a7b7c7d7e7f",
+      "profileId": "8f8b8a8c-8d8e-8f8f-9a9b-9c9d9e9f9a9b",
+      "versionNumber": 2,
+      "s3Key": "resumes/8f8b8a8c-8d8e-8f8f-9a9b-9c9d9e9f9a9b/v2_Resume.pdf",
+      "fileName": "Resume.pdf",
+      "changelog": "Added Virtual Thread keywords",
+      "createdAt": "2026-07-28T20:25:00Z"
+    }
+    ```
+
+#### 2.6.3 Download Resume PDF
+*   **Method / Path:** `GET /api/resumes/{id}/download`
+*   **Response (200 OK):** Returns binary PDF data stream (`application/pdf`).
+
+---
+
+### 2.7 Placement Sheets & Company Documents (`CompanyDocumentController`)
+Base API Path: `/api/documents`
+
+#### 2.7.1 Fetch Private Documents
+*   **Method / Path:** `GET /api/documents`
+*   **Response (200 OK):** Array of private company documents (e.g. offers, benefits PDFs).
+
+#### 2.7.2 Upload Company Attachment
+*   **Method / Path:** `POST /api/documents/upload`
+*   **Request Content-Type:** `multipart/form-data`
+*   **Parameters:** `file` (Binary), `companyName` (String), `documentType` (String)
+*   **Response Body (JSON - 200 OK):** Created Company Document metadata record.
+
+---
+
+### 2.8 Dashboard Analytics (`DashboardController`)
+Base API Path: `/api/dashboard`
+
+#### 2.8.1 Get Metrics & Today's Agenda
+*   **Method / Path:** `GET /api/dashboard/metrics`
+*   **Response Body (JSON - 200 OK):**
+    ```json
+    {
+      "totalApplications": 42,
+      "activeApplications": 12,
+      "rejectedApplications": 25,
+      "ghostedApplications": 5,
+      "oaApplications": 3,
+      "interviewApplications": 4,
+      "offerApplications": 1,
+      "applicationsThisWeek": 2,
+      "applicationsThisMonth": 8,
+      "responseRate": 19.05,
+      "interviewConversionRate": 33.33,
+      "offerConversionRate": 25.0,
+      "todayAgenda": [
+        {
+          "type": "OA",
+          "time": "2026-07-28T22:00:00Z",
+          "title": "Online Assessment with Google",
+          "details": "HackerRank test link: https://hackerrank.com/test/123"
+        }
+      ]
+    }
+    ```
+
+---
+
+### 2.9 Notifications Subsystem (`NotificationController`)
+Base API Path: `/api/notifications`
+
+#### 2.9.1 Fetch Notifications
+*   **Method / Path:** `GET /api/notifications`
+*   **Query Parameters:** `unreadOnly` (boolean, Optional)
+*   **Response Body (JSON - 200 OK):** List of notification records.
+
+#### 2.9.2 Save Push Subscription
+*   **Method / Path:** `POST /api/notifications/push-subscription`
+*   **Request Body (JSON):**
+    ```json
+    {
+      "endpoint": "https://fcm.googleapis.com/fcm/send/...",
+      "keys": {
+        "p256dh": "BIP...",
+        "auth": "12A..."
+      }
+    }
+    ```
+*   **Response (200 OK):** Empty body.
+
+---
+
+### 2.10 User Profile Preferences (`UserController`)
+Base API Path: `/api/users`
+
+#### 2.10.1 Fetch Profile & Preferences
+*   **Method / Path:** `GET /api/users/me`
+*   **Response Body (JSON - 200 OK):**
+    ```json
+    {
+      "id": "5dec9b01-a1b2-4c3d-8e5f-1a2b3c4d5e6f",
+      "email": "candidate@domain.com",
+      "fullName": "Jane Doe",
+      "avatarUrl": "https://avatar.com/jane",
+      "authProvider": "LOCAL",
+      "ghostThresholdDays": 30,
+      "autoArchiveEnabled": false,
+      "browserNotificationsEnabled": true,
+      "emailNotificationsEnabled": true,
+      "aiExtractionsCount": 5
+    }
+    ```
+
+#### 2.10.2 Update Preferences
+*   **Method / Path:** `PUT /api/users/me`
+*   **Request Body (JSON):**
+    ```json
+    {
+      "fullName": "Jane Smith",
+      "ghostThresholdDays": 45,
+      "autoArchiveEnabled": true,
+      "browserNotificationsEnabled": false,
+      "emailNotificationsEnabled": true
+    }
+    ```
+*   **Response Body (JSON - 200 OK):** Updated profile configuration.
+
+#### 2.10.3 Export Workspace Data
+*   **Method / Path:** `GET /api/users/me/data/export`
+*   **Response (200 OK):** Binary stream of workspace JSON backup configuration (`application/json`).
+
+#### 2.10.4 Import Workspace Data
+*   **Method / Path:** `POST /api/users/me/data/import`
+*   **Request Content-Type:** `multipart/form-data`
+*   **Parameters:** `file` (Binary workspace JSON file)
+*   **Response (200 OK):** Empty body.
+
+---
+
+### 2.11 Public Resources (`PublicUserController`)
+Base API Path: `/api/public`
+
+#### 2.11.1 Fetch Placement Sheets
+*   **Method / Path:** `GET /api/public/placement-sheets`
+*   **Query Parameters:** `company` (String, Optional)
+*   **Response Body (JSON - 200 OK):** Array of major tech company placement profiles.
 
 ---
 
 ## Related Documentation
-
-- [**Documentation Index (Docs/INDEX.md)**](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/Docs/INDEX.md)
-- [**Application Flow (Docs/App Flow.md)**](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/Docs/App%20Flow.md)
-- [**Spring AI Prompt Engineering (Docs/PromptSkills.md)**](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/Docs/PromptSkills.md)
-- [**Backend Developer Guide (backend/README.md)**](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/backend/README.md)
+*   [**Documentation Index (Docs/INDEX.md)**](file:///d:/Coding/Projects----For%20Resume/Trajectory/Docs/INDEX.md)
+*   [**Database Schema (Docs/DATABASE_SCHEMA.md)**](file:///d:/Coding/Projects----For%20Resume/Trajectory/Docs/DATABASE_SCHEMA.md)
+*   [**Error Handling Strategy (Docs/ERROR_HANDLING_STRATEGY.md)**](file:///d:/Coding/Projects----For%20Resume/Trajectory/Docs/ERROR_HANDLING_STRATEGY.md)

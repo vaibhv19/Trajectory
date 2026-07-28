@@ -1,51 +1,86 @@
-# App Flow & Execution Lifecycles: Trajectory
+# App Flow & Execution Lifecycles: Trajectory (v1.0.1)
 
-This document outlines the user journeys, data flows, and system execution lifecycles within Trajectory, spanning client-side state transitions, REST API endpoints, AI LLM extractions, database transactions, and background daemons.
+This document provides the canonical specification of user journeys, execution lifecycles, and data-flow sequences across the **Trajectory** ecosystem, covering client-side React routes, Zustand store mutations, backend REST gateways, Groq LLM operations, S3 persistence, and background crons.
 
 ---
 
 ## 1. Authentication & Onboarding Lifecycles
 
 ### 1.1 Local Credentials & JWT Authentication
-1. **Entry:** User navigates to `https://trajectory-mu-six.vercel.app/login`.
-2. **Action:** User enters email and password, submitting the form to `POST /api/auth/login`.
-3. **Backend Processing:** `AuthController` invokes `AuthenticationManager` using `bcrypt` password verification.
-4. **Token Generation:** `JwtTokenProvider` generates a signed 24-hour access JWT, and `RefreshTokenService` stores a refresh token in `refresh_tokens`.
-5. **Client Response:** `AuthResponse` returns `{ token, refreshToken, userId, email, name }`.
-6. **State Persistence:** Zustand (`useAuthStore`) saves `token` and `user` to `localStorage` and sets default Axios `Authorization: Bearer <token>` headers for all API requests. User is redirected to `/dashboard`.
 
-### 1.2 Social OAuth 2.0 Authorization Flow (Google & GitHub)
-1. **Trigger:** User clicks "Continue with Google" or "Continue with GitHub" on `/login`.
-2. **Redirect Initiation:** React client triggers browser navigation to `${apiBase}/oauth2/authorization/{provider}` (stripping `/api`).
-3. **Identity Provider Handshake:** Spring Security OAuth2 Client redirects user to Google/GitHub consent page.
-4. **Callback Processing:** Upon user consent, provider returns authorization code to `/login/oauth2/code/{provider}`.
-5. **Token Exchange:** Backend exchanges authorization code for user profile metadata, provisions or updates the user in PostgreSQL, and generates JWT tokens.
-6. **Production Target Redirect:** `OAuth2AuthenticationSuccessHandler.java` redirects browser to `https://trajectory-mu-six.vercel.app/login?token=...&refreshToken=...`.
-7. **Client Token Consumption:** `LoginPage.tsx` extracts query params, invokes `setAuth()`, and navigates to `/dashboard`.
+This flow manages user authentication via traditional email/password credentials.
+
+1.  **Form Input:** The user navigates to `/login` and enters credentials, triggering submission.
+2.  **API Transport:** React SPA posts payload to `POST /api/auth/login` containing `{ "email": email, "password": password }`.
+3.  **Security Filtering:** `JwtAuthenticationFilter` intercepts the request. `AuthController` delegates validation to `AuthenticationManager`.
+4.  **Bcrypt Hashing Verification:** Spring Security invokes `UserDetailsService` loading user metadata and comparing the input password with the database's `users.password_hash` using Bcrypt.
+5.  **Token Generation:** If validation succeeds:
+    *   `JwtTokenProvider` builds a signed HMAC SHA-256 JWT access token (valid for 24 hours).
+    *   `RefreshTokenService` creates/updates a secure UUID record in the `refresh_tokens` database table.
+6.  **HTTP Response:** Returns `{ "token": "<JWT>", "refreshToken": "<UUID>", "userId": "<UUID>", "email": "...", "name": "..." }`.
+7.  **Zustand Persistency:** Zustand (`useAuthStore`) saves the token to local storage and updates default Axios request interceptors with `Authorization: Bearer <JWT>`. The router redirects the browser to `/dashboard`.
 
 ```mermaid
 sequenceDiagram
     autonumber
-    actor User
-    participant SPA as "React Frontend (Vercel)"
-    participant Nginx as "Nginx Proxy (EC2)"
-    participant API as "Spring Boot API"
-    participant Provider as "OAuth Provider (Google/GitHub)"
-    participant DB as "AWS RDS PostgreSQL"
+    actor User as User / Browser
+    participant SPA as React SPA (Vercel)
+    participant Nginx as Nginx Ingress Proxy
+    participant Filter as JwtAuthenticationFilter
+    participant Auth as AuthController / SecContext
+    participant DB as AWS RDS PostgreSQL
+
+    User->>SPA: Enter Credentials & Submit
+    SPA->>Nginx: POST /api/auth/login
+    Nginx->>Filter: Forward Payload
+    Filter->>Auth: Authenticate (email, password)
+    Auth->>DB: Query user by email (select password_hash)
+    DB-->>Auth: Return User Record
+    Auth->>Auth: Bcrypt check input against password_hash
+    Auth->>DB: Insert/Update refresh_tokens UUID
+    DB-->>Auth: Confirm Token Saved
+    Auth-->>SPA: Return 200 OK + JWT Access & Refresh Tokens
+    SPA->>SPA: Save JWT in Zustand store & LocalStorage
+    SPA->>User: Redirect to /dashboard
+```
+
+---
+
+### 1.2 Social OAuth 2.0 Authorization Flow (Google & GitHub)
+
+Enables passwordless authentication via Google or GitHub identity providers.
+
+1.  **Provider Selection:** The user clicks "Continue with Google" or "Continue with GitHub" on `/login`.
+2.  **Redirection Handshake:** The React client initiates a full browser redirect to `${apiBase}/oauth2/authorization/{provider}` (directing to the backend API instance).
+3.  **Identity Request:** The backend Spring Security OAuth2 Client redirects the browser to the provider's authorization screen.
+4.  **Consent & Code Return:** The user grants permission. The provider redirects the browser to the backend callback endpoint `/login/oauth2/code/{provider}` with an authorization code.
+5.  **Token Exchange:** Spring Security contacts the provider's token endpoint over a secure backend connection, exchanges the authorization code for a profile access token, and retrieves user profile details (email, name, avatar).
+6.  **User Provisioning:** The backend checks the `users` table. If the email doesn't exist, a user record is created with `auth_provider` set to `GOOGLE` or `GITHUB`.
+7.  **Callback Redirection:** `OAuth2AuthenticationSuccessHandler.java` generates JWT tokens and redirects the browser back to the frontend Vercel URL: `https://trajectory-mu-six.vercel.app/login?token=<JWT>&refreshToken=<UUID>`.
+8.  **Token Processing:** `LoginPage.tsx` reads parameters from the URL, calls `setAuth()` on the Zustand store to persist the tokens, and redirects the router to `/dashboard`.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User as User / Browser
+    participant SPA as React SPA (Vercel)
+    participant API as Spring Boot Backend
+    participant Auth as OAuth Provider (Google/GitHub)
+    participant DB as AWS RDS PostgreSQL
 
     User->>SPA: Click "Continue with Google"
     SPA->>API: GET /oauth2/authorization/google
-    API->>Provider: Redirect to OAuth Consent Page
-    Provider-->>User: Render Consent Dialog
-    User->>Provider: Grant Access
-    Provider->>API: Authorization Code Callback
-    API->>Provider: Exchange Code for Access Token & User Profile
-    Provider-->>API: Return User Attributes (Email, Name)
-    API->>DB: Upsert User Entity
-    API->>API: Generate JWT Access Token & Refresh Token
-    API-->>SPA: Redirect 302 to /login?token=JWT&email=...
-    SPA->>SPA: Save Token in Zustand / LocalStorage
-    SPA->>User: Navigate to /dashboard
+    API->>Auth: Redirect Browser to Consent Screen
+    Auth-->>User: Present Consent Options
+    User->>Auth: Grant Profile Access Permissions
+    Auth->>API: Redirect Callback with Authorization Code
+    API->>Auth: Request User Profile using Code
+    Auth-->>API: Return User Info (email, name, avatar)
+    API->>DB: Query/Insert User record (auth_provider: GOOGLE)
+    API->>DB: Store Refresh Token
+    API-->>SPA: Redirect 302 to /login?token=JWT&refreshToken=UUID
+    SPA->>SPA: Save JWT in Zustand & LocalStorage
+    SPA->>User: Route to /dashboard
 ```
 
 ---
@@ -53,94 +88,194 @@ sequenceDiagram
 ## 2. Core Application Lifecycle Loop
 
 ### 2.1 AI-Powered Application Creation Flow
-1. **Trigger:** User clicks "Add Application" on `/applications` and pastes raw job posting text into the AI Import modal.
-2. **API Call:** Frontend invokes `POST /api/ai/extract-jd` with `{ "text": rawJdText }`.
-3. **Groq / Llama 3 Extraction:** `AIService` invokes Spring AI `ChatClient` requesting structured JSON matching `JobExtraction`.
-4. **Mock Fallback:** If `SPRING_AI_OPENAI_API_KEY` is not configured or set to `mock-key`, `AIService` returns regex-parsed mock extraction payload.
-5. **Form Pre-Population:** React client pre-fills modal fields (`companyName`, `roleTitle`, `location`, `salaryRange`, `suggested_profile_title`).
-6. **Save Transaction:** User confirms form fields and clicks Save. Frontend executes `POST /api/applications`. `ApplicationService` saves record to `applications` table and creates initial `application_status_history` entry (`status: APPLIED`).
+
+Minimizes manual data entry by extracting job information using Spring AI and Groq.
+
+1.  **Form Input:** The user clicks "Add Application", opens the AI Import modal, and pastes a raw job description or email.
+2.  **API Call:** React posts the text to `POST /api/ai/extract-jd` with `{ "text": "..." }`.
+3.  **Groq LLM Call:** `AIService` issues a structured JSON schema extraction prompt to the Groq Cloud endpoint.
+4.  **Failsafe Fallback:** If `SPRING_AI_OPENAI_API_KEY` is set to `mock-key` or is missing, `AIService` catches the failure and runs regex-based parser mock fallbacks to output a valid payload.
+5.  **Form Pre-population:** The backend returns the extracted data. The React UI populates the application form fields for user verification.
+6.  **Save Action:** The user reviews the fields and clicks Save. React posts the form to `POST /api/applications`. `ApplicationService` saves the application, logs the initial status history as `APPLIED`, and updates dashboard state cache.
+
+---
 
 ### 2.2 Status Transition & History Timeline Audit
-1. **Trigger:** User opens Application Inspector on `/applications/:id` and updates status (e.g. from `APPLIED` to `OA` or `INTERVIEW`).
-2. **Modal Input:** System prompts for `oaDateTime` or `interviewDateTime`, `meetingLink`, and notes. Optional AI invite extraction (`POST /api/ai/extract-event`) pre-fills date/time/link fields.
-3. **API Call:** Frontend executes `PATCH /api/applications/{id}/status` sending `StatusUpdateRequest`.
-4. **Backend Transaction:**
-   - `ApplicationService` updates `status`, `oa_date_time`, `interview_date_time`, `meeting_link`, and `last_activity_at` on `applications`.
-   - `ApplicationStatusHistory` entity is created logging previous status duration and new status transition.
-5. **UI Update:** React query invalidates `applications` cache and renders pulsing nodes on chronological timeline.
+
+Track application lifecycle progression with historical auditing.
+
+1.  **User Trigger:** The user opens `/applications/{id}` (Application Inspector) and selects a status transition (e.g. `APPLIED` ➔ `OA`).
+2.  **Context Request:** React displays modal inputs depending on the target status (e.g., date/time for an OA or interview, meeting link).
+3.  **REST Mutation:** React patch-updates the resource via `PATCH /api/applications/{id}/status` with:
+    ```json
+    {
+      "status": "OA",
+      "oaDateTime": "2026-07-28T22:00:00Z",
+      "meetingLink": "https://zoom.us/j/...",
+      "notes": "Completed HackerRank assessment"
+    }
+    ```
+4.  **Database Updates:** Inside a database transaction:
+    *   The backend updates the target application record (`status`, `oa_date_time`, `meeting_link`, and `last_activity_at`).
+    *   Calculates the duration spent in the previous status based on the preceding `application_status_history` record.
+    *   Inserts a new `application_status_history` record containing the status, notes, and timestamp.
+5.  **Cache Invalidation:** The React client invalidates TanStack Query keys, updates UI metrics, and refreshes the timeline nodes.
 
 ```mermaid
 stateDiagram-v2
     [*] --> APPLIED : Application Created
-    APPLIED --> OA : "Status Update (OA Date/Time Prompts)"
-    APPLIED --> INTERVIEW : "Status Update (Interview Date/Time Prompts)"
+    APPLIED --> OA : Status Update (Prompts date & link)
+    APPLIED --> INTERVIEW : Status Update (Prompts date & link)
     OA --> INTERVIEW : Interview Invite Received
-    INTERVIEW --> OFFER : Offer Extended
+    INTERVIEW --> OFFER : Offer Received
     
     APPLIED --> REJECTED : Application Rejected
-    OA --> REJECTED : Assessment Failed
+    OA --> REJECTED : OA Failed
     INTERVIEW --> REJECTED : Interview Rejected
     
-    APPLIED --> GHOSTED : "Inactive > Threshold (Cron Job)"
-    OA --> GHOSTED : "Inactive > Threshold (Cron Job)"
-    
+    APPLIED --> GHOSTED : No response within user threshold (Cron Job)
+    OA --> GHOSTED : No response within user threshold (Cron Job)
+    INTERVIEW --> GHOSTED : No response within user threshold (Cron Job)
+
     REJECTED --> ARCHIVED : Auto-Archive Enabled
     GHOSTED --> ARCHIVED : Auto-Archive Enabled
+    
+    ARCHIVED --> [*]
 ```
 
 ---
 
 ## 3. Cold Outreach & Networking CRM Workflow
 
-1. **Log Outreach:** User enters recruiter details, company, email, LinkedIn URL, position discussed, and follow-up date on `/outreach` (`POST /api/outreach`).
-2. **Recruiter Response Analysis:** When recruiter replies, user pastes message into analysis modal. Frontend executes `POST /api/ai/analyze-outreach`. `AIService` returns `OutreachAnalysis` (`suggested_status`, `suggested_action`, `key_points`).
-3. **Status Update:** Status transitions to `REPLIED` or `INTERVIEW_SECURED` (`PUT /api/outreach/{id}`).
-4. **One-Click Application Conversion:** User clicks "Convert to Application". Frontend executes `POST /api/outreach/{id}/convert`. `OutreachService` creates a formal `Application` entry, links relevant `CareerProfile`, transfers recruiter notes and company details, and updates outreach status.
+Tracks networking interactions and outreach conversion to applications.
+
+1.  **Log Outreach:** The user adds a contact via `POST /api/outreach` specifying the name, company, email, LinkedIn URL, position discussed, and follow-up date. The status defaults to `PENDING`.
+2.  **Response Analysis:** When a recruiter replies, the user pastes the reply text into the Sentiment modal.
+3.  **AI Classification:** React posts the text to `POST /api/ai/analyze-outreach`. The AI service parses the sentiment and returns:
+    ```json
+    {
+      "suggestedStatus": "REPLIED",
+      "suggestedAction": "Schedule intro call",
+      "keyPoints": "Recruiter is interested in Java skills"
+    }
+    ```
+4.  **Status Sync:** The user accepts the suggestion, updating the outreach record's status to `REPLIED` or `INTERVIEW_SECURED` via `PUT /api/outreach/{id}`.
+5.  **One-Click Conversion:** When an interview is secured, the user clicks "Convert to Application". The frontend triggers `POST /api/outreach/{id}/convert`. The backend:
+    *   Creates a new `applications` record, copying over the company name, role title, and notes.
+    *   Associates the new application with a career profile.
+    *   Updates the outreach record's status to `INTERVIEW_SECURED`.
 
 ---
 
 ## 4. Resume Version Control Workflow
 
-1. **Profile Personas:** User navigates to `/resumes` to create/manage `CareerProfile` personas (e.g., "Full Stack Engineer" vs. "Product Manager").
-2. **PDF Upload:** User uploads a PDF resume version, selecting target profile and entering changelog notes ("Added Virtual Thread keywords").
-3. **Multipart Request:** Frontend calls `POST /api/resumes/upload` (`MultipartFile file`, `UUID profileId`, `String changelog`).
-4. **S3 File Storage:** `S3StorageService` sanitizes filename, generates S3 key (`resumes/{profile_id}/v{version_number}_{filename}`), uploads file to AWS S3 bucket, and persists record in `resumes` table with auto-incremented `version_number`.
-5. **Application Auto-Link:** When creating a new application under a career profile, the backend automatically links the latest resume version for that profile.
+Allows users to manage versioned resumes and automatically match them to applications.
+
+1.  **Upload Action:** The user navigates to `/resumes`, selects a `career_profile_id`, selects a PDF file, and enters changelog notes.
+2.  **API Transmission:** React transmits a multipart form via `POST /api/resumes/upload`.
+3.  **AWS S3 Path Generation:** The backend `S3StorageService`:
+    *   Verifies the PDF format.
+    *   Retrieves the current version count for the target profile and increments it (e.g., `v2`).
+    *   Generates a secure S3 key path: `resumes/{profile_id}/v{version_number}_{sanitized_filename}.pdf`.
+    *   Uploads the binary stream to the AWS S3 bucket.
+4.  **Database Persistence:** Inserts a metadata record into the `resumes` table mapping the `s3_key`, `version_number`, and `changelog`.
+5.  **Automatic Matching:** When creating a job application under a specific Career Profile, the backend automatically links the application to the latest resume version associated with that profile.
 
 ---
 
 ## 5. Background Daemon Workflows
 
 ### 5.1 Automated Ghost Detection (`GhostDetectionScheduler`)
-1. **Cron Trigger:** Scheduled task runs daily at 00:00 server time (`@Scheduled(cron = "0 0 0 * * ?")`).
-2. **Scan Query:** Queries `applications` where `status IN ('APPLIED', 'OA', 'INTERVIEW')` AND `last_activity_at < (NOW() - user.ghost_threshold_days)`.
-3. **Batch Transition:** Flips status of identified applications to `GHOSTED` and inserts `application_status_history` audit records.
-4. **Notification Creation:** Generates a `Notification` entity for affected users ("3 applications flagged as Ghosted due to inactivity").
 
-### 5.2 Notification & Daily Agenda Engine (`NotificationScheduler`)
-1. **Cron Trigger:** Scheduled task runs hourly to evaluate upcoming events.
-2. **Reminders:** Scans `applications` for `oa_date_time` or `interview_date_time` occurring within the next 24 hours.
-3. **Alert Dispatch:** Creates `Notification` records and dispatches browser push alerts if `browser_notifications_enabled` is true.
+Identifies inactive job applications and marks them as ghosted.
+
+*   **Trigger Schedule:** Runs daily at 00:00 server time (`@Scheduled(cron = "0 0 0 * * ?")`).
+*   **Active Selection Query:**
+    ```sql
+    SELECT * FROM applications a
+    JOIN users u ON a.user_id = u.id
+    WHERE a.status IN ('APPLIED', 'OA', 'INTERVIEW')
+      AND a.is_archived = FALSE
+      AND a.last_activity_at < (CURRENT_TIMESTAMP - (u.ghost_threshold_days || ' days')::INTERVAL);
+    ```
+*   **Execution Steps:**
+    1.  For each identified application, updates `status = 'GHOSTED'` and `last_activity_at = CURRENT_TIMESTAMP`.
+    2.  Inserts a corresponding status transition audit record in `application_status_history`.
+    3.  Inserts a new record in the `notifications` table for the user: `"Application at {Company} flagged as GHOSTED due to {Threshold} days of inactivity."`
+    4.  Triggers in-app alerts and Web Push notifications.
+
+---
+
+### 5.2 Notification & Reminder Engine (`NotificationScheduler`)
+
+Monitors upcoming events and schedules notifications.
+
+*   **Trigger Schedule:** Runs hourly (`@Scheduled(cron = "0 0 * * * ?")`).
+*   **Reminders Sweep:**
+    1.  Queries the database for applications where status is `OA` or `INTERVIEW` and the event date (`oa_date_time` / `interview_date_time`) is within the next 24 hours.
+    2.  Verifies if a reminder has already been sent to prevent duplicate notifications.
+    3.  Creates a user notification: `"Reminder: Your Online Assessment / Interview with {Company} is scheduled for {Time}."`
+    4.  Sends real-time browser push alerts using the Web Push API if `browser_notifications_enabled` is set to `true`.
 
 ---
 
 ## 6. Workspace Data Portability Workflow
 
 ### 6.1 Data Export (`GET /api/users/me/data/export`)
-1. User clicks "Export Workspace Data" in `/settings`.
-2. Backend collects user's entities (`users`, `career_profiles`, `resumes`, `applications`, `status_history`, `outreach`, `company_documents`, `notifications`).
-3. Serializes records into a single JSON file and streams binary output (`Content-Disposition: attachment; filename=trajectory_export.json`).
+
+Allows users to back up their complete career workspace.
+
+*   **REST Endpoint:** `GET /api/users/me/data/export`
+*   **Response Payload Structure:** A single JSON object containing arrays of the user's data:
+    ```json
+    {
+      "version": "1.0.1",
+      "exportedAt": "2026-07-28T20:10:00Z",
+      "user": {
+        "email": "...",
+        "fullName": "...",
+        "ghostThresholdDays": 30
+      },
+      "careerProfiles": [
+        { "id": "...", "title": "Frontend Engineer", "colorCode": "#3b82f6" }
+      ],
+      "resumes": [
+        { "id": "...", "versionNumber": 1, "s3Key": "..." }
+      ],
+      "applications": [
+        {
+          "id": "...",
+          "companyName": "...",
+          "status": "APPLIED",
+          "history": [
+            { "status": "APPLIED", "changedAt": "..." }
+          ]
+        }
+      ],
+      "outreach": [],
+      "companyDocuments": []
+    }
+    ```
+
+---
 
 ### 6.2 Data Import (`POST /api/users/me/data/import`)
-1. User uploads a valid Trajectory export JSON file in `/settings`.
-2. `UserService` validates JSON schema integrity.
-3. Performs transactional batch insertion into PostgreSQL, restoring user workspace across device sessions.
+
+Enables users to restore workspace data.
+
+*   **REST Endpoint:** `POST /api/users/me/data/import`
+*   **Import Process:**
+    1.  **Format Validation:** Verifies the import file matches the JSON schema rules and checks version compatibility.
+    2.  **Transaction Boundary:** Opens a single transaction to insert the imported records.
+    3.  **Conflict Management:** Clears existing records for the user account and restores tables (`career_profiles`, `resumes`, `applications`, `outreach`) using the imported IDs to preserve history mappings.
+    4.  **Transaction Commit:** Commits the transaction to complete the restore. If a failure occurs, changes are rolled back.
 
 ---
 
 ## Related Documentation
-
-- [**Documentation Index (Docs/INDEX.md)**](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/Docs/INDEX.md)
-- [**REST API Specification (Docs/API_SPECIFICATION.md)**](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/Docs/API_SPECIFICATION.md)
-- [**Spring AI Prompt Engineering (Docs/PromptSkills.md)**](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/Docs/PromptSkills.md)
-- [**Production Deployment Guide (Docs/Deployment.md)**](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/Docs/Deployment.md)
+*   [**Documentation Index (Docs/INDEX.md)**](file:///d:/Coding/Projects----For%20Resume/Trajectory/Docs/INDEX.md)
+*   [**Product Requirements Document (Docs/PRD.md)**](file:///d:/Coding/Projects----For%20Resume/Trajectory/Docs/PRD.md)
+*   [**Feature List (Docs/FEATURE_LIST.md)**](file:///d:/Coding/Projects----For%20Resume/Trajectory/Docs/FEATURE_LIST.md)
+*   [**System Architecture (Docs/SYSTEM_ARCHITECTURE.md)**](file:///d:/Coding/Projects----For%20Resume/Trajectory/Docs/SYSTEM_ARCHITECTURE.md)
+*   [**Tech Stack Specification (Docs/Tech Stack.md)**](file:///d:/Coding/Projects----For%20Resume/Trajectory/Docs/Tech%20Stack.md)
+*   [**Visual Design System (Docs/DESIGN.md)**](file:///d:/Coding/Projects----For%20Resume/Trajectory/Docs/DESIGN.md)

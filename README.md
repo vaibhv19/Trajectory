@@ -78,7 +78,7 @@ Trajectory's interactive flows are optimized to minimize administrative overhead
 4.  **Networking (CRM) Flow:** Users log recruiter outreach and follow-up dates. If an interview is secured, they convert the entry into an Application.
 5.  **Data Portability:** Users can export their entire workspace data as JSON/CSV or restore their status using the import feature.
 
-For a detailed view of the backend execution and frontend events, read [Docs/App Flow.md](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/Docs/App%20Flow.md).
+For a detailed view of the backend execution and frontend events, read [Docs/App Flow.md](file:///d:/Coding/Projects----For%20Resume/Trajectory/Docs/App%20Flow.md).
 
 ---
 
@@ -139,7 +139,7 @@ graph TD
 
 ## 🎨 Visual Design & Routing System
 
-Trajectory features a type-safe, high-contrast visual design system built with Tailwind CSS and Shadcn UI primitives. For full details on tokens, components, and design rules, refer to [Docs/DESIGN.md](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/Docs/DESIGN.md).
+Trajectory features a type-safe, high-contrast visual design system built with Tailwind CSS and Shadcn UI primitives. For full details on tokens, components, and design rules, refer to [Docs/DESIGN.md](file:///d:/Coding/Projects----For%20Resume/Trajectory/Docs/DESIGN.md).
 
 ### 🚦 Client Routing Directory
 *   **`/login`** — Authentication Canvas: Credentials login/signup tabs and social authentication buttons (Google/GitHub).
@@ -185,7 +185,7 @@ Trajectory features a type-safe, high-contrast visual design system built with T
 *   **Reverse Proxy:** Nginx with Certbot Let's Encrypt SSL (`https://trajectory-api.duckdns.org`)
 *   **CI/CD Pipeline:** GitHub Actions with **Self-Hosted Runner** installed on EC2
 
-For complete architectural details, read [Docs/Tech Stack.md](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/Docs/Tech%20Stack.md) and [Docs/Deployment.md](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/Docs/Deployment.md).
+For complete architectural details, read [Docs/Tech Stack.md](file:///d:/Coding/Projects----For%20Resume/Trajectory/Docs/Tech%20Stack.md) and [Docs/Deployment.md](file:///d:/Coding/Projects----For%20Resume/Trajectory/Docs/Deployment.md).
 
 ---
 
@@ -268,12 +268,31 @@ The React SPA will start on `http://localhost:5173`.
 
 ## 📂 Project Documentation Index
 
-*   [Documentation Index (Docs/INDEX.md)](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/Docs/INDEX.md) — Master index for all project documentation.
-*   [REST API Specification (Docs/API_SPECIFICATION.md)](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/Docs/API_SPECIFICATION.md) — Complete endpoint reference, DTO records, and security requirements.
-*   [Production Deployment Guide (Docs/Deployment.md)](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/Docs/Deployment.md) — AWS EC2, RDS, S3, Nginx, HTTPS, and GitHub Actions Self-Hosted Runner deployment guide.
-*   [Product Requirements Document (PRD)](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/Docs/PRD.md) — Functional and non-functional specifications.
-*   [Application Flow](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/Docs/App%20Flow.md) — User journeys, state lifecycles, and sequence diagrams.
-*   [Tech Stack Rationale](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/Docs/Tech%20Stack.md) — Architectural decisions and technical specifications.
-*   [Visual Design System (DESIGN.md)](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/Docs/DESIGN.md) — UI theme guidelines, status color mappings, and design rules.
-*   [Spring AI Prompt Engineering](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/Docs/PromptSkills.md) — Prompt templates, system prompts, and mock fallback logic.
-*   [Documentation Audit & Health Report](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/Docs/DOCUMENTATION_AUDIT.md) — Audit metrics and Documentation Coverage Matrix.
+*   [Documentation Index (Docs/INDEX.md)](file:///d:/Coding/Projects----For%20Resume/Trajectory/Docs/INDEX.md) — Master index for all project documentation.
+
+### 📋 Product Planning Documents
+*   [Product Requirements (Docs/PRD.md)](file:///d:/Coding/Projects----For%20Resume/Trajectory/Docs/PRD.md) — Core functional and non-functional requirements.
+*   [Feature List (Docs/FEATURE_LIST.md)](file:///d:/Coding/Projects----For%20Resume/Trajectory/Docs/FEATURE_LIST.md) — Implemented vs. planned feature mappings.
+*   [Tech Stack Specification (Docs/Tech Stack.md)](file:///d:/Coding/Projects----For%20Resume/Trajectory/Docs/Tech%20Stack.md) — Environment configurations and library rationales.
+*   [Application Flow (Docs/App Flow.md)](file:///d:/Coding/Projects----For%20Resume/Trajectory/Docs/App%20Flow.md) — State machines, auth diagrams, and background crons.
+*   [Visual Design System (Docs/DESIGN.md)](file:///d:/Coding/Projects----For%20Resume/Trajectory/Docs/DESIGN.md) — Theme guidelines, spacing rules, and status color codes.
+*   [System Architecture (Docs/SYSTEM_ARCHITECTURE.md)](file:///d:/Coding/Projects----For%20Resume/Trajectory/Docs/SYSTEM_ARCHITECTURE.md) — Component diagrams and thread scheduling configurations.
+
+### ⚙️ Core Engineering Documents
+*   [REST API Specification (Docs/API_SPECIFICATION.md)](file:///d:/Coding/Projects----For%20Resume/Trajectory/Docs/API_SPECIFICATION.md) — Endpoint reference, DTO records, and validation parameters.
+*   [Database Schema (Docs/DATABASE_SCHEMA.md)](file:///d:/Coding/Projects----For%20Resume/Trajectory/Docs/DATABASE_SCHEMA.md) — Relational tables, datatypes, constraints, indexes, and Flyway history.
+*   [Security Architecture (Docs/SECURITY_ARCHITECTURE.md)](file:///d:/Coding/Projects----For%20Resume/Trajectory/Docs/SECURITY_ARCHITECTURE.md) — Perimeter security, SSL, JWT session structures, and VPC isolations.
+*   [Authentication & Authorization (Docs/AUTHENTICATION_AUTHORIZATION.md)](file:///d:/Coding/Projects----For%20Resume/Trajectory/Docs/AUTHENTICATION_AUTHORIZATION.md) — Spring Security filter chain configurations, Bcrypt hashing, and OAuth2 callback flows.
+*   [Provider Strategy (Docs/PROVIDER_STRATEGY.md)](file:///d:/Coding/Projects----For%20Resume/Trajectory/Docs/PROVIDER_STRATEGY.md) — Integrations for AWS S3 object store, Spring AI Groq API gateways, and Google/GitHub OAuth clients.
+*   [Error Handling Strategy (Docs/ERROR_HANDLING_STRATEGY.md)](file:///d:/Coding/Projects----For%20Resume/Trajectory/Docs/ERROR_HANDLING_STRATEGY.md) — Custom exception hierarchies, validation handlers, and client notifications.
+*   [Testing Strategy (Docs/TESTING_STRATEGY.md)](file:///d:/Coding/Projects----For%20Resume/Trajectory/Docs/TESTING_STRATEGY.md) — JUnit 5 Mockito unit tests, Vitest state store suites, and CLI execution commands.
+*   [Deployment Architecture (Docs/Deployment.md)](file:///d:/Coding/Projects----For%20Resume/Trajectory/Docs/Deployment.md) — Multi-stage Docker configurations, Nginx proxies, Certbot renewals, and self-hosted runners.
+*   [Environment Configuration (Docs/ENVIRONMENT_CONFIGURATION.md)](file:///d:/Coding/Projects----For%20Resume/Trajectory/Docs/ENVIRONMENT_CONFIGURATION.md) — Environment variables dictionary, local properties, and application.yml mappings.
+*   [Folder Structure (Docs/FOLDER_STRUCTURE.md)](file:///d:/Coding/Projects----For%20Resume/Trajectory/Docs/FOLDER_STRUCTURE.md) — Physical directory mappings across front-end and backend files.
+*   [Data Flow (Docs/DATA_FLOW.md)](file:///d:/Coding/Projects----For%20Resume/Trajectory/Docs/DATA_FLOW.md) — MVC request-response tracing, AI workflows, and S3 resume uploads.
+*   [External Integrations (Docs/EXTERNAL_INTEGRATIONS.md)](file:///d:/Coding/Projects----For%20Resume/Trajectory/Docs/EXTERNAL_INTEGRATIONS.md) — Core integration endpoints, parameters, and protocols.
+
+### 📚 Reference Handbooks
+*   [Spring AI Prompt Engineering (Docs/PromptSkills.md)](file:///d:/Coding/Projects----For%20Resume/Trajectory/Docs/PromptSkills.md) — System prompt instructions, templates, and mock fallbacks.
+*   [Documentation Audit Report (Docs/DOCUMENTATION_AUDIT.md)](file:///d:/Coding/Projects----For%20Resume/Trajectory/Docs/DOCUMENTATION_AUDIT.md) — Coverage check reports.
+

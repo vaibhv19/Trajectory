@@ -24,14 +24,14 @@ By reading through these guides, you will learn to:
 
 | Module # | Guide Title | Core Technologies & Concepts Covered |
 | :--- | :--- | :--- |
-| **Module 01** | [**Authentication & Spring Security**](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/Docs/Learning/01_Authentication_and_Spring_Security.md) | Spring Security 6, Stateless JWT Tokens, Bcrypt, Google/GitHub OAuth2, `OAuth2AuthenticationSuccessHandler`, `MockOAuth2RedirectFilter`, CORS Security. |
-| **Module 02** | [**Spring AI & LLM Orchestration**](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/Docs/Learning/02_Spring_AI_LLM_Orchestration.md) | Spring AI `ChatClient`, Groq Cloud (Llama 3), Java `record` DTOs, Structured Output Converters, `isMockMode()` Fallback Regex. |
-| **Module 03** | [**Database Migrations & JPA Persistence**](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/Docs/Learning/03_Database_Flyway_and_JPA.md) | AWS RDS PostgreSQL 16, Flyway `V1` & `V2` SQL Migrations, JPA Entities, PostgreSQL ENUMs, Composite Indexes, Cascade Rules. |
-| **Module 04** | [**AWS S3 File Storage Pipeline**](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/Docs/Learning/04_AWS_S3_File_Storage_Pipeline.md) | AWS S3 SDK v2, MinIO Docker Container, `S3StorageService`, Resume Auto-Versioning (`v1` ➔ `v2`), Filename Sanitization Regex. |
-| **Module 05** | [**Virtual Threads & Async Processing**](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/Docs/Learning/05_Virtual_Threads_and_Async_Processing.md) | Java 21 Virtual Threads (`spring.threads.virtual.enabled=true`), Platform Threads vs. Virtual Threads, `@Scheduled` Cron Daemons. |
-| **Module 06** | [**Production Infrastructure & Reverse Proxy**](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/Docs/Learning/06_Production_Deployment_Infrastructure.md) | AWS EC2 (Ubuntu 24.04), AWS RDS, AWS S3, Docker Compose (`docker-compose.prod.yml`), Nginx SSL Reverse Proxy, Certbot Timers, DuckDNS. |
-| **Module 07** | [**CI/CD & Self-Hosted Runner**](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/Docs/Learning/07_CI_CD_and_Self_Hosted_Runner.md) | GitHub Actions (`deploy.yml`), EC2 Self-Hosted Runner, Outbound HTTPS Long-Polling, systemd Service Management, Zero-Port Security. |
-| **Module 08** | [**Frontend React 19 State & Routing**](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/Docs/Learning/08_Frontend_React19_State_and_Routing.md) | React 19, Vite, TypeScript Strict Types, Zustand Client Stores (`useAuthStore`), TanStack Query v5 Server Caching, Axios Interceptors. |
+| **Module 01** | [**Authentication & Spring Security**](file:///d:/Coding/Projects----For%20Resume/Trajectory/Docs/Learning/01_Authentication_and_Spring_Security.md) | Spring Security 6, Stateless JWT Tokens, Bcrypt, Google/GitHub OAuth2, `OAuth2AuthenticationSuccessHandler`, `MockOAuth2RedirectFilter`, CORS Security. |
+| **Module 02** | [**Spring AI & LLM Orchestration**](file:///d:/Coding/Projects----For%20Resume/Trajectory/Docs/Learning/02_Spring_AI_LLM_Orchestration.md) | Spring AI `ChatClient`, Groq Cloud (Llama 3), Java `record` DTOs, Structured Output Converters, `isMockMode()` Fallback Regex. |
+| **Module 03** | [**Database Migrations & JPA Persistence**](file:///d:/Coding/Projects----For%20Resume/Trajectory/Docs/Learning/03_Database_Flyway_and_JPA.md) | AWS RDS PostgreSQL 16, Flyway `V1` & `V2` SQL Migrations, JPA Entities, PostgreSQL ENUMs, Composite Indexes, Cascade Rules. |
+| **Module 04** | [**AWS S3 File Storage Pipeline**](file:///d:/Coding/Projects----For%20Resume/Trajectory/Docs/Learning/04_AWS_S3_File_Storage_Pipeline.md) | AWS S3 SDK v2, MinIO Docker Container, `S3StorageService`, Resume Auto-Versioning (`v1` ➔ `v2`), Filename Sanitization Regex. |
+| **Module 05** | [**Virtual Threads & Async Processing**](file:///d:/Coding/Projects----For%20Resume/Trajectory/Docs/Learning/05_Virtual_Threads_and_Async_Processing.md) | Java 21 Virtual Threads (`spring.threads.virtual.enabled=true`), Platform Threads vs. Virtual Threads, `@Scheduled` Cron Daemons. |
+| **Module 06** | [**Production Infrastructure & Reverse Proxy**](file:///d:/Coding/Projects----For%20Resume/Trajectory/Docs/Learning/06_Production_Deployment_Infrastructure.md) | AWS EC2 (Ubuntu 24.04), AWS RDS, AWS S3, Docker Compose (`docker-compose.prod.yml`), Nginx SSL Reverse Proxy, Certbot Timers, DuckDNS. |
+| **Module 07** | [**CI/CD & Self-Hosted Runner**](file:///d:/Coding/Projects----For%20Resume/Trajectory/Docs/Learning/07_CI_CD_and_Self_Hosted_Runner.md) | GitHub Actions (`deploy.yml`), EC2 Self-Hosted Runner, Outbound HTTPS Long-Polling, systemd Service Management, Zero-Port Security. |
+| **Module 08** | [**Frontend React 19 State & Routing**](file:///d:/Coding/Projects----For%20Resume/Trajectory/Docs/Learning/08_Frontend_React19_State_and_Routing.md) | React 19, Vite, TypeScript Strict Types, Zustand Client Stores (`useAuthStore`), TanStack Query v5 Server Caching, Axios Interceptors. |
 
 ---
 
@@ -60,6 +60,6 @@ Every guide in this notebook follows a standardized **17-section learning bluepr
 
 ## 📌 Master Navigation Links
 
-- [**Root Documentation Index (Docs/INDEX.md)**](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/Docs/INDEX.md)
-- [**Production Deployment Guide (Docs/Deployment.md)**](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/Docs/Deployment.md)
-- [**REST API Specification (Docs/API_SPECIFICATION.md)**](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/Docs/API_SPECIFICATION.md)
+- [**Root Documentation Index (Docs/INDEX.md)**](file:///d:/Coding/Projects----For%20Resume/Trajectory/Docs/INDEX.md)
+- [**Production Deployment Guide (Docs/Deployment.md)**](file:///d:/Coding/Projects----For%20Resume/Trajectory/Docs/Deployment.md)
+- [**REST API Specification (Docs/API_SPECIFICATION.md)**](file:///d:/Coding/Projects----For%20Resume/Trajectory/Docs/API_SPECIFICATION.md)

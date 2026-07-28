@@ -18,7 +18,7 @@ The React SPA is deployed live in production:
 
 *   **Framework:** **React 19** (`^19.0.0`) bundled with **Vite** (`^5.3.4`) for fast HMR and compilation.
 *   **Language:** TypeScript (`^5.5.3`) configured for strict type safety.
-*   **Styling:** **Tailwind CSS** (`^3.4.6`) implementing custom tokens defined in [Docs/DESIGN.md](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/Docs/DESIGN.md).
+*   **Styling:** **Tailwind CSS** (`^3.4.6`) implementing custom tokens defined in [Docs/DESIGN.md](file:///d:/Coding/Projects----For%20Resume/Trajectory/Docs/DESIGN.md).
 *   **UI Components:** **Shadcn UI** primitives built over **Radix UI** primitives (`@radix-ui/react-dialog`, `@radix-ui/react-dropdown-menu`, `@radix-ui/react-select`, `@radix-ui/react-tabs`, `@radix-ui/react-tooltip`).
 *   **State Management:**
     *   **Server State:** **TanStack Query v5** (`@tanstack/react-query ^5.51.1`) for API fetching, caching, optimistic UI updates, and query invalidation.
@@ -27,13 +27,13 @@ The React SPA is deployed live in production:
 *   **Analytics Visualizations:** **Recharts** (`^2.12.7`) rendering area and conversion funnel charts.
 *   **Iconography:** Lucide React (`^0.407.0`).
 *   **Routing:** React Router Dom (`^6.25.1`).
-*   **Hosting Configuration:** Vercel Edge Network configured via [frontend/vercel.json](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/frontend/vercel.json) (`source: "/(.*)", destination: "/index.html"`).
+*   **Hosting Configuration:** Vercel Edge Network configured via [frontend/vercel.json](file:///d:/Coding/Projects----For%20Resume/Trajectory/frontend/vercel.json) (`source: "/(.*)", destination: "/index.html"`).
 
 ---
 
 ## 📂 Frontend Directory Structure
 
-Source files are organized under [`frontend/src`](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/frontend/src):
+Source files are organized under [`frontend/src`](file:///d:/Coding/Projects----For%20Resume/Trajectory/frontend/src):
 
 ```text
 src/
@@ -65,7 +65,7 @@ src/
 
 ## ⚙️ Client-Side Routing Reference
 
-Client-side routes are configured in [`App.tsx`](file:///d:/vaibhav%20gupta/Coding/Projects----For%20Resume/Trajectory/frontend/src/App.tsx):
+Client-side routes are configured in [`App.tsx`](file:///d:/Coding/Projects----For%20Resume/Trajectory/frontend/src/App.tsx):
 
 *   **`/login`** — Authentication Canvas.
 *   **`/dashboard`** — Command Center landing page (`<ProtectedRoute>`).
@@ -73,7 +73,7 @@ Client-side routes are configured in [`App.tsx`](file:///d:/vaibhav%20gupta/Codi
 *   **`/applications/:id`** — Application Detail Inspector & History Timeline (`<ProtectedRoute>`).
 *   **`/outreach`** — Networking CRM Contact Grid (`<ProtectedRoute>`).
 *   **`/resumes`** — Career Profile Manager & Versioned Resumes (`<ProtectedRoute>`).
-*   **`/resources`** — Placement Criteria Sheets & Private S3 Storage (`<ProtectedRoute>`).
+*   **`/resources`** — Placement Sheets & Private S3 Storage (`<ProtectedRoute>`).
 *   **`/settings`** — User Profile Settings & Ghost Threshold Controls (`<ProtectedRoute>`).
 
 ---
