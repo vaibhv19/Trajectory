@@ -302,7 +302,6 @@ The React SPA will start on `http://localhost:5173`.
 
 ### 📚 Reference Handbooks
 *   [Spring AI Prompt Engineering (Docs/PromptSkills.md)](Docs/PromptSkills.md) — System prompt instructions, templates, and mock fallbacks.
-*   [Documentation Audit Report (Docs/DOCUMENTATION_AUDIT.md)](Docs/DOCUMENTATION_AUDIT.md) — Coverage check reports.
 
 ---
 

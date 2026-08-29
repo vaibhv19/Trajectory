@@ -59,16 +59,24 @@ describe('Zustand State Stores', () => {
       expect(state.theme).toBe('dark');
     });
 
-    it('should toggle theme between dark and light', () => {
-      // Toggle once (dark -> light)
+    it('should cycle theme mode through dark, system, and light', () => {
+      // Initial state is dark mode
+      expect(useThemeStore.getState().theme).toBe('dark');
+
+      // Toggle once (dark -> system; system resolves to dark via matchMedia mock)
+      useThemeStore.getState().toggleTheme();
+      expect(useThemeStore.getState().theme).toBe('dark');
+      expect(localStorage.getItem('themeMode')).toBe('system');
+
+      // Toggle again (system -> light)
       useThemeStore.getState().toggleTheme();
       expect(useThemeStore.getState().theme).toBe('light');
-      expect(localStorage.getItem('theme')).toBe('light');
+      expect(localStorage.getItem('themeMode')).toBe('light');
 
       // Toggle again (light -> dark)
       useThemeStore.getState().toggleTheme();
       expect(useThemeStore.getState().theme).toBe('dark');
-      expect(localStorage.getItem('theme')).toBe('dark');
+      expect(localStorage.getItem('themeMode')).toBe('dark');
     });
   });
 });

@@ -43,7 +43,6 @@ These documents outline detailed technical parameters, security mechanisms, conf
 
 ### 📚 3. Reference Handbooks
 *   🤖 [**Spring AI Prompt Engineering (PromptSkills.md)**](file:///d:/Coding/Projects----For%20Resume/Trajectory/Docs/PromptSkills.md) — Prompts, schemas, and chat integrations.
-*   📊 [**Documentation Audit Report (DOCUMENTATION_AUDIT.md)**](file:///d:/Coding/Projects----For%20Resume/Trajectory/Docs/DOCUMENTATION_AUDIT.md) — Documentation synchronization reports.
 *   ☕ [**Backend Guide (backend/README.md)**](file:///d:/Coding/Projects----For%20Resume/Trajectory/backend/README.md) — Java build instructions and VM virtual thread profiles.
 *   🌐 [**Frontend Guide (frontend/README.md)**](file:///d:/Coding/Projects----For%20Resume/Trajectory/frontend/README.md) — React routing setups, state managers, and Vite commands.
 
@@ -62,9 +61,9 @@ These documents outline detailed technical parameters, security mechanisms, conf
          ▼                                 ▼                                 ▼
    [ Product Planning ]             [ Core Engineering ]            [ Reference Handbooks ]
    ├── PRD.md                       ├── API_SPECIFICATION.md        ├── PromptSkills.md
-   ├── FEATURE_LIST.md              ├── DATABASE_SCHEMA.md          ├── DOCUMENTATION_AUDIT.md
-   ├── Tech Stack.md                ├── SECURITY_ARCHITECTURE.md    ├── backend/README.md
-   ├── App Flow.md                  ├── AUTHENTICATION_...          └── frontend/README.md
+   ├── FEATURE_LIST.md              ├── DATABASE_SCHEMA.md          ├── backend/README.md
+   ├── Tech Stack.md                ├── SECURITY_ARCHITECTURE.md    └── frontend/README.md
+   ├── App Flow.md                  ├── AUTHENTICATION_...
    ├── DESIGN.md                    ├── PROVIDER_STRATEGY.md
    └── SYSTEM_ARCHITECTURE.md       ├── ERROR_HANDLING_...
                                     ├── TESTING_STRATEGY.md

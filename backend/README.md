@@ -31,7 +31,7 @@ The backend REST API service is deployed live in production:
 
 Source files are organized in a clean layered architecture under `/src/main/java/com/trajectory/backend/`:
 
-*   [`config/`](file:///d:/Coding/Projects----For%20Resume/Trajectory/backend/src/main/java/com/trajectory/backend/config) — Security configurations (`SecurityConfig.java`), S3 Client beans (`S3Config.java`), Web MVC CORS mappings, and JWT beans.
+*   [`config/`](file:///d:/Coding/Projects----For%20Resume/Trajectory/backend/src/main/java/com/trajectory/backend/config) — S3 Client beans (`S3Config.java`), Web MVC CORS mappings, and application-wide configuration beans.
 *   [`controller/`](file:///d:/Coding/Projects----For%20Resume/Trajectory/backend/src/main/java/com/trajectory/backend/controller) — REST Endpoints:
     *   `AuthController`: Local Login, Registration, Refresh Token, and OAuth callbacks.
     *   `AIController`: Job description parsing (`/extract-jd`), schedule parsing (`/extract-event`), outreach sentiment checks (`/analyze-outreach`).
