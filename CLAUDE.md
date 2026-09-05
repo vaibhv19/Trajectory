@@ -4,7 +4,7 @@
 **Trajectory** is a career operating system designed to centralize and automate job search management.
 *   **Architecture:** Decoupled Full-Stack (Backend API + Frontend SPA).
 *   **Backend:** Java 21, Spring Boot 3.x, Spring AI.
-*   **Frontend:** React 18, Vite, TypeScript, Tailwind CSS.
+*   **Frontend:** React 19, Vite, TypeScript, Tailwind CSS.
 
 ---
 
@@ -36,7 +36,7 @@
 
 ---
 
-## 4. Frontend Guidelines (React 18 / Vite / TS)
+## 4. Frontend Guidelines (React 19 / Vite / TS)
 *   **State Management:**
     *   Use **TanStack Query (React Query)** for all server-state (fetching, caching, mutations).
     *   Use **Zustand** for lightweight global UI state (modals, theme preferences).
