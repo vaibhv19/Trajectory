@@ -8,9 +8,9 @@ This project is structured as a decoupled full-stack application (**React 19 Fro
 
 ## Related Writing
 
-* [Building for Production](https://vaibhav19.vercel.app/writing/production-changed-how-i-build)
-* [From Coursework to Systems](https://vaibhav19.vercel.app/writing/from-coursework-to-systems-engineering-how-my-projects-became-more-serious)
-* [ENGINEERING JOURNEY](https://vaibhav19.vercel.app/writing/engineering-journey)
+* [Building for Production](https://vaibhv19.dev/writing/production-changed-how-i-build)
+* [From Coursework to Systems](https://vaibhv19.dev/writing/from-coursework-to-systems-engineering-how-my-projects-became-more-serious)
+* [ENGINEERING JOURNEY](https://vaibhv19.dev/writing/engineering-journey)
 
 ---
 
@@ -302,7 +302,6 @@ The React SPA will start on `http://localhost:5173`.
 
 ### 📚 Reference Handbooks
 *   [Spring AI Prompt Engineering (Docs/PromptSkills.md)](Docs/PromptSkills.md) — System prompt instructions, templates, and mock fallbacks.
-*   [Documentation Audit Report (Docs/DOCUMENTATION_AUDIT.md)](Docs/DOCUMENTATION_AUDIT.md) — Coverage check reports.
 
 ---
 

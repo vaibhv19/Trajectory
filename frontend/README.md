@@ -38,25 +38,33 @@ Source files are organized under [`frontend/src`](file:///d:/Coding/Projects----
 ```text
 src/
 ├── components/                     # Reusable UI Components
-│   ├── auth/                       # Protected Route Wrappers
-│   ├── common/                     # Dialogs, Modals, Loading Spinners
-│   ├── layout/                     # Sidebar Navigation, Navbar, Header
-│   └── ui/                         # Base Shadcn / Radix primitives
-├── pages/                          # Primary Page Views & Canvases
-│   ├── LoginPage.tsx               # Auth Page (Credentials & OAuth triggers)
-│   ├── DashboardPage.tsx           # Main Command Center & Recharts Funnels
-│   ├── ApplicationsPage.tsx        # High-Density Paginated Job Application Table
-│   ├── ApplicationDetailsPage.tsx  # Timeline Inspector & History Nodes
-│   ├── OutreachPage.tsx            # Networking CRM & Recruiter Cards Grid
-│   ├── ResumesPage.tsx             # Career Profile Personas & Resume Manager
-│   ├── ResourcesPage.tsx           # Company Placement Sheets & Document Uploads
-│   └── SettingsPage.tsx            # User Preferences & Inactivity Thresholds
+│   ├── CommandPalette.tsx          # Keyboard-driven command palette (Ctrl+K)
+│   ├── ConfirmModal.tsx            # Reusable confirmation dialog
+│   ├── DocumentUploadModal.tsx     # S3 document upload modal
+│   ├── Footer.tsx                  # App footer with version and links
+│   ├── Layout.tsx                  # Main app shell (sidebar, navbar, responsive layout)
+│   ├── ProtectedRoute.tsx          # Auth guard wrapper for protected views
+│   └── Skeleton.tsx                # Shimmer loading placeholders
+├── pages/                          # Primary Page Views
+│   ├── AnalyticsPage.tsx           # Pipeline metrics, conversion funnels, charts
+│   ├── ApplicationDetailsPage.tsx  # Timeline inspector & status history
+│   ├── ApplicationsPage.tsx        # Paginated job application table
+│   ├── ChangelogPage.tsx           # Application changelog viewer
+│   ├── CompaniesPage.tsx           # Company placement sheets & document uploads
+│   ├── HomePage.tsx                # Dashboard command center & agenda
+│   ├── LoginPage.tsx               # Auth page (credentials & OAuth triggers)
+│   ├── OutreachPage.tsx            # Networking CRM & recruiter cards
+│   ├── PrivacyPage.tsx             # Privacy policy page
+│   ├── ResumesPage.tsx             # Career profile personas & resume manager
+│   ├── SettingsPage.tsx            # User preferences & inactivity thresholds
+│   └── TermsPage.tsx               # Terms of service page
 ├── services/                       # API Integration Layer
-│   └── api.ts                      # Axios Client Instance with Interceptors
+│   └── api.ts                      # Axios client instance with JWT interceptors
 ├── store/                          # Zustand Global Slices
 │   ├── authStore.ts                # Session state, JWT, and LocalStorage sync
-│   ├── themeStore.ts               # Theme modes (light, dark, system)
-│   └── uiStore.ts                  # Modals and notifications state
+│   ├── sidebarStore.ts             # Sidebar open/close and content state
+│   ├── stores.test.ts              # Vitest unit tests for Zustand stores
+│   └── themeStore.ts               # Theme modes (light, dark)
 └── types/                          # Strict TypeScript Interfaces
     └── index.ts                    # User, Application, Outreach, DTO interfaces
 ```
@@ -69,12 +77,16 @@ Client-side routes are configured in [`App.tsx`](file:///d:/Coding/Projects----F
 
 *   **`/login`** — Authentication Canvas.
 *   **`/dashboard`** — Command Center landing page (`<ProtectedRoute>`).
+*   **`/analytics`** — Pipeline Metrics & Conversion Funnels (`<ProtectedRoute>`).
 *   **`/applications`** — Applications Table (`<ProtectedRoute>`).
 *   **`/applications/:id`** — Application Detail Inspector & History Timeline (`<ProtectedRoute>`).
 *   **`/outreach`** — Networking CRM Contact Grid (`<ProtectedRoute>`).
 *   **`/resumes`** — Career Profile Manager & Versioned Resumes (`<ProtectedRoute>`).
-*   **`/resources`** — Placement Sheets & Private S3 Storage (`<ProtectedRoute>`).
+*   **`/companies`** — Placement Sheets & Private S3 Storage (`<ProtectedRoute>`).
 *   **`/settings`** — User Profile Settings & Ghost Threshold Controls (`<ProtectedRoute>`).
+*   **`/privacy`** — Privacy Policy (`<ProtectedRoute>`).
+*   **`/terms`** — Terms of Service (`<ProtectedRoute>`).
+*   **`/changelog`** — Application Changelog (`<ProtectedRoute>`).
 
 ---
 
