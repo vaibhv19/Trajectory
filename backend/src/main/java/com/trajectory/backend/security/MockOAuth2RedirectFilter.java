@@ -61,7 +61,7 @@ public class MockOAuth2RedirectFilter extends OncePerRequestFilter {
             String token = tokenProvider.generateTokenForUser(principal);
             String refreshToken = refreshTokenService.createRefreshToken(user.getId()).getToken();
 
-            String targetUrl = UriComponentsBuilder.fromUriString("https://trajectory-mu-six.vercel.app/login")
+            String targetUrl = UriComponentsBuilder.fromUriString("https://trajectory.vaibhv19.dev/login")
                     .queryParam("token", token)
                     .queryParam("refreshToken", refreshToken)
                     .queryParam("email", user.getEmail())

@@ -97,7 +97,7 @@ graph TD
 
 ### 3.1 Network Communications
 *   **API Architecture:** All client-server communication uses HTTPS REST services with JSON payloads.
-*   **CORS Security:** Spring Boot restricts CORS permissions exclusively to the production client URL (`https://trajectory-mu-six.vercel.app`).
+*   **CORS Security:** Spring Boot restricts CORS permissions exclusively to the production client URL (`https://trajectory.vaibhv19.dev`).
 *   **Nginx Header Forwarding:** Nginx forwards external headers (`X-Forwarded-For`, `X-Forwarded-Proto`) to the application, which is configured with `server.forward-headers-strategy: framework` to handle redirect URLs securely.
 
 ### 3.2 Security Posture

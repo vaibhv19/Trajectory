@@ -8,7 +8,7 @@ The frontend of **Trajectory** is a high-fidelity Single Page Application (SPA) 
 
 The React SPA is deployed live in production:
 
-*   **Live Web Application:** [**https://trajectory-mu-six.vercel.app**](https://trajectory-mu-six.vercel.app) — Production frontend hosted on Vercel's global Edge CDN.
+*   **Live Web Application:** [**https://trajectory.vaibhv19.dev**](https://trajectory.vaibhv19.dev) — Production frontend hosted on Vercel's global Edge CDN.
 *   **Production REST API:** [**https://trajectory-api.duckdns.org/api**](https://trajectory-api.duckdns.org/api) — Secure HTTPS API server processing client requests.
 *   **Live Swagger Documentation:** [**https://trajectory-api.duckdns.org/swagger-ui/index.html**](https://trajectory-api.duckdns.org/swagger-ui/index.html) — Interactive API specification.
 

@@ -56,7 +56,7 @@ Enables passwordless authentication via Google or GitHub identity providers.
 4.  **Consent & Code Return:** The user grants permission. The provider redirects the browser to the backend callback endpoint `/login/oauth2/code/{provider}` with an authorization code.
 5.  **Token Exchange:** Spring Security contacts the provider's token endpoint over a secure backend connection, exchanges the authorization code for a profile access token, and retrieves user profile details (email, name, avatar).
 6.  **User Provisioning:** The backend checks the `users` table. If the email doesn't exist, a user record is created with `auth_provider` set to `GOOGLE` or `GITHUB`.
-7.  **Callback Redirection:** `OAuth2AuthenticationSuccessHandler.java` generates JWT tokens and redirects the browser back to the frontend Vercel URL: `https://trajectory-mu-six.vercel.app/login?token=<JWT>&refreshToken=<UUID>`.
+7.  **Callback Redirection:** `OAuth2AuthenticationSuccessHandler.java` generates JWT tokens and redirects the browser back to the frontend Vercel URL: `https://trajectory.vaibhv19.dev/login?token=<JWT>&refreshToken=<UUID>`.
 8.  **Token Processing:** `LoginPage.tsx` reads parameters from the URL, calls `setAuth()` on the Zustand store to persist the tokens, and redirects the router to `/dashboard`.
 
 ```mermaid
