@@ -298,7 +298,7 @@ Tracks active sessions for JWT rotation.
 *   **Stateless REST Security:** JWT authorization (HMAC SHA-256) enforcing 24-hour expiration for access tokens and automated rotation via refresh tokens.
 *   **Data Isolation:** All operations enforce `user_id` parameter bindings to ensure users cannot view or manipulate other accounts.
 *   **Nginx SSL Termination:** Native Nginx reverse proxy handles HTTPS routing and SSL handshake, forwarding client headers directly to Spring Boot (`server.forward-headers-strategy: framework`).
-*   **CORS Safeguards:** Spring Boot restricts REST requests exclusively to the production SPA origin (`https://trajectory-mu-six.vercel.app`).
+*   **CORS Safeguards:** Spring Boot restricts REST requests exclusively to the production SPA origin (`https://trajectory.vaibhv19.dev`).
 
 ---
 

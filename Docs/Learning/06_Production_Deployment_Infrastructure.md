@@ -5,7 +5,7 @@ This guide teaches the cloud infrastructure architecture of **Trajectory**, deta
 ---
 
 ## 1. What It Is
-Trajectory's production environment is a **cloud-native, multi-provider deployment infrastructure**. The frontend React SPA is hosted on **Vercel's Edge CDN** (`trajectory-mu-six.vercel.app`), while the backend REST API runs inside a Docker container on an **AWS EC2 instance** (`trajectory-api.duckdns.org`), connected to **AWS RDS PostgreSQL 16** and **AWS S3**.
+Trajectory's production environment is a **cloud-native, multi-provider deployment infrastructure**. The frontend React SPA is hosted on **Vercel's Edge CDN** (`trajectory.vaibhv19.dev`), while the backend REST API runs inside a Docker container on an **AWS EC2 instance** (`trajectory-api.duckdns.org`), connected to **AWS RDS PostgreSQL 16** and **AWS S3**.
 
 ## 2. Why Trajectory Uses It
 *   **Cost-Effective Cloud Architecture:** Hosting static React frontend assets on Vercel's global CDN is free, fast, and offloads web server load from EC2. Running single backend container instances on EC2 backed by managed RDS and S3 provides dedicated compute and reliable database durability.
@@ -43,7 +43,7 @@ sequenceDiagram
     participant Container as Docker Backend Container (Port 8080)
     participant RDS as AWS RDS PostgreSQL 16
 
-    User->>Vercel: 1. Request https://trajectory-mu-six.vercel.app
+    User->>Vercel: 1. Request https://trajectory.vaibhv19.dev
     Vercel-->>User: 2. Return React SPA Static Assets (HTML/JS/CSS)
     User->>DuckDNS: 3. Resolve https://trajectory-api.duckdns.org
     DuckDNS-->>User: 4. Return EC2 Public IP (3.108.67.24)

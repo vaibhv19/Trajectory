@@ -122,7 +122,7 @@ Trajectory was built to solve these tracking gaps as an integrated, private oper
   - `docker-compose.yml`: Local multi-container environment with PostgreSQL 16, Redis 7, MinIO S3 storage, and automated bucket initialization (`minio/mc`).
   - `docker-compose.prod.yml`: Production composition mapping environment variables from `.env.prod`.
 - **CI/CD Pipeline:** GitHub Actions workflow (`.github/workflows/deploy.yml`) executing on a self-hosted EC2 runner triggered on push to `main`, performing zero-downtime container rebuilding and dangling image pruning.
-- **Frontend Deployment:** Hosted on Vercel (`https://trajectory-mu-six.vercel.app`).
+- **Frontend Deployment:** Hosted on Vercel (`https://trajectory.vaibhv19.dev`).
 
 ---
 
@@ -193,7 +193,7 @@ Working with Spring Boot 3.3 and Java 21 virtual threads reinforced how much sim
 ### LinkedIn Featured Description
 **Trajectory — Career Operating System & Job Pipeline Tracker**  
 Full-stack career management platform with automated inactivity detection, versioned S3 resume management, and Spring AI parsing.  
-🔗 Live Demo: https://trajectory-mu-six.vercel.app
+🔗 Live Demo: https://trajectory.vaibhv19.dev
 
 ### Resume Bullets
 - **Architected a full-stack career operating system** using Java 21, Spring Boot 3.3.1, and React 19/TypeScript, leveraging Project Loom Virtual Threads for concurrent I/O across database operations and AWS S3 storage.
