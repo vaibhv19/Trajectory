@@ -82,7 +82,7 @@ To enforce data isolation, the database relies on user-scoped query filtering ra
 
 *   **CORS (Cross-Origin Resource Sharing):** Spring Security isolates the REST API by restricting requests to authorized origins:
     ```java
-    corsConfiguration.setAllowedOrigins(List.of("https://trajectory-mu-six.vercel.app"));
+    corsConfiguration.setAllowedOrigins(List.of("https://trajectory.vaibhv19.dev"));
     corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
     corsConfiguration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
     ```

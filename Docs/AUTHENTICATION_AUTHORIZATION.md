@@ -30,7 +30,7 @@ Trajectory supports dual authentication channels: Local credentials validation a
 ### 1.2 Social OAuth 2.0 Integration
 *   **Authorization Redirect:** The React client initiates redirects to `${apiBase}/oauth2/authorization/{provider}` (Google or GitHub).
 *   **User Provisioning:** `OAuth2AuthenticationSuccessHandler` intercepts successful authentication, upserts user info into the `users` table (with `auth_provider` set to `GOOGLE` or `GITHUB`), and generates JWT tokens.
-*   **Callback Redirection:** The server redirects the client back to `https://trajectory-mu-six.vercel.app/login?token=<JWT>&refreshToken=<UUID>`, where the React client extracts and stores the tokens in Zustand.
+*   **Callback Redirection:** The server redirects the client back to `https://trajectory.vaibhv19.dev/login?token=<JWT>&refreshToken=<UUID>`, where the React client extracts and stores the tokens in Zustand.
 
 ---
 
@@ -58,7 +58,7 @@ Target API Controller
 ```
 
 ### 2.1 Filter Pipeline Configuration
-*   **CORS Policy:** Restricts origins to `https://trajectory-mu-six.vercel.app` and allows standard REST methods (`GET`, `POST`, `PUT`, `PATCH`, `DELETE`, `OPTIONS`).
+*   **CORS Policy:** Restricts origins to `https://trajectory.vaibhv19.dev` and allows standard REST methods (`GET`, `POST`, `PUT`, `PATCH`, `DELETE`, `OPTIONS`).
 *   **CSRF Protection:** Disabled (`.csrf(AbstractHttpConfigurer::disable)`), as the stateless JWT token architecture is not vulnerable to CSRF vectors.
 *   **Session Management:** Set to stateless (`SessionCreationPolicy.STATELESS`) to prevent the creation of server-side HTTP sessions.
 

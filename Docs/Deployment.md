@@ -208,7 +208,7 @@ jobs:
 *   **OAuth Redirect Loop (Localhost Redirects):**
     *   *Symptom:* Google OAuth authentication redirected users to `localhost:5173`.
     *   *Root Cause:* The backend success handler (`OAuth2AuthenticationSuccessHandler`) had hardcoded fallback paths.
-    *   *Resolution:* Changed the redirect configuration to point to the production Vercel target `https://trajectory-mu-six.vercel.app/login`.
+    *   *Resolution:* Changed the redirect configuration to point to the production Vercel target `https://trajectory.vaibhv19.dev/login`.
 *   **Frontend `/api` Route Duplications:**
     *   *Symptom:* Social login links returned 404 errors when using `/api/oauth2/authorization/...` routes.
     *   *Root Cause:* React concatenated paths directly with the REST base URL.
@@ -224,7 +224,7 @@ jobs:
 *   **CORS Request Blocks:**
     *   *Symptom:* API requests were blocked by browser pre-flight checks.
     *   *Root Cause:* The backend configuration missed the Vercel production domain.
-    *   *Resolution:* Added `"https://trajectory-mu-six.vercel.app"` to the authorized origins list in `SecurityConfig.java`.
+    *   *Resolution:* Added `"https://trajectory.vaibhv19.dev"` to the authorized origins list in `SecurityConfig.java`.
 
 ---
 

@@ -8,7 +8,7 @@ This guide teaches the complete security architecture of **Trajectory**, detaili
 The security system in Trajectory is a **stateless, token-based authentication and authorization engine** implemented using **Spring Security 6**. Instead of using traditional HTTP sessions stored on the backend server, the server issues cryptographically signed JWT access tokens (short-lived, 24h) and refresh tokens (stored in database) to clients.
 
 ## 2. Why Trajectory Uses It
-*   **Stateless Decoupled Architecture:** Trajectory's frontend is hosted separately on Vercel's CDN, while the backend API runs on AWS EC2. Cookies tied to server sessions fail or require complex cross-domain configuration across distinct domains (`trajectory-mu-six.vercel.app` vs `trajectory-api.duckdns.org`).
+*   **Stateless Decoupled Architecture:** Trajectory's frontend is hosted separately on Vercel's CDN, while the backend API runs on AWS EC2. Cookies tied to server sessions fail or require complex cross-domain configuration across distinct domains (`trajectory.vaibhv19.dev` vs `trajectory-api.duckdns.org`).
 *   **Horizontal Scalability:** Stateless JWTs require no server-side memory lookups on every API request. Any backend instance can cryptographically verify incoming JWT signatures using a shared secret.
 
 ## 3. What Problem It Solves
@@ -74,7 +74,7 @@ sequenceDiagram
 *   **Adding Roles/RBAC:** Add a `role` field to `User` model (`ROLE_USER`, `ROLE_ADMIN`), embed claims in `JwtTokenProvider.java`, and construct `GrantedAuthority` lists inside `UserPrincipal.java`.
 
 ## 10. Common Mistakes
-*   **Hardcoding HTTP Inbound Targets in OAuth Handlers:** Setting redirect URLs to `http://localhost:5173` breaking production OAuth redirects. Trajectory dynamically target-routes to `https://trajectory-mu-six.vercel.app`.
+*   **Hardcoding HTTP Inbound Targets in OAuth Handlers:** Setting redirect URLs to `http://localhost:5173` breaking production OAuth redirects. Trajectory dynamically target-routes to `https://trajectory.vaibhv19.dev`.
 *   **Forgetting `server.forward-headers-strategy: framework`:** Causing Spring Security behind Nginx proxy to generate HTTP redirect URIs instead of HTTPS, leading to Mixed Content browser errors.
 
 ## 11. Debugging Techniques

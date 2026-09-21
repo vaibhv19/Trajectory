@@ -20,7 +20,7 @@ Trajectory is deployed in production and accessible at the following live endpoi
 
 | Component | Production URL | Description |
 | :--- | :--- | :--- |
-| **Frontend Web Application** | [**https://trajectory-mu-six.vercel.app**](https://trajectory-mu-six.vercel.app) | Production Single Page Application (SPA) hosted on Vercel's global Edge CDN. |
+| **Frontend Web Application** | [**https://trajectory.vaibhv19.dev**](https://trajectory.vaibhv19.dev) | Production Single Page Application (SPA) hosted on Vercel's global Edge CDN. |
 | **Backend REST API Gateway** | [**https://trajectory-api.duckdns.org**](https://trajectory-api.duckdns.org) | Secure HTTPS REST API hosted on AWS EC2 reverse-proxied by Nginx with Let's Encrypt SSL. |
 | **Interactive Swagger OpenAPI** | [**https://trajectory-api.duckdns.org/swagger-ui/index.html**](https://trajectory-api.duckdns.org/swagger-ui/index.html) | Live interactive Swagger UI for testing API endpoints directly in the browser. |
 

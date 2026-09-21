@@ -10,7 +10,7 @@ The backend REST API service is deployed live in production:
 
 *   **Production REST API Base URL:** [**https://trajectory-api.duckdns.org/api**](https://trajectory-api.duckdns.org/api) — Secure HTTPS API endpoint hosted on AWS EC2 reverse-proxied by Nginx.
 *   **Live Swagger OpenAPI UI:** [**https://trajectory-api.duckdns.org/swagger-ui/index.html**](https://trajectory-api.duckdns.org/swagger-ui/index.html) — Interactive API playground for executing test requests against the production database.
-*   **Live Frontend SPA:** [**https://trajectory-mu-six.vercel.app**](https://trajectory-mu-six.vercel.app) — Production frontend connected to this API.
+*   **Live Frontend SPA:** [**https://trajectory.vaibhv19.dev**](https://trajectory.vaibhv19.dev) — Production frontend connected to this API.
 
 ---
 
